@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Fonts } from '../../constants/fonts';
 
 const MEMBERS = [
   { initials: 'MR', name: 'Marcus Reid', role: 'Entrepreneur', bg: '#6366F1' },
@@ -16,139 +17,89 @@ const TOPICS = [
 ];
 
 const ACTIVITY = [
-  {
-    initials: 'MR',
-    bg: '#6366F1',
-    action: 'Marcus Reid posted in Entrepreneurship',
-    time: '2m ago',
-  },
-  {
-    initials: 'AL',
-    bg: '#10B981',
-    action: 'Ana Lopez shared an investment tip',
-    time: '15m ago',
-  },
-  {
-    initials: 'JW',
-    bg: '#F59E0B',
-    action: 'James Wu commented on your post',
-    time: '1h ago',
-  },
+  { initials: 'MR', bg: '#6366F1', action: 'Marcus Reid posted in Entrepreneurship', time: '2m ago' },
+  { initials: 'AL', bg: '#10B981', action: 'Ana Lopez shared an investment tip', time: '15m ago' },
+  { initials: 'JW', bg: '#F59E0B', action: 'James Wu commented on your post', time: '1h ago' },
 ];
 
 export default function CommunityScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0900' }}>
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {/* ZONE 1: Header */}
-        <View className="px-5 pt-6">
-          <Text className="text-2xl font-bold text-[#1A1A1A]">Community</Text>
-          <Text className="text-sm text-[#6B7280] mt-0.5">
-            Connect with your people
-          </Text>
+        {/* Header */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
+          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 24, color: '#c9a84c' }}>Community</Text>
+          <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#6B7280', marginTop: 2 }}>Connect with your people</Text>
         </View>
 
-        {/* ZONE 2: Search Bar */}
-        <View className="px-5 mt-4">
-          <View className="flex-row items-center bg-[#F3F4F6] rounded-xl px-4 py-3">
-            <Ionicons name="search-outline" size={18} color="#9CA3AF" />
+        {/* Search Bar */}
+        <View style={{ paddingHorizontal: 20, marginTop: 16 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 14, paddingVertical: 12 }}>
+            <Ionicons name="search-outline" size={18} color="#c9a84c" />
             <TextInput
-              className="flex-1 ml-2 text-sm text-[#1A1A1A]"
+              style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#FFFFFF', fontFamily: Fonts.inter400 }}
               placeholder="Search members, topics..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#6B7280"
               editable={false}
             />
           </View>
         </View>
 
-        {/* ZONE 3: Featured Members */}
-        <View className="mt-6">
-          <Text className="px-5 text-lg font-bold text-[#1A1A1A]">
-            Featured Members
-          </Text>
+        {/* Featured Members */}
+        <View style={{ marginTop: 24 }}>
+          <Text style={{ paddingHorizontal: 20, fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Featured Members</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, gap: 16 }}
           >
             {MEMBERS.map((member) => (
-              <View key={member.initials} className="items-center" style={{ width: 72 }}>
-                <View
-                  className="rounded-full items-center justify-center"
-                  style={{ width: 56, height: 56, backgroundColor: member.bg }}
-                >
-                  <Text className="text-white font-bold text-sm">
-                    {member.initials}
-                  </Text>
+              <View key={member.initials} style={{ alignItems: 'center', width: 72 }}>
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: member.bg, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 14, color: '#FFFFFF' }}>{member.initials}</Text>
                 </View>
-                <Text
-                  className="text-[#1A1A1A] text-xs font-medium mt-1.5 text-center"
-                  numberOfLines={1}
-                >
-                  {member.name}
-                </Text>
-                <Text className="text-[#6B7280] text-center mt-0.5" style={{ fontSize: 11 }}>
-                  {member.role}
-                </Text>
+                <Text style={{ fontFamily: Fonts.inter600, fontSize: 12, color: '#FFFFFF', marginTop: 6, textAlign: 'center' }} numberOfLines={1}>{member.name}</Text>
+                <Text style={{ fontFamily: Fonts.inter400, fontSize: 11, color: '#6B7280', textAlign: 'center', marginTop: 1 }}>{member.role}</Text>
               </View>
             ))}
           </ScrollView>
         </View>
 
-        {/* ZONE 4: Trending Topics */}
-        <View className="px-5 mt-6">
-          <Text className="text-lg font-bold text-[#1A1A1A]">Trending Topics</Text>
-          <View className="mt-3" style={{ gap: 10 }}>
+        {/* Trending Topics */}
+        <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Trending Topics</Text>
+          <View style={{ marginTop: 12, gap: 10 }}>
             {TOPICS.map((topic) => (
-              <View
-                key={topic.name}
-                className="flex-row items-center justify-between bg-white rounded-xl px-4 py-3"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 4,
-                  elevation: 2,
-                }}
-              >
-                <View className="flex-row items-center">
-                  <Ionicons name={topic.icon} size={20} color="#1A1A1A" />
-                  <Text className="text-[#1A1A1A] font-semibold text-base ml-3">
-                    {topic.name}
-                  </Text>
+              <View key={topic.name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 16, paddingVertical: 14 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Ionicons name={topic.icon} size={20} color="#c9a84c" />
+                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 16, color: '#FFFFFF' }}>{topic.name}</Text>
                 </View>
-                <View className="items-end">
-                  <Text className="text-[#1A1A1A] font-semibold text-sm">
-                    {topic.count}
-                  </Text>
-                  <Text className="text-[#6B7280] text-xs">members</Text>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 14, color: '#FFFFFF' }}>{topic.count}</Text>
+                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280' }}>members</Text>
                 </View>
               </View>
             ))}
           </View>
         </View>
 
-        {/* ZONE 5: Recent Activity */}
-        <View className="px-5 mt-6">
-          <Text className="text-lg font-bold text-[#1A1A1A]">Recent Activity</Text>
-          <View className="mt-3" style={{ gap: 14 }}>
+        {/* Recent Activity */}
+        <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Recent Activity</Text>
+          <View style={{ marginTop: 12, gap: 14 }}>
             {ACTIVITY.map((item, index) => (
-              <View key={index} className="flex-row items-center">
-                <View
-                  className="rounded-full items-center justify-center"
-                  style={{ width: 32, height: 32, backgroundColor: item.bg }}
-                >
-                  <Text className="text-white font-bold" style={{ fontSize: 11 }}>
-                    {item.initials}
-                  </Text>
+              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: item.bg, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 11, color: '#FFFFFF' }}>{item.initials}</Text>
                 </View>
-                <View className="flex-1 ml-3">
-                  <Text className="text-[#1A1A1A] text-sm">{item.action}</Text>
-                  <Text className="text-[#9CA3AF] text-xs mt-0.5">{item.time}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#FFFFFF' }}>{item.action}</Text>
+                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280', marginTop: 2 }}>{item.time}</Text>
                 </View>
               </View>
             ))}

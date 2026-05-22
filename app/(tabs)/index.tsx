@@ -1,117 +1,98 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Fonts } from '../../constants/fonts';
 
 const QUICK_ACTIONS = ['Community', 'Education', 'Events', 'Invest'];
 
 const UPDATES = [
-  {
-    title: 'New course dropped',
-    subtitle: 'Build Your Brand 101',
-    tag: 'Education',
-    accent: '#6366F1',
-  },
-  {
-    title: 'Event this week',
-    subtitle: 'Miami Networking Night',
-    tag: 'Events',
-    accent: '#F59E0B',
-  },
-  {
-    title: 'Community post',
-    subtitle: 'Legacy members share wins',
-    tag: 'Community',
-    accent: '#10B981',
-  },
+  { title: 'New course dropped', subtitle: 'Build Your Brand 101', tag: 'Education', accent: '#6366F1' },
+  { title: 'Event this week', subtitle: 'Miami Networking Night', tag: 'Events', accent: '#F59E0B' },
+  { title: 'Community post', subtitle: 'Legacy members share wins', tag: 'Community', accent: '#10B981' },
 ];
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0900' }}>
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {/* ZONE 1: Header */}
-        <View className="flex-row items-center justify-between px-5 pt-6">
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 24 }}>
           <View>
-            <Text className="text-2xl font-bold text-[#1A1A1A]">
+            <Text style={{ fontFamily: Fonts.inter600, fontSize: 22, color: '#FFFFFF' }}>
               Good morning, Legacy 👋
             </Text>
-            <Text className="text-sm text-[#6B7280] mt-0.5">
+            <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#6B7280', marginTop: 2 }}>
               Welcome to I Am Legacy
             </Text>
           </View>
-          <View className="w-10 h-10 rounded-full bg-[#E5E7EB] items-center justify-center">
-            <Text className="text-sm font-semibold text-[#1A1A1A]">JL</Text>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#1c1a14', borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontFamily: Fonts.inter700, fontSize: 14, color: '#FFFFFF' }}>JL</Text>
           </View>
         </View>
 
-        {/* ZONE 2: Featured Banner */}
-        <View className="mx-5 mt-6 rounded-2xl bg-[#1A1A1A] overflow-hidden" style={{ height: 180 }}>
-          {/* LIVE badge */}
-          <View className="absolute top-3 right-3 z-10 bg-[#EF4444] px-2 py-0.5 rounded-md">
-            <Text className="text-white text-xs font-bold tracking-widest">LIVE</Text>
+        {/* Featured Banner */}
+        <View style={{ marginHorizontal: 20, marginTop: 24, borderRadius: 16, backgroundColor: '#1c1a14', borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', height: 180, overflow: 'hidden', justifyContent: 'flex-end', padding: 20 }}>
+          <View style={{ position: 'absolute', top: 12, right: 12, backgroundColor: '#EF4444', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+            <Text style={{ fontFamily: Fonts.inter700, fontSize: 10, color: '#FFFFFF', letterSpacing: 1.5 }}>LIVE</Text>
           </View>
-          {/* Content */}
-          <View className="flex-1 justify-end px-5 pb-5">
-            <Text className="text-white text-lg font-bold">
-              Featured: Community Summit 2026
-            </Text>
-            <Text className="text-[#9CA3AF] text-sm mt-1">
-              Join 500+ leaders this June
-            </Text>
-          </View>
+          <Text style={{ fontFamily: Fonts.playfair900, fontSize: 20, color: '#FFFFFF' }}>
+            Featured: Community Summit 2026
+          </Text>
+          <Text style={{ fontFamily: Fonts.inter400, fontSize: 13, color: '#6B7280', marginTop: 4 }}>
+            Join 500+ leaders this June
+          </Text>
         </View>
 
-        {/* ZONE 3: Quick Actions */}
-        <View className="mt-6">
+        {/* Quick Actions */}
+        <View style={{ marginTop: 24 }}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
           >
-            {QUICK_ACTIONS.map((label) => (
-              <TouchableOpacity
+            {QUICK_ACTIONS.map((label, index) => (
+              <View
                 key={label}
-                className="bg-[#F3F4F6] rounded-full px-4 py-2"
+                style={{
+                  backgroundColor: index === 0 ? '#c9a84c' : '#1c1a14',
+                  borderRadius: 999,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  borderWidth: index === 0 ? 0 : 1,
+                  borderColor: 'rgba(201,168,76,0.22)',
+                }}
               >
-                <Text className="text-[#1A1A1A] text-sm font-medium">{label}</Text>
-              </TouchableOpacity>
+                <Text style={{ fontFamily: Fonts.inter500, fontSize: 14, color: index === 0 ? '#0a0900' : '#6B7280' }}>
+                  {label}
+                </Text>
+              </View>
             ))}
           </ScrollView>
         </View>
 
-        {/* ZONE 4: Latest Updates */}
-        <View className="px-5 mt-6">
-          <Text className="text-lg font-bold text-[#1A1A1A]">Latest Updates</Text>
-
-          <View className="mt-3 gap-3">
+        {/* Latest Updates */}
+        <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>
+            Latest Updates
+          </Text>
+          <View style={{ marginTop: 12, gap: 10 }}>
             {UPDATES.map((item) => (
               <View
                 key={item.title}
-                className="flex-row bg-white rounded-xl overflow-hidden"
-                style={{
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.06,
-                  shadowRadius: 4,
-                  elevation: 2,
-                }}
+                style={{ flexDirection: 'row', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', overflow: 'hidden' }}
               >
-                {/* Accent bar */}
-                <View
-                  style={{ width: 4, backgroundColor: item.accent }}
-                />
-                {/* Card content */}
-                <View className="flex-1 px-4 py-3">
-                  <Text className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
+                <View style={{ width: 4, backgroundColor: item.accent }} />
+                <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12 }}>
+                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 11, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.8 }}>
                     {item.tag}
                   </Text>
-                  <Text className="text-[#1A1A1A] font-semibold text-sm mt-0.5">
+                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 14, color: '#FFFFFF', marginTop: 2 }}>
                     {item.title}
                   </Text>
-                  <Text className="text-[#6B7280] text-xs mt-0.5">
+                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280', marginTop: 2 }}>
                     {item.subtitle}
                   </Text>
                 </View>
