@@ -27,28 +27,28 @@ export default function EventsScreen() {
       >
         {/* Header */}
         <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 24, color: '#c9a84c' }}>Events</Text>
-          <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#6B7280', marginTop: 2 }}>What's happening near you</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>Events</Text>
+          <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>What's happening near you</Text>
         </View>
 
         {/* Featured Event Banner */}
         <View style={{ marginHorizontal: 20, marginTop: 24, borderRadius: 16, backgroundColor: '#1c1a14', borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', height: 180, overflow: 'hidden', justifyContent: 'space-between', padding: 20 }}>
           <View>
-            <Text style={{ fontFamily: Fonts.inter600, fontSize: 11, color: '#c9a84c', letterSpacing: 1.5, textTransform: 'uppercase' }}>Upcoming</Text>
-            <Text style={{ fontFamily: Fonts.playfair900, fontSize: 22, color: '#FFFFFF', marginTop: 6 }}>Community Summit 2026</Text>
+            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: '#c9a84c', letterSpacing: 1.5, textTransform: 'uppercase' }}>Upcoming</Text>
+            <Text style={{ fontFamily: Fonts.headingHeavy, fontSize: 22, color: '#FFFFFF', marginTop: 6 }}>Community Summit 2026</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 }}>
               <Ionicons name="calendar-outline" size={14} color="#c9a84c" />
-              <Text style={{ fontFamily: Fonts.inter400, fontSize: 13, color: '#FFFFFF' }}>June 14, 2026</Text>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: '#FFFFFF' }}>June 14, 2026</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 6 }}>
               <Ionicons name="location-outline" size={14} color="#c9a84c" />
-              <Text style={{ fontFamily: Fonts.inter400, fontSize: 13, color: '#FFFFFF' }}>Miami, FL</Text>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: '#FFFFFF' }}>Miami, FL</Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280' }}>500+ attending</Text>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>500+ attending</Text>
             <View style={{ backgroundColor: '#c9a84c', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 6 }}>
-              <Text style={{ fontFamily: Fonts.inter700, fontSize: 12, color: '#0a0900' }}>Register</Text>
+              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 12, color: '#0a0900' }}>Register</Text>
             </View>
           </View>
         </View>
@@ -72,7 +72,7 @@ export default function EventsScreen() {
                   borderColor: 'rgba(201,168,76,0.22)',
                 }}
               >
-                <Text style={{ fontFamily: Fonts.inter500, fontSize: 14, color: index === 0 ? '#0a0900' : '#6B7280' }}>
+                <Text style={{ fontFamily: index === 0 ? Fonts.bodyBold : Fonts.bodySemiBold, fontSize: 14, color: index === 0 ? '#0a0900' : '#FFFFFF' }}>
                   {filter}
                 </Text>
               </View>
@@ -82,29 +82,27 @@ export default function EventsScreen() {
 
         {/* Upcoming Events */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Upcoming Events</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>Upcoming Events</Text>
           <View style={{ marginTop: 12, gap: 12 }}>
             {EVENTS.map((event) => (
               <View
                 key={event.name}
                 style={{ flexDirection: 'row', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', padding: 12, gap: 12 }}
               >
-                {/* Date block */}
                 <View style={{ width: 52, backgroundColor: '#111008', borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingVertical: 10 }}>
-                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 11, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>{event.month}</Text>
-                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 22, color: '#FFFFFF' }}>{event.day}</Text>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{event.month}</Text>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 22, color: '#FFFFFF' }}>{event.day}</Text>
                 </View>
-                {/* Details */}
                 <View style={{ flex: 1, justifyContent: 'center', gap: 4 }}>
-                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 15, color: '#FFFFFF' }}>{event.name}</Text>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#FFFFFF' }}>{event.name}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <Ionicons name="location-outline" size={13} color="#6B7280" />
-                    <Text style={{ fontFamily: Fonts.inter400, fontSize: 13, color: '#6B7280' }}>{event.location}</Text>
+                    <Ionicons name="location-outline" size={13} color="rgba(255,255,255,0.55)" />
+                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{event.location}</Text>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280' }}>{event.attendees}</Text>
+                    <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{event.attendees}</Text>
                     <View style={{ backgroundColor: event.badgeBg, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 }}>
-                      <Text style={{ fontFamily: Fonts.inter600, fontSize: 11, color: event.badgeText }}>{event.badge}</Text>
+                      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: event.badgeText }}>{event.badge}</Text>
                     </View>
                   </View>
                 </View>
@@ -115,7 +113,7 @@ export default function EventsScreen() {
 
         {/* Past Events */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Past Events</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>Past Events</Text>
           <View style={{ marginTop: 12, gap: 10 }}>
             {PAST_EVENTS.map((event) => (
               <View
@@ -123,10 +121,10 @@ export default function EventsScreen() {
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#111008', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 16, paddingVertical: 12 }}
               >
                 <View style={{ gap: 2 }}>
-                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 15, color: '#6B7280' }}>{event.name}</Text>
-                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 13, color: '#6B7280' }}>{event.detail}</Text>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: 'rgba(255,255,255,0.55)' }}>{event.name}</Text>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{event.detail}</Text>
                 </View>
-                <Text style={{ fontFamily: Fonts.inter600, fontSize: 13, color: '#c9a84c' }}>View Recap</Text>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#c9a84c' }}>View Recap</Text>
               </View>
             ))}
           </View>

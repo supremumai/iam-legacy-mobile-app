@@ -13,7 +13,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#c9a84c',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarStyle: {
           backgroundColor: '#0a0900',
           borderTopWidth: 1,
@@ -23,7 +23,7 @@ export default function TabsLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '500',
+          fontFamily: 'Inter_600SemiBold',
         },
       }}
     >

@@ -32,8 +32,8 @@ export default function CommunityScreen() {
       >
         {/* Header */}
         <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 24, color: '#c9a84c' }}>Community</Text>
-          <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#6B7280', marginTop: 2 }}>Connect with your people</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>Community</Text>
+          <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>Connect with your people</Text>
         </View>
 
         {/* Search Bar */}
@@ -41,9 +41,9 @@ export default function CommunityScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 14, paddingVertical: 12 }}>
             <Ionicons name="search-outline" size={18} color="#c9a84c" />
             <TextInput
-              style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#FFFFFF', fontFamily: Fonts.inter400 }}
+              style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#FFFFFF', fontFamily: Fonts.body }}
               placeholder="Search members, topics..."
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="rgba(255,255,255,0.55)"
               editable={false}
             />
           </View>
@@ -51,7 +51,7 @@ export default function CommunityScreen() {
 
         {/* Featured Members */}
         <View style={{ marginTop: 24 }}>
-          <Text style={{ paddingHorizontal: 20, fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Featured Members</Text>
+          <Text style={{ paddingHorizontal: 20, fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>Featured Members</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -59,11 +59,11 @@ export default function CommunityScreen() {
           >
             {MEMBERS.map((member) => (
               <View key={member.initials} style={{ alignItems: 'center', width: 72 }}>
-                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: member.bg, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 14, color: '#FFFFFF' }}>{member.initials}</Text>
+                <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: member.bg, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}>{member.initials}</Text>
                 </View>
-                <Text style={{ fontFamily: Fonts.inter600, fontSize: 12, color: '#FFFFFF', marginTop: 6, textAlign: 'center' }} numberOfLines={1}>{member.name}</Text>
-                <Text style={{ fontFamily: Fonts.inter400, fontSize: 11, color: '#6B7280', textAlign: 'center', marginTop: 1 }}>{member.role}</Text>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: '#FFFFFF', marginTop: 6, textAlign: 'center' }} numberOfLines={1}>{member.name}</Text>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginTop: 1 }}>{member.role}</Text>
               </View>
             ))}
           </ScrollView>
@@ -71,17 +71,17 @@ export default function CommunityScreen() {
 
         {/* Trending Topics */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Trending Topics</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>Trending Topics</Text>
           <View style={{ marginTop: 12, gap: 10 }}>
             {TOPICS.map((topic) => (
               <View key={topic.name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 16, paddingVertical: 14 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <Ionicons name={topic.icon} size={20} color="#c9a84c" />
-                  <Text style={{ fontFamily: Fonts.inter600, fontSize: 16, color: '#FFFFFF' }}>{topic.name}</Text>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: '#FFFFFF' }}>{topic.name}</Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 14, color: '#FFFFFF' }}>{topic.count}</Text>
-                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280' }}>members</Text>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}>{topic.count}</Text>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>members</Text>
                 </View>
               </View>
             ))}
@@ -90,16 +90,16 @@ export default function CommunityScreen() {
 
         {/* Recent Activity */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.playfair700, fontSize: 18, color: '#c9a84c' }}>Recent Activity</Text>
-          <View style={{ marginTop: 12, gap: 14 }}>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>Recent Activity</Text>
+          <View style={{ marginTop: 12, gap: 10 }}>
             {ACTIVITY.map((item, index) => (
-              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View key={index} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#1c1a14', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(201,168,76,0.22)', paddingHorizontal: 14, paddingVertical: 12, gap: 12 }}>
                 <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: item.bg, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontFamily: Fonts.inter700, fontSize: 11, color: '#FFFFFF' }}>{item.initials}</Text>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 11, color: '#FFFFFF' }}>{item.initials}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 14, color: '#FFFFFF' }}>{item.action}</Text>
-                  <Text style={{ fontFamily: Fonts.inter400, fontSize: 12, color: '#6B7280', marginTop: 2 }}>{item.time}</Text>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: '#FFFFFF' }}>{item.action}</Text>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>{item.time}</Text>
                 </View>
               </View>
             ))}
