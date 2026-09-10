@@ -27,11 +27,34 @@ export default function TabsLayout() {
         },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color }) => <TabIcon name="home-outline" color={color} /> }} />
-      <Tabs.Screen name="community" options={{ title: 'Community', tabBarIcon: ({ color }) => <TabIcon name="people-outline" color={color} /> }} />
-      <Tabs.Screen name="education" options={{ title: 'Education', tabBarIcon: ({ color }) => <TabIcon name="book-outline" color={color} /> }} />
-      <Tabs.Screen name="events" options={{ title: 'Events', tabBarIcon: ({ color }) => <TabIcon name="calendar-outline" color={color} /> }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color }) => <TabIcon name="person-outline" color={color} /> }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color }) => <TabIcon name="home-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="events"
+        options={{
+          title: 'Events',
+          tabBarIcon: ({ color }) => <TabIcon name="calendar-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="community"
+        options={{
+          title: 'Community',
+          tabBarIcon: ({ color }) => <TabIcon name="people-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="education"
+        options={{
+          title: 'Education',
+          tabBarIcon: ({ color }) => <TabIcon name="book-outline" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
