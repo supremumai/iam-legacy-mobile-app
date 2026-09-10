@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,7 +80,8 @@ function normalizeResources(data: any[]): ResourceWithMeta[] {
 type FilterTopic = { id: string; name: string };
 
 export default function EducationScreen() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.is_admin === true;
 
   const [filterTopics, setFilterTopics] = useState<FilterTopic[]>([]);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -332,43 +334,44 @@ export default function EducationScreen() {
   const listHeader = (
     <View>
       <GlobalHeader />
-      <Text
+      {/* Title row — admin "+" button lives here, aligned with the heading */}
+      <View
         style={{
-          fontFamily: Fonts.heading,
-          fontSize: 24,
-          color: '#c9a84c',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           paddingHorizontal: 20,
           marginTop: 16,
         }}
       >
-        Education
-      </Text>
-
-      {/* Share a Video button */}
-      <Pressable
-        onPress={() => setAddModalVisible(true)}
-        style={{ marginHorizontal: 20, marginTop: 16, borderRadius: 8, overflow: 'hidden' }}
-      >
-        {({ pressed }) => (
-          <View
+        <Text
+          style={{
+            fontFamily: Fonts.heading,
+            fontSize: 24,
+            color: '#c9a84c',
+          }}
+        >
+          Education
+        </Text>
+        {isAdmin ? (
+          <TouchableOpacity
+            onPress={() => setAddModalVisible(true)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={{
-              flexDirection: 'row',
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: 'rgba(201,168,76,0.4)',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#c9a84c',
-              borderRadius: 8,
-              paddingVertical: 12,
-              gap: 8,
-              opacity: pressed ? 0.85 : 1,
             }}
           >
-            <Ionicons name="add" size={20} color="#0a0900" />
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}>
-              Share a Video
-            </Text>
-          </View>
-        )}
-      </Pressable>
+            <Ionicons name="add" size={22} color="#c9a84c" />
+          </TouchableOpacity>
+        ) : null}
+      </View>
 
       {/* Category filter pills */}
       <ScrollView

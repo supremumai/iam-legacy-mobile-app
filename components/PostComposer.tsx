@@ -213,8 +213,8 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         try { await supabase.from('posts').delete().eq('id', postId); } catch { /* best-effort */ }
       }
       Alert.alert(
-        'No se pudo publicar la encuesta',
-        e instanceof Error ? e.message : 'Error desconocido',
+        'Could not publish poll',
+        e instanceof Error ? e.message : 'Unknown error',
       );
     } finally {
       setSubmittingPoll(false);
@@ -314,7 +314,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         marginTop: 16,
       }}
     >
-      {/* ── Admin-only segmented control: Post / Encuesta ── */}
+      {/* ── Admin-only segmented control: Post / Poll ── */}
       {isAdmin ? (
         <View
           style={{
@@ -364,7 +364,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 color: composerMode === 'poll' ? '#0a0900' : 'rgba(255,255,255,0.6)',
               }}
             >
-              Encuesta
+              Poll
             </Text>
           </TouchableOpacity>
         </View>
@@ -543,7 +543,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               maxLength={200}
               value={pollQuestion}
               onChangeText={setPollQuestion}
-              placeholder="¿Cuál es tu pregunta?"
+              placeholder="What's your question?"
               placeholderTextColor="rgba(255,255,255,0.4)"
               style={{
                 fontSize: 15,
@@ -581,7 +581,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     maxLength={80}
                     value={opt.label}
                     onChangeText={(v) => handleOptionChange(opt.id, v)}
-                    placeholder={`Opción ${idx + 1}`}
+                    placeholder={`Option ${idx + 1}`}
                     placeholderTextColor="rgba(255,255,255,0.3)"
                     style={{
                       flex: 1,
@@ -621,7 +621,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     <Text
                       style={{ fontFamily: Fonts.body, fontSize: 11, color: '#EF4444' }}
                     >
-                      Esta opción ya existe
+                      This option already exists
                     </Text>
                   ) : null}
                   <Text
@@ -655,7 +655,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               <Text
                 style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#c9a84c' }}
               >
-                Agregar opción
+                Add option
               </Text>
             </TouchableOpacity>
           ) : null}
@@ -672,7 +672,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             <Text
               style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' }}
             >
-              Permitir selección múltiple
+              Allow multiple answers
             </Text>
             <Switch
               value={allowMultiple}
@@ -711,7 +711,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     color: isPollValid ? '#0a0900' : 'rgba(10,9,0,0.45)',
                   }}
                 >
-                  Publicar
+                  Publish
                 </Text>
               )}
             </TouchableOpacity>
