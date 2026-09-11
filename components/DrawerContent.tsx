@@ -133,9 +133,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
           }}
         >
           <Image
-            source={{
-              uri: 'https://storage.googleapis.com/funnel-ai-production/chat/c5k59Y687kyeKfW4ERei/IAL-W.png',
-            }}
+            source={require('../assets/legacy-logo.png')}
             style={{ width: 60, height: 60 }}
             resizeMode="contain"
           />

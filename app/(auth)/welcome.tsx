@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
         {/* Logo / Brand */}
         <View style={styles.brandArea}>
           <Image
-            source={{ uri: 'https://storage.googleapis.com/funnel-ai-production/chat/c5k59Y687kyeKfW4ERei/IAL-W.png' }}
+            source={require('../../assets/legacy-logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
