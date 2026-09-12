@@ -6,11 +6,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Fonts } from '../constants/fonts';
 
-// Topics item removed (Batch 36). Row is now 3 icons: Notifications, Members, Leaderboard.
+// Batch 45: Members and Leaderboard moved to Community title row. Only Notifications remains.
 const ITEMS = [
   { icon: 'notifications-outline' as const, label: 'Notifications', route: '/notifications' },
-  { icon: 'people-outline' as const, label: 'Members', route: '/members' },
-  { icon: 'trophy-outline' as const, label: 'Leaderboard', route: '/leaderboard' },
 ] as const;
 
 interface AccessBarProps {

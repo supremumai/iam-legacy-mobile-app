@@ -5,6 +5,7 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
+  TouchableOpacity,
   View,
   Text,
   ActivityIndicator,
@@ -283,17 +284,66 @@ export default function CommunityScreen() {
   const listHeader = (
     <View>
       <GlobalHeader />
-      <Text
+
+      {/* ── Community title row — title left, Members + Leaderboard icons right (Batch 45) ── */}
+      <View
         style={{
-          fontFamily: Fonts.heading,
-          fontSize: 24,
-          color: '#c9a84c',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           paddingHorizontal: 20,
           marginTop: 16,
         }}
       >
-        Community
-      </Text>
+        <Text
+          style={{
+            fontFamily: Fonts.heading,
+            fontSize: 24,
+            color: '#c9a84c',
+          }}
+        >
+          Community
+        </Text>
+
+        {/* Members + Leaderboard icon buttons — visible to all users */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          {/* Members */}
+          <TouchableOpacity
+            onPress={() => router.push('/members' as any)}
+            activeOpacity={0.7}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              borderWidth: 0.5,
+              borderColor: 'rgba(197,164,84,0.4)',
+              backgroundColor: 'transparent',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="people-outline" size={19} color="#c9a84c" />
+          </TouchableOpacity>
+
+          {/* Leaderboard */}
+          <TouchableOpacity
+            onPress={() => router.push('/leaderboard' as any)}
+            activeOpacity={0.7}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              borderWidth: 0.5,
+              borderColor: 'rgba(197,164,84,0.4)',
+              backgroundColor: 'transparent',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons name="trophy-outline" size={19} color="#c9a84c" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <PostComposer onPostCreated={handlePostCreated} />
 
