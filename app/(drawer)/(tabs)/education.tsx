@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { PostAuthor, ResourceWithMeta, Topic } from '../../../types/database';
@@ -82,6 +83,10 @@ type FilterTopic = { id: string; name: string };
 export default function EducationScreen() {
   const { user, profile } = useAuth();
   const isAdmin = profile?.is_admin === true;
+
+  // Detect the openModal=1 param pushed by the drawer's "Manage Education" item
+  // and auto-open the Add Resource modal when navigation arrives with that signal.
+  const { openModal } = useLocalSearchParams<{ openModal?: string }>();
 
   const [filterTopics, setFilterTopics] = useState<FilterTopic[]>([]);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -164,6 +169,13 @@ export default function EducationScreen() {
     setLoading(true);
     fetchData();
   }, [fetchData]);
+
+  // Open Add Resource modal when triggered by drawer "Manage Education" navigation
+  useEffect(() => {
+    if (openModal === '1') {
+      setAddModalVisible(true);
+    }
+  }, [openModal]);
 
   const handleRefresh = () => {
     setRefreshing(true);

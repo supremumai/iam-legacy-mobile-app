@@ -69,17 +69,11 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
   const { profile, signOut } = useAuth();
   const isAdmin = useIsAdmin();
 
-  const displayName = profile?.full_name ?? profile?.username ?? 'Legacy Member';
-  const usernameLabel = profile?.username ? `@${profile.username}` : null;
-
-  // Two-letter initials fallback for avatar
-  const initials = displayName
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w[0] ?? '')
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  // First name for the greeting — falls back to username or the generic 'there'
+  const firstName =
+    profile?.full_name?.split(' ')[0] ??
+    profile?.username ??
+    'there';
 
   const navigate = (path: string) => {
     navigation.closeDrawer();
@@ -89,6 +83,13 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
   const handleSignOut = () => {
     navigation.closeDrawer();
     signOut();
+  };
+
+  // Closes the drawer and navigates to the Education tab, signaling it to open
+  // the Add Resource modal via the openModal search param.
+  const handleManageEducation = () => {
+    navigation.closeDrawer();
+    router.push('/education?openModal=1' as any);
   };
 
   return (
@@ -122,7 +123,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
           </TouchableOpacity>
         </View>
 
-        {/* ── Brand mark: LEGACY crown + wordmark ──────────────────── */}
+        {/* ── Brand mark: logo + greeting ──────────────────────────── */}
         <View
           style={{
             alignItems: 'center',
@@ -142,111 +143,16 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               fontFamily: Fonts.heading,
               fontSize: 11,
               color: '#c9a84c',
-              letterSpacing: 2,
+              letterSpacing: 1.5,
               marginTop: 6,
             }}
-          >
-            I AM LEGACY
-          </Text>
-        </View>
-
-        {/* ── Profile header ────────────────────────────────────────── */}
-        <View
-          style={{
-            paddingHorizontal: 20,
-            paddingTop: 20,
-            paddingBottom: 24,
-            borderBottomWidth: 1,
-            borderBottomColor: 'rgba(201,168,76,0.22)',
-          }}
-        >
-          {profile?.avatar_url ? (
-            <Image
-              source={{ uri: profile.avatar_url }}
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 32,
-                marginBottom: 12,
-                borderWidth: 2,
-                borderColor: '#c9a84c',
-              }}
-            />
-          ) : (
-            <View
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 32,
-                backgroundColor: '#1c1a14',
-                borderWidth: 2,
-                borderColor: '#c9a84c',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 12,
-              }}
-            >
-              <Text
-                style={{ fontFamily: Fonts.heading, fontSize: 22, color: '#c9a84c' }}
-              >
-                {initials || '?'}
-              </Text>
-            </View>
-          )}
-
-          <Text
-            style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: '#FFFFFF' }}
             numberOfLines={1}
           >
-            {displayName}
+            Welcome, {firstName}
           </Text>
-
-          {usernameLabel ? (
-            <Text
-              style={{
-                fontFamily: Fonts.body,
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.5)',
-                marginTop: 2,
-              }}
-              numberOfLines={1}
-            >
-              {usernameLabel}
-            </Text>
-          ) : null}
         </View>
 
-        {/* ── Sección: Cuenta ──────────────────────────────────────── */}
-        <View style={{ paddingTop: 20, paddingHorizontal: 20 }}>
-          <SectionLabel title="Account" />
-          <DrawerItem
-            icon="person-outline"
-            label="View Profile"
-            onPress={() => navigate('/profile')}
-          />
-          <DrawerItem
-            icon="create-outline"
-            label="Edit Profile"
-            onPress={() => navigate('/edit-profile')}
-          />
-          <DrawerItem
-            icon="bookmark-outline"
-            label="Saved Resources"
-            onPress={() => navigate('/saved')}
-          />
-          <DrawerItem
-            icon="settings-outline"
-            label="Settings"
-            onPress={() => navigate('/settings')}
-          />
-          <DrawerItem
-            icon="log-out-outline"
-            label="Log Out"
-            onPress={handleSignOut}
-          />
-        </View>
-
-        {/* ── Sección: Comunidad (admin only) ──────────────────────── */}
+        {/* ── Sección: Community (admin only) ──────────────────────── */}
         {isAdmin ? (
           <View
             style={{
@@ -264,9 +170,9 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               onPress={() => navigate('/create-event')}
             />
             <DrawerItem
-              icon="pricetags-outline"
-              label="Manage Topics"
-              onPress={() => navigate('/topics')}
+              icon="book-outline"
+              label="Manage Education"
+              onPress={handleManageEducation}
             />
           </View>
         ) : null}
@@ -296,6 +202,23 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             icon="information-circle-outline"
             label="About"
             onPress={() => navigate('/about')}
+          />
+        </View>
+
+        {/* ── Log Out — standalone at bottom after divider ──────────── */}
+        <View
+          style={{
+            marginTop: 16,
+            paddingHorizontal: 20,
+            borderTopWidth: 1,
+            borderTopColor: 'rgba(201,168,76,0.12)',
+            paddingTop: 8,
+          }}
+        >
+          <DrawerItem
+            icon="log-out-outline"
+            label="Log Out"
+            onPress={handleSignOut}
           />
         </View>
       </ScrollView>
