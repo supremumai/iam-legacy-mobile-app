@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, View, Text, Image, Pressable, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text, Image, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -303,70 +303,45 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Action row */}
-        <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 16, gap: 12, alignItems: 'center' }}>
-          {isOwnProfile ? (
-            // Branch A: Edit Profile + Share
-            <>
-              <Pressable
-                onPress={() => router.push('/edit-profile' as any)}
-                style={({ pressed }) => ({
+        {/* Account actions — own profile only. Other-user profiles show no action row. */}
+        {isOwnProfile ? (
+          <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 16, gap: 10 }}>
+            {(
+              [
+                { icon: 'create-outline', label: 'Edit', route: '/edit-profile' },
+                { icon: 'bookmark-outline', label: 'Saved', route: '/saved' },
+                { icon: 'settings-outline', label: 'Settings', route: '/settings' },
+              ] as const
+            ).map(({ icon, label, route }) => (
+              <TouchableOpacity
+                key={label}
+                onPress={() => router.push(route as any)}
+                activeOpacity={0.7}
+                style={{
                   flex: 1,
                   backgroundColor: '#1c1a14',
-                  borderRadius: 12,
+                  borderRadius: 10,
                   borderWidth: 1,
-                  borderColor: 'rgba(201,168,76,0.22)',
+                  borderColor: 'rgba(201,168,76,0.3)',
                   alignItems: 'center',
-                  paddingVertical: 14,
-                  opacity: pressed ? 0.7 : 1,
-                })}
+                  paddingVertical: 12,
+                }}
               >
-                <Ionicons name="create-outline" size={22} color="#c9a84c" />
-                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: '#FFFFFF', marginTop: 4 }}>
-                  Edit Profile
+                <Ionicons name={icon} size={20} color="#c9a84c" />
+                <Text
+                  style={{
+                    fontFamily: Fonts.body,
+                    fontSize: 11,
+                    color: 'rgba(255,255,255,0.6)',
+                    marginTop: 5,
+                  }}
+                >
+                  {label}
                 </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {}}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  backgroundColor: '#1c1a14',
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: 'rgba(201,168,76,0.22)',
-                  alignItems: 'center',
-                  paddingVertical: 14,
-                  opacity: pressed ? 0.7 : 1,
-                })}
-              >
-                <Ionicons name="share-social-outline" size={22} color="#c9a84c" />
-                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: '#FFFFFF', marginTop: 4 }}>
-                  Share
-                </Text>
-              </Pressable>
-            </>
-          ) : (
-            // Branch B: Share only
-            <Pressable
-              onPress={() => {}}
-              style={({ pressed }) => ({
-                flex: 1,
-                backgroundColor: '#1c1a14',
-                borderRadius: 12,
-                borderWidth: 1,
-                borderColor: 'rgba(201,168,76,0.22)',
-                alignItems: 'center',
-                paddingVertical: 14,
-                opacity: pressed ? 0.7 : 1,
-              })}
-            >
-              <Ionicons name="share-social-outline" size={22} color="#c9a84c" />
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: '#FFFFFF', marginTop: 4 }}>
-                Share
-              </Text>
-            </Pressable>
-          )}
-        </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
 
         {/* About section */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
