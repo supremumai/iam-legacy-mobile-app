@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { PostAuthor, ResourceWithMeta, Topic } from '../../../types/database';
@@ -83,6 +83,7 @@ type FilterTopic = { id: string; name: string };
 export default function EducationScreen() {
   const { user, profile } = useAuth();
   const isAdmin = profile?.is_admin === true;
+  const router = useRouter();
 
   // Detect the openModal=1 param pushed by the drawer's "Manage Education" item
   // and auto-open the Add Resource modal when navigation arrives with that signal.
@@ -170,12 +171,16 @@ export default function EducationScreen() {
     fetchData();
   }, [fetchData]);
 
-  // Open Add Resource modal when triggered by drawer "Manage Education" navigation
+  // Open Add Resource modal when triggered by drawer "Manage Education" navigation.
+  // Immediately clear the param so a future remount of this screen doesn't reopen
+  // the modal unexpectedly. router.setParams mutates the current history entry in
+  // place — no new back-stack entry, no visible navigation side-effect.
   useEffect(() => {
     if (openModal === '1') {
       setAddModalVisible(true);
+      router.setParams({ openModal: undefined } as any);
     }
-  }, [openModal]);
+  }, [openModal, router]);
 
   const handleRefresh = () => {
     setRefreshing(true);
