@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
+import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { Poll, PollOption, PollWithMeta, PostWithAuthor, Topic } from '../../../types/database';
 import { normalizePostRow } from '../../../lib/posts';
 import { Fonts } from '../../../constants/fonts';
@@ -30,6 +31,7 @@ export default function CommunityScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());
+  const [savedPostIds, setSavedPostIds] = useState<Set<string>>(new Set());
   const [pollsByPostId, setPollsByPostId] = useState<Map<string, PollWithMeta>>(new Map());
   const [commentsSheetPost, setCommentsSheetPost] = useState<PostWithAuthor | null>(null);
 
@@ -70,22 +72,28 @@ export default function CommunityScreen() {
       const fetchedPosts = (data ?? []).map(normalizePostRow);
       setPosts(fetchedPosts);
 
-      // Single query for all liked post ids — no N+1
+      // Single query per concern — bulk, no N+1 (Batch 46b: adds saved posts)
       if (user?.id && fetchedPosts.length > 0) {
         try {
           const postIds = fetchedPosts.map((p) => p.id);
-          const { data: likeRows } = await supabase
-            .from('post_likes')
-            .select('post_id')
-            .eq('user_id', user.id)
-            .in('post_id', postIds);
-          setLikedPostIds(new Set((likeRows ?? []).map((r: any) => r.post_id as string)));
+          const [likeRows, savedSet] = await Promise.all([
+            supabase
+              .from('post_likes')
+              .select('post_id')
+              .eq('user_id', user.id)
+              .in('post_id', postIds),
+            fetchSavedIds('post', postIds, user.id),
+          ]);
+          setLikedPostIds(new Set((likeRows.data ?? []).map((r: any) => r.post_id as string)));
+          setSavedPostIds(savedSet);
         } catch (e) {
-          console.warn('[Community] likes fetch threw:', e);
+          console.warn('[Community] likes/saves fetch threw:', e);
           setLikedPostIds(new Set());
+          setSavedPostIds(new Set());
         }
       } else {
         setLikedPostIds(new Set());
+        setSavedPostIds(new Set());
       }
 
       // ── Bulk poll fetch — one query per resource, never N+1 ──────────────
@@ -254,6 +262,29 @@ export default function CommunityScreen() {
         ),
       );
       Alert.alert('Could not update like', e instanceof Error ? e.message : 'Unknown error');
+    }
+  };
+
+  // ── Save toggle (optimistic + rollback) — Batch 46b ──────────────────────
+  const handleToggleSave = async (post: PostWithAuthor) => {
+    if (!user?.id) return;
+    const isCurrentlySaved = savedPostIds.has(post.id);
+
+    setSavedPostIds((prev) => {
+      const next = new Set(prev);
+      isCurrentlySaved ? next.delete(post.id) : next.add(post.id);
+      return next;
+    });
+
+    try {
+      await toggleSave('post', post.id, user.id, isCurrentlySaved);
+    } catch (e: unknown) {
+      setSavedPostIds((prev) => {
+        const next = new Set(prev);
+        isCurrentlySaved ? next.add(post.id) : next.delete(post.id);
+        return next;
+      });
+      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
     }
   };
 
@@ -518,6 +549,8 @@ export default function CommunityScreen() {
               onDeleted={handlePostDeleted}
               isLiked={likedPostIds.has(item.id)}
               onToggleLike={handleToggleLike}
+              isSaved={savedPostIds.has(item.id)}
+              onToggleSave={handleToggleSave}
               onOpenComments={(post) => setCommentsSheetPost(post)}
               onOpenPost={(post) => router.push(`/post?id=${post.id}` as any)}
               onEditPost={(post) => router.push(`/edit-post?id=${post.id}` as any)}

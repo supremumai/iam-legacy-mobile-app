@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
+import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { EventItem } from '../../../types/database';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -60,6 +61,7 @@ export default function EventsScreen() {
 
   const [allEvents, setAllEvents] = useState<EventItem[]>([]);
   const [registeredEventIds, setRegisteredEventIds] = useState<Set<string>>(new Set());
+  const [savedEventIds, setSavedEventIds] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
 
   const [loading, setLoading] = useState(true);
@@ -83,25 +85,31 @@ export default function EventsScreen() {
       const events = (data ?? []) as EventItem[];
       setAllEvents(events);
 
-      // Single query for all registration statuses
+      // Bulk fetch registrations + saves in one round — no N+1 (Batch 46b: adds saved events)
       if (user?.id && events.length > 0) {
         try {
           const allIds = events.map((e) => e.id);
-          const { data: regData } = await supabase
-            .from('event_registrations')
-            .select('event_id')
-            .eq('user_id', user.id)
-            .eq('status', 'going')
-            .in('event_id', allIds);
+          const [regData, savedSet] = await Promise.all([
+            supabase
+              .from('event_registrations')
+              .select('event_id')
+              .eq('user_id', user.id)
+              .eq('status', 'going')
+              .in('event_id', allIds),
+            fetchSavedIds('event', allIds, user.id),
+          ]);
           setRegisteredEventIds(
-            new Set((regData ?? []).map((r: any) => r.event_id as string)),
+            new Set((regData.data ?? []).map((r: any) => r.event_id as string)),
           );
+          setSavedEventIds(savedSet);
         } catch (e) {
-          console.warn('[Events] registrations fetch threw:', e);
+          console.warn('[Events] registrations/saves fetch threw:', e);
           setRegisteredEventIds(new Set());
+          setSavedEventIds(new Set());
         }
       } else {
         setRegisteredEventIds(new Set());
+        setSavedEventIds(new Set());
       }
     } catch (e) {
       console.warn('[Events] fetchData threw:', e);
@@ -182,6 +190,29 @@ export default function EventsScreen() {
         'Could not update registration',
         e instanceof Error ? e.message : 'Unknown error',
       );
+    }
+  };
+
+  // ── Save toggle (optimistic + rollback) — Batch 46b ─────────────────────
+  const handleToggleSaveEvent = async (event: EventItem) => {
+    if (!user?.id) return;
+    const isCurrentlySaved = savedEventIds.has(event.id);
+
+    setSavedEventIds((prev) => {
+      const next = new Set(prev);
+      isCurrentlySaved ? next.delete(event.id) : next.add(event.id);
+      return next;
+    });
+
+    try {
+      await toggleSave('event', event.id, user.id, isCurrentlySaved);
+    } catch (e: unknown) {
+      setSavedEventIds((prev) => {
+        const next = new Set(prev);
+        isCurrentlySaved ? next.add(event.id) : next.delete(event.id);
+        return next;
+      });
+      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
     }
   };
 
@@ -365,6 +396,8 @@ export default function EventsScreen() {
                 isRegistered={registeredEventIds.has(event.id)}
                 isPast={true}
                 onToggleRegister={handleToggleRegister}
+                isSaved={savedEventIds.has(event.id)}
+                onToggleSave={handleToggleSaveEvent}
               />
             ))}
           </View>
@@ -427,6 +460,8 @@ export default function EventsScreen() {
               isRegistered={registeredEventIds.has(item.id)}
               isPast={false}
               onToggleRegister={handleToggleRegister}
+              isSaved={savedEventIds.has(item.id)}
+              onToggleSave={handleToggleSaveEvent}
             />
           </View>
         )}

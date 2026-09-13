@@ -16,6 +16,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { fetchPostById, fetchPollMeta } from '../lib/posts';
+import { fetchSavedIds, toggleSave } from '../lib/saves';
 import { PollWithMeta, PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import PostCard from '../components/PostCard';
@@ -31,6 +32,7 @@ export default function PostScreen() {
   const [post, setPost] = useState<PostWithAuthor | null>(null);
   const [pollMeta, setPollMeta] = useState<PollWithMeta | null>(null);
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   // null = still loading / success; string = fetch error; 'not_found' = deleted post
   const [fetchError, setFetchError] = useState<string | 'not_found' | null>(null);
@@ -66,7 +68,7 @@ export default function PostScreen() {
       setFetchError(null);
 
       try {
-        const [postResult, likeResult] = await Promise.all([
+        const [postResult, likeResult, savedSet] = await Promise.all([
           fetchPostById(id),
           user?.id
             ? supabase
@@ -76,6 +78,9 @@ export default function PostScreen() {
                 .eq('user_id', user.id)
                 .maybeSingle()
             : Promise.resolve({ data: null, error: null }),
+          user?.id
+            ? fetchSavedIds('post', [id], user.id)
+            : Promise.resolve(new Set<string>()),
         ]);
 
         if (cancelled) return;
@@ -92,6 +97,7 @@ export default function PostScreen() {
 
         setPost(postResult.post);
         setIsLiked(likeResult.data !== null);
+        setIsSaved(savedSet.has(id));
 
         // Fetch poll metadata when the post is a poll
         if (postResult.post.post_type === 'poll') {
@@ -188,6 +194,19 @@ export default function PostScreen() {
           : prev,
       );
       Alert.alert('Could not update like', e instanceof Error ? e.message : 'Unknown error');
+    }
+  };
+
+  // ─── Save toggle (optimistic + rollback) — Batch 46b ────────────────────
+  const handleToggleSave = async (_p: PostWithAuthor) => {
+    if (!post || !user?.id) return;
+    const currentlySaved = isSaved;
+    setIsSaved(!currentlySaved);
+    try {
+      await toggleSave('post', post.id, user.id, currentlySaved);
+    } catch (e: unknown) {
+      setIsSaved(currentlySaved);
+      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
     }
   };
 
@@ -362,6 +381,8 @@ export default function PostScreen() {
                   currentUserId={user?.id}
                   isLiked={isLiked}
                   onToggleLike={handleToggleLike}
+                  isSaved={isSaved}
+                  onToggleSave={handleToggleSave}
                   onDeleted={() => router.back()}
                   onOpenComments={() => {}}
                   onOpenPost={() => {}}

@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
+import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { PostAuthor, ResourceWithMeta, Topic } from '../../../types/database';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -135,24 +136,19 @@ export default function EducationScreen() {
       // Single query per table — no per-card queries
       if (user?.id && fetched.length > 0) {
         const resourceIds = fetched.map((r) => r.id);
-        const [likesResult, savesResult] = await Promise.all([
+        // Batch 46b: saves now read from unified `saves` table via fetchSavedIds
+        const [likesResult, savedSet] = await Promise.all([
           supabase
             .from('resource_likes')
             .select('resource_id')
             .eq('user_id', user.id)
             .in('resource_id', resourceIds),
-          supabase
-            .from('resource_saves')
-            .select('resource_id')
-            .eq('user_id', user.id)
-            .in('resource_id', resourceIds),
+          fetchSavedIds('resource', resourceIds, user.id),
         ]);
         setLikedIds(
           new Set((likesResult.data ?? []).map((r: any) => r.resource_id as string)),
         );
-        setSavedIds(
-          new Set((savesResult.data ?? []).map((r: any) => r.resource_id as string)),
-        );
+        setSavedIds(savedSet);
       } else {
         setLikedIds(new Set());
         setSavedIds(new Set());
@@ -246,7 +242,7 @@ export default function EducationScreen() {
     }
   };
 
-  // ── Save toggle (optimistic + rollback) ─────────────────────────────────
+  // ── Save toggle (optimistic + rollback) — Batch 46b: uses unified saves table ──
   const handleToggleSave = async (resource: ResourceWithMeta) => {
     if (!user?.id) return;
     const isSaved = savedIds.has(resource.id);
@@ -258,19 +254,7 @@ export default function EducationScreen() {
     });
 
     try {
-      if (!isSaved) {
-        const { error } = await supabase
-          .from('resource_saves')
-          .insert({ resource_id: resource.id, user_id: user.id });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('resource_saves')
-          .delete()
-          .eq('resource_id', resource.id)
-          .eq('user_id', user.id);
-        if (error) throw error;
-      }
+      await toggleSave('resource', resource.id, user.id, isSaved);
     } catch (e: unknown) {
       setSavedIds((prev) => {
         const next = new Set(prev);

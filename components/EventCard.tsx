@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
@@ -28,9 +28,20 @@ interface Props {
   isRegistered: boolean;
   isPast: boolean;
   onToggleRegister: (event: EventItem) => void;
+  /** Whether this event is saved by the current user. Default: false. */
+  isSaved?: boolean;
+  /** Called when the user taps the bookmark icon. Parent manages optimistic state. */
+  onToggleSave?: (event: EventItem) => void;
 }
 
-export default function EventCard({ event, isRegistered, isPast, onToggleRegister }: Props) {
+export default function EventCard({
+  event,
+  isRegistered,
+  isPast,
+  onToggleRegister,
+  isSaved = false,
+  onToggleSave,
+}: Props) {
   const dateParts = parseDateParts(event.event_date);
   const attendees = event.attendees_count ?? 0;
 
@@ -176,7 +187,7 @@ export default function EventCard({ event, isRegistered, isPast, onToggleRegiste
           </Text>
         ) : null}
 
-        {/* Bottom row: attendees + register button */}
+        {/* Bottom row: attendees left, bookmark + register right */}
         <View
           style={{
             flexDirection: 'row',
@@ -195,40 +206,56 @@ export default function EventCard({ event, isRegistered, isPast, onToggleRegiste
             {attendees} going
           </Text>
 
-          {!isPast ? (
-            <Pressable
-              onPress={() => onToggleRegister(event)}
-              style={({ pressed }) =>
-                isRegistered
-                  ? {
-                      backgroundColor: '#1c1a14',
-                      borderWidth: 1,
-                      borderColor: 'rgba(201,168,76,0.22)',
-                      borderRadius: 8,
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      opacity: pressed ? 0.7 : 1,
-                    }
-                  : {
-                      backgroundColor: '#c9a84c',
-                      borderRadius: 8,
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      opacity: pressed ? 0.8 : 1,
-                    }
-              }
+          {/* Right group: bookmark (always) + register button (upcoming only) */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {/* Bookmark — static-style TouchableOpacity (bug-recurrence rule) */}
+            <TouchableOpacity
+              onPress={() => onToggleSave?.(event)}
+              activeOpacity={0.7}
+              hitSlop={8}
             >
-              <Text
-                style={
+              <Ionicons
+                name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                size={20}
+                color={isSaved ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+              />
+            </TouchableOpacity>
+
+            {!isPast ? (
+              <Pressable
+                onPress={() => onToggleRegister(event)}
+                style={({ pressed }) =>
                   isRegistered
-                    ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#FFFFFF' }
-                    : { fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }
+                    ? {
+                        backgroundColor: '#1c1a14',
+                        borderWidth: 1,
+                        borderColor: 'rgba(201,168,76,0.22)',
+                        borderRadius: 8,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8,
+                        opacity: pressed ? 0.7 : 1,
+                      }
+                    : {
+                        backgroundColor: '#c9a84c',
+                        borderRadius: 8,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8,
+                        opacity: pressed ? 0.8 : 1,
+                      }
                 }
               >
-                {isRegistered ? 'Registered' : 'Register'}
-              </Text>
-            </Pressable>
-          ) : null}
+                <Text
+                  style={
+                    isRegistered
+                      ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#FFFFFF' }
+                      : { fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }
+                  }
+                >
+                  {isRegistered ? 'Registered' : 'Register'}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         </View>
       </View>
     </View>

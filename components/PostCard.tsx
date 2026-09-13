@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Alert, Image } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { supabase } from '../lib/supabase';
@@ -18,6 +18,10 @@ interface PostCardProps {
   onOpenComments: (post: PostWithAuthor) => void;
   onOpenPost: (post: PostWithAuthor) => void;
   onEditPost: (post: PostWithAuthor) => void;
+  /** Whether this post is saved by the current user. Default: false. */
+  isSaved?: boolean;
+  /** Called when the user taps the bookmark icon. Parent manages optimistic state. */
+  onToggleSave?: (post: PostWithAuthor) => void;
 }
 
 export default function PostCard({
@@ -29,6 +33,8 @@ export default function PostCard({
   onOpenComments,
   onOpenPost,
   onEditPost,
+  isSaved = false,
+  onToggleSave,
 }: PostCardProps) {
   const router = useRouter();
   const isOwner = post.user_id === currentUserId;
@@ -276,32 +282,55 @@ export default function PostCard({
         <YouTubePreview videoId={videoId} size="full" />
       ) : null}
 
-      {/* ── Stats row ── */}
-      <View style={{ flexDirection: 'row', gap: 20, marginTop: 12 }}>
-        <Pressable
-          onPress={() => onToggleLike(post)}
+      {/* ── Stats row: like + comment left, bookmark right ── */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: 12,
+        }}
+      >
+        {/* Left group: like + comment */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+          <Pressable
+            onPress={() => onToggleLike(post)}
+            hitSlop={8}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <Ionicons
+              name={isLiked ? 'heart' : 'heart-outline'}
+              size={16}
+              color={isLiked ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+            />
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+              {post.likes_count}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => onOpenComments(post)}
+            hitSlop={8}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          >
+            <Ionicons name="chatbubble-outline" size={16} color="rgba(255,255,255,0.55)" />
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+              {post.comments_count}
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Bookmark — static-style TouchableOpacity (bug-recurrence rule) */}
+        <TouchableOpacity
+          onPress={() => onToggleSave?.(post)}
+          activeOpacity={0.7}
           hitSlop={8}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
         >
           <Ionicons
-            name={isLiked ? 'heart' : 'heart-outline'}
-            size={16}
-            color={isLiked ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+            name={isSaved ? 'bookmark' : 'bookmark-outline'}
+            size={17}
+            color={isSaved ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
           />
-          <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-            {post.likes_count}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => onOpenComments(post)}
-          hitSlop={8}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
-        >
-          <Ionicons name="chatbubble-outline" size={16} color="rgba(255,255,255,0.55)" />
-          <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-            {post.comments_count}
-          </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   );
