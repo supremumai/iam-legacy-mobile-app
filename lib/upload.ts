@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { supabase } from './supabase';
 
-export type UploadCategory = 'avatar' | 'cover' | 'posts';
+export type UploadCategory = 'avatar' | 'cover' | 'posts' | 'events';
 
 type UploadResult =
   | { url: string }
