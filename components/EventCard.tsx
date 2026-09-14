@@ -1,7 +1,9 @@
 import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { useIsAdmin } from '../hooks/useIsAdmin';
 
 interface DateParts {
   month: string;
@@ -30,6 +32,12 @@ interface Props {
   isSaved?: boolean;
   /** Called when the user taps the bookmark icon. Parent manages optimistic state. */
   onToggleSave?: (event: EventItem) => void;
+  /**
+   * Called after the user confirms deletion via the kebab menu.
+   * Parent is responsible for the optimistic remove + DB delete + rollback.
+   * When omitted the kebab menu is hidden (even for admins).
+   */
+  onDelete?: (event: EventItem) => void;
 }
 
 export default function EventCard({
@@ -37,11 +45,38 @@ export default function EventCard({
   isPast,
   isSaved = false,
   onToggleSave,
+  onDelete,
 }: Props) {
+  const router = useRouter();
+  const isAdmin = useIsAdmin();
   const dateParts = parseDateParts(event.event_date);
   const attendees = event.attendees_count ?? 0;
 
   const isOnline = event.is_online === true;
+
+  // ── Delete confirmation (two-step, same pattern as PostCard) ──────────────
+  const handleDeletePress = () => {
+    Alert.alert(
+      'Delete this event?',
+      "This can't be undone.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => onDelete?.(event) },
+      ],
+    );
+  };
+
+  // ── Kebab menu ────────────────────────────────────────────────────────────
+  const handleOptionsPress = () => {
+    Alert.alert('Event Options', undefined, [
+      {
+        text: 'Edit Event',
+        onPress: () => router.push(`/create-event?id=${event.id}` as any),
+      },
+      { text: 'Delete Event', style: 'destructive', onPress: handleDeletePress },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
 
   return (
     <View
@@ -78,7 +113,7 @@ export default function EventCard({
 
       {/* Body */}
       <View style={{ padding: 16 }}>
-        {/* Top row: date block + badge */}
+        {/* Top row: date block + right group (badge + kebab) */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           {/* Date block */}
           <View
@@ -115,24 +150,43 @@ export default function EventCard({
             </Text>
           </View>
 
-          {/* Online / In-Person badge */}
-          <View
-            style={{
-              backgroundColor: isOnline ? '#DBEAFE' : '#DCFCE7',
-              borderRadius: 999,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-            }}
-          >
-            <Text
+          {/* Right group: badge + kebab (admin only) */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {/* Online / In-Person badge */}
+            <View
               style={{
-                fontFamily: Fonts.bodySemiBold,
-                fontSize: 11,
-                color: isOnline ? '#1D4ED8' : '#16A34A',
+                backgroundColor: isOnline ? '#DBEAFE' : '#DCFCE7',
+                borderRadius: 999,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
               }}
             >
-              {isOnline ? 'Online' : 'In-Person'}
-            </Text>
+              <Text
+                style={{
+                  fontFamily: Fonts.bodySemiBold,
+                  fontSize: 11,
+                  color: isOnline ? '#1D4ED8' : '#16A34A',
+                }}
+              >
+                {isOnline ? 'Online' : 'In-Person'}
+              </Text>
+            </View>
+
+            {/* Kebab — visible to admins when parent provides onDelete.
+                Static-style TouchableOpacity (bug-recurrence rule). */}
+            {isAdmin && onDelete ? (
+              <TouchableOpacity
+                onPress={handleOptionsPress}
+                activeOpacity={0.6}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="ellipsis-horizontal"
+                  size={20}
+                  color="rgba(255,255,255,0.55)"
+                />
+              </TouchableOpacity>
+            ) : null}
           </View>
         </View>
 

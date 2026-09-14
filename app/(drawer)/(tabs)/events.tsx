@@ -116,6 +116,23 @@ export default function EventsScreen() {
     fetchData();
   };
 
+  // ── Delete event (optimistic remove + rollback) — Batch 49 ──────────────
+  const handleDeleteEvent = async (event: EventItem) => {
+    // Optimistic remove
+    setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
+    try {
+      const { error } = await supabase.from('events').delete().eq('id', event.id);
+      if (error) throw error;
+    } catch (e: unknown) {
+      // Rollback — restore event; splitEvents re-sorts by date so position is correct
+      setAllEvents((prev) => [...prev, event]);
+      Alert.alert(
+        'Could not delete event',
+        e instanceof Error ? e.message : 'Unknown error',
+      );
+    }
+  };
+
   // ── Save toggle (optimistic + rollback) — Batch 46b ─────────────────────
   const handleToggleSaveEvent = async (event: EventItem) => {
     if (!user?.id) return;
@@ -319,6 +336,7 @@ export default function EventsScreen() {
                 isPast={true}
                 isSaved={savedEventIds.has(event.id)}
                 onToggleSave={handleToggleSaveEvent}
+                onDelete={handleDeleteEvent}
               />
             ))}
           </View>
@@ -381,6 +399,7 @@ export default function EventsScreen() {
               isPast={false}
               isSaved={savedEventIds.has(item.id)}
               onToggleSave={handleToggleSaveEvent}
+              onDelete={handleDeleteEvent}
             />
           </View>
         )}

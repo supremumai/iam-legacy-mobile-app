@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,7 +15,7 @@ import {
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { pickAndUploadImage } from '../lib/upload';
@@ -23,7 +23,7 @@ import { Fonts } from '../constants/fonts';
 
 type EventType = 'in-person' | 'online';
 
-/** Round up to the next full hour, so the default date is always in the future. */
+/** Round up to the next full hour so the default date is always in the future. */
 function getDefaultEventDate(): Date {
   const d = new Date();
   d.setHours(d.getHours() + 1, 0, 0, 0);
@@ -35,6 +35,10 @@ export default function CreateEventScreen() {
   const router = useRouter();
   const { user, profile } = useAuth();
 
+  // Optional `id` param — present in edit mode, absent in create mode.
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const isEditing = !!id;
+
   // ── Form state ────────────────────────────────────────────────────────────
   const [eventTitle, setEventTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -43,6 +47,8 @@ export default function CreateEventScreen() {
 
   // Single Date object; date picker updates year/month/day, time picker updates h/m.
   const [eventDate, setEventDate] = useState<Date>(getDefaultEventDate);
+  // Tracks the original event_date fetched in edit mode for the past-date guard.
+  const [originalEventDate, setOriginalEventDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -50,11 +56,77 @@ export default function CreateEventScreen() {
   const [imageUploading, setImageUploading] = useState(false);
 
   const [registrationUrl, setRegistrationUrl] = useState('');
+
+  // Loading state only applies while fetching an existing event in edit mode.
+  const [loadingEvent, setLoadingEvent] = useState(isEditing);
   const [submitting, setSubmitting] = useState(false);
 
+  // ── Fetch existing event in edit mode ─────────────────────────────────────
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (cancelled) return;
+        if (error || !data) {
+          Alert.alert(
+            'Could not load event',
+            error?.message ?? 'Event not found',
+            [{ text: 'OK', onPress: () => router.back() }],
+          );
+          return;
+        }
+
+        setEventTitle(data.title ?? '');
+        setDescription(data.description ?? '');
+        setLocation(data.location ?? '');
+        setEventType(data.is_online ? 'online' : 'in-person');
+        if (data.event_date) {
+          const d = new Date(data.event_date);
+          setEventDate(d);
+          setOriginalEventDate(d);
+        }
+        setImageUrl(data.image_url ?? null);
+        setRegistrationUrl(data.registration_url ?? '');
+      } catch (e) {
+        if (!cancelled) {
+          Alert.alert('Could not load event', 'Please try again.', [
+            { text: 'OK', onPress: () => router.back() },
+          ]);
+        }
+      } finally {
+        if (!cancelled) setLoadingEvent(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
   // ── Validation ────────────────────────────────────────────────────────────
-  // Past-date guard (only for new events, never for editing).
-  const dateError = eventDate < new Date() ? "Event date can't be in the past" : null;
+  // Past-date guard:
+  //   Create mode — always check: the chosen date must be in the future.
+  //   Edit mode   — only check if the admin changed the date from its original value.
+  //                 Editing a past event (e.g. to fix its description) must not be blocked.
+  const dateError = (() => {
+    if (!isEditing) {
+      return eventDate < new Date() ? "Event date can't be in the past" : null;
+    }
+    // Edit: original date unchanged → no error (even if the event is already past).
+    if (
+      originalEventDate !== null &&
+      eventDate.getTime() === originalEventDate.getTime()
+    ) {
+      return null;
+    }
+    return eventDate < new Date() ? "Event date can't be in the past" : null;
+  })();
 
   const registrationUrlTouched = registrationUrl.trim().length > 0;
   const registrationUrlError =
@@ -107,9 +179,29 @@ export default function CreateEventScreen() {
     );
   }
 
+  // ── Loading state (edit mode only, while fetching the existing event) ─────
+  if (loadingEvent) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+        <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={8}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
+          >
+            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          </Pressable>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color="#c9a84c" size="large" />
+        </View>
+      </View>
+    );
+  }
+
   // ── Date / time picker handlers ───────────────────────────────────────────
-  // Android: dialog closes automatically; iOS: stays open until Done tapped.
-  // On 'dismissed' (Android cancel), no state update.
+  // Android: system dialog closes automatically; iOS: spinner stays open until Done tapped.
+  // On 'dismissed' (Android cancel) no state update.
 
   const onDateChange = (_evt: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === 'android') setShowDatePicker(false);
@@ -156,29 +248,51 @@ export default function CreateEventScreen() {
     }
   };
 
-  // ── Submit ────────────────────────────────────────────────────────────────
+  // ── Submit (INSERT in create mode, UPDATE in edit mode) ───────────────────
   async function handleSubmit() {
     if (!user || !canSubmit) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('events').insert({
-        title: eventTitle.trim(),
-        description: description.trim() || null,
-        location: location.trim() || null,
-        event_date: eventDate.toISOString(),
-        is_online: eventType === 'online',
-        image_url: imageUrl,
-        registration_url: registrationUrl.trim() || null,
-        created_by: user.id,
-      });
-      if (error) throw error;
-      Alert.alert(
-        'Event Created',
-        `"${eventTitle.trim()}" has been added to the events list.`,
-        [{ text: 'OK', onPress: () => router.back() }],
-      );
+      if (isEditing && id) {
+        // Edit mode — UPDATE existing event
+        const { error } = await supabase
+          .from('events')
+          .update({
+            title: eventTitle.trim(),
+            description: description.trim() || null,
+            location: location.trim() || null,
+            event_date: eventDate.toISOString(),
+            is_online: eventType === 'online',
+            image_url: imageUrl,
+            registration_url: registrationUrl.trim() || null,
+          })
+          .eq('id', id);
+        if (error) throw error;
+        Alert.alert('Event updated', undefined, [{ text: 'OK', onPress: () => router.back() }]);
+      } else {
+        // Create mode — INSERT new event
+        const { error } = await supabase.from('events').insert({
+          title: eventTitle.trim(),
+          description: description.trim() || null,
+          location: location.trim() || null,
+          event_date: eventDate.toISOString(),
+          is_online: eventType === 'online',
+          image_url: imageUrl,
+          registration_url: registrationUrl.trim() || null,
+          created_by: user.id,
+        });
+        if (error) throw error;
+        Alert.alert(
+          'Event Created',
+          `"${eventTitle.trim()}" has been added to the events list.`,
+          [{ text: 'OK', onPress: () => router.back() }],
+        );
+      }
     } catch (e: unknown) {
-      Alert.alert('Could not create event', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(
+        isEditing ? 'Could not update event' : 'Could not create event',
+        e instanceof Error ? e.message : 'Unknown error',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -208,7 +322,7 @@ export default function CreateEventScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Page title */}
+          {/* Page title — changes per mode */}
           <Text
             style={{
               fontFamily: Fonts.heading,
@@ -217,7 +331,7 @@ export default function CreateEventScreen() {
               marginTop: 8,
             }}
           >
-            Create Event
+            {isEditing ? 'Edit Event' : 'Create Event'}
           </Text>
 
           {/* Title */}
@@ -397,7 +511,12 @@ export default function CreateEventScreen() {
               >
                 <Ionicons name="calendar-outline" size={16} color="rgba(255,255,255,0.55)" />
                 <Text
-                  style={{ fontFamily: Fonts.body, fontSize: 13, color: '#FFFFFF', flexShrink: 1 }}
+                  style={{
+                    fontFamily: Fonts.body,
+                    fontSize: 13,
+                    color: '#FFFFFF',
+                    flexShrink: 1,
+                  }}
                   numberOfLines={1}
                 >
                   {eventDate.toLocaleDateString('en-US', {
@@ -473,7 +592,7 @@ export default function CreateEventScreen() {
                 value={eventDate}
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                minimumDate={new Date()}
+                minimumDate={isEditing ? undefined : new Date()}
                 onChange={onDateChange}
               />
             </>
@@ -505,7 +624,7 @@ export default function CreateEventScreen() {
             </>
           ) : null}
 
-          {/* Event Image — upload area */}
+          {/* Event Image — upload area (shows existing preview in edit mode) */}
           <View style={{ marginTop: 16 }}>
             <Text
               style={{
@@ -622,7 +741,7 @@ export default function CreateEventScreen() {
             ) : null}
           </View>
 
-          {/* Submit */}
+          {/* Submit — label changes per mode */}
           <Pressable
             onPress={handleSubmit}
             disabled={!canSubmit}
@@ -642,7 +761,7 @@ export default function CreateEventScreen() {
               <Text
                 style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}
               >
-                Create Event
+                {isEditing ? 'Save Changes' : 'Create Event'}
               </Text>
             )}
           </Pressable>
