@@ -60,7 +60,6 @@ export default function EventsScreen() {
   const isAdmin = profile?.is_admin === true;
 
   const [allEvents, setAllEvents] = useState<EventItem[]>([]);
-  const [registeredEventIds, setRegisteredEventIds] = useState<Set<string>>(new Set());
   const [savedEventIds, setSavedEventIds] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
 
@@ -85,30 +84,17 @@ export default function EventsScreen() {
       const events = (data ?? []) as EventItem[];
       setAllEvents(events);
 
-      // Bulk fetch registrations + saves in one round — no N+1 (Batch 46b: adds saved events)
+      // Bulk fetch saves — no N+1
       if (user?.id && events.length > 0) {
         try {
           const allIds = events.map((e) => e.id);
-          const [regData, savedSet] = await Promise.all([
-            supabase
-              .from('event_registrations')
-              .select('event_id')
-              .eq('user_id', user.id)
-              .eq('status', 'going')
-              .in('event_id', allIds),
-            fetchSavedIds('event', allIds, user.id),
-          ]);
-          setRegisteredEventIds(
-            new Set((regData.data ?? []).map((r: any) => r.event_id as string)),
-          );
+          const savedSet = await fetchSavedIds('event', allIds, user.id);
           setSavedEventIds(savedSet);
         } catch (e) {
-          console.warn('[Events] registrations/saves fetch threw:', e);
-          setRegisteredEventIds(new Set());
+          console.warn('[Events] saves fetch threw:', e);
           setSavedEventIds(new Set());
         }
       } else {
-        setRegisteredEventIds(new Set());
         setSavedEventIds(new Set());
       }
     } catch (e) {
@@ -128,69 +114,6 @@ export default function EventsScreen() {
   const handleRefresh = () => {
     setRefreshing(true);
     fetchData();
-  };
-
-  const handleToggleRegister = async (event: EventItem) => {
-    if (!user?.id) return;
-    const currentlyRegistered = registeredEventIds.has(event.id);
-
-    // Optimistic update
-    setRegisteredEventIds((prev) => {
-      const next = new Set(prev);
-      currentlyRegistered ? next.delete(event.id) : next.add(event.id);
-      return next;
-    });
-    setAllEvents((prev) =>
-      prev.map((e) =>
-        e.id === event.id
-          ? {
-              ...e,
-              attendees_count: currentlyRegistered
-                ? Math.max(0, (e.attendees_count ?? 0) - 1)
-                : (e.attendees_count ?? 0) + 1,
-            }
-          : e,
-      ),
-    );
-
-    try {
-      if (!currentlyRegistered) {
-        const { error } = await supabase
-          .from('event_registrations')
-          .insert({ event_id: event.id, user_id: user.id, status: 'going' });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('event_registrations')
-          .delete()
-          .eq('event_id', event.id)
-          .eq('user_id', user.id);
-        if (error) throw error;
-      }
-    } catch (e: unknown) {
-      // Revert both optimistic changes
-      setRegisteredEventIds((prev) => {
-        const next = new Set(prev);
-        currentlyRegistered ? next.add(event.id) : next.delete(event.id);
-        return next;
-      });
-      setAllEvents((prev) =>
-        prev.map((e) =>
-          e.id === event.id
-            ? {
-                ...e,
-                attendees_count: currentlyRegistered
-                  ? (e.attendees_count ?? 0) + 1
-                  : Math.max(0, (e.attendees_count ?? 0) - 1),
-              }
-            : e,
-        ),
-      );
-      Alert.alert(
-        'Could not update registration',
-        e instanceof Error ? e.message : 'Unknown error',
-      );
-    }
   };
 
   // ── Save toggle (optimistic + rollback) — Batch 46b ─────────────────────
@@ -393,9 +316,7 @@ export default function EventsScreen() {
               <EventCard
                 key={event.id}
                 event={event}
-                isRegistered={registeredEventIds.has(event.id)}
                 isPast={true}
-                onToggleRegister={handleToggleRegister}
                 isSaved={savedEventIds.has(event.id)}
                 onToggleSave={handleToggleSaveEvent}
               />
@@ -457,9 +378,7 @@ export default function EventsScreen() {
           <View style={{ marginHorizontal: 20 }}>
             <EventCard
               event={item}
-              isRegistered={registeredEventIds.has(item.id)}
               isPast={false}
-              onToggleRegister={handleToggleRegister}
               isSaved={savedEventIds.has(item.id)}
               onToggleSave={handleToggleSaveEvent}
             />

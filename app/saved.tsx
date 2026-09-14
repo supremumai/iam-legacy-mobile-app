@@ -66,12 +66,10 @@ function CardSeparator() {
 
 function SavedEventCard({
   item,
-  isRegistered,
   onUnsave,
   onPress,
 }: {
   item: HomeEventCard;
-  isRegistered: boolean;
   onUnsave: () => void;
   onPress: () => void;
 }) {
@@ -167,38 +165,8 @@ function SavedEventCard({
         )}
       </Pressable>
 
-      {/* Lower bar: registration badge (Saved-exclusive) + bookmark unsave */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 12,
-          paddingBottom: 10,
-          paddingTop: 2,
-        }}
-      >
-        {/* Registration badge — ONLY on this screen, never passed elsewhere */}
-        <View
-          style={{
-            backgroundColor: isRegistered ? '#DCFCE7' : 'rgba(255,255,255,0.08)',
-            borderRadius: 999,
-            paddingHorizontal: 8,
-            paddingVertical: 3,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: Fonts.bodySemiBold,
-              fontSize: 10,
-              color: isRegistered ? '#16A34A' : 'rgba(255,255,255,0.45)',
-            }}
-          >
-            {isRegistered ? 'Registered' : 'Not registered'}
-          </Text>
-        </View>
-
-        {/* Bookmark — filled/gold; tap removes from saved (static-style TouchableOpacity) */}
+      {/* Lower bar: bookmark only (right-aligned) */}
+      <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
           <Ionicons name="bookmark" size={16} color="#c9a84c" />
         </TouchableOpacity>
@@ -419,7 +387,6 @@ export default function SavedScreen() {
   const [events, setEvents] = useState<HomeEventCard[]>([]);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
   const [resources, setResources] = useState<HomeResourceCard[]>([]);
-  const [registeredEventIds, setRegisteredEventIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -453,8 +420,8 @@ export default function SavedScreen() {
       // Sentinel for empty groups — avoids unnecessary queries
       const noData = { data: [] as any[], error: null };
 
-      // Step 2: bulk fetch objects + registrations, all in parallel
-      const [eventsResult, postsResult, resourcesResult, regResult] = await Promise.all([
+      // Step 2: bulk fetch objects, all in parallel
+      const [eventsResult, postsResult, resourcesResult] = await Promise.all([
         eventIds.length > 0
           ? supabase
               .from('events')
@@ -473,13 +440,6 @@ export default function SavedScreen() {
               .select('id, title, youtube_video_id, thumbnail_url, created_at')
               .in('id', resourceIds)
           : Promise.resolve(noData),
-        eventIds.length > 0
-          ? supabase
-              .from('event_registrations')
-              .select('event_id')
-              .eq('user_id', user.id)
-              .in('event_id', eventIds)
-          : Promise.resolve(noData),
       ]);
 
       setEvents((eventsResult.data ?? []) as HomeEventCard[]);
@@ -493,9 +453,6 @@ export default function SavedScreen() {
         })),
       );
       setResources((resourcesResult.data ?? []) as HomeResourceCard[]);
-      setRegisteredEventIds(
-        new Set((regResult.data ?? []).map((r: any) => r.event_id as string)),
-      );
     } catch (e) {
       console.warn('[Saved] fetchData threw:', e);
       // Partial display is better than wiping state on error; leave existing lists
@@ -668,7 +625,6 @@ export default function SavedScreen() {
               renderItem={({ item }) => (
                 <SavedEventCard
                   item={item}
-                  isRegistered={registeredEventIds.has(item.id)}
                   onUnsave={() => handleUnsaveEvent(item)}
                   onPress={() => router.push('/events' as any)}
                 />

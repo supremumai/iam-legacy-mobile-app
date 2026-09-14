@@ -1,4 +1,4 @@
-import { Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
@@ -25,9 +25,7 @@ function parseDateParts(isoString: string | null): DateParts {
 
 interface Props {
   event: EventItem;
-  isRegistered: boolean;
   isPast: boolean;
-  onToggleRegister: (event: EventItem) => void;
   /** Whether this event is saved by the current user. Default: false. */
   isSaved?: boolean;
   /** Called when the user taps the bookmark icon. Parent manages optimistic state. */
@@ -36,9 +34,7 @@ interface Props {
 
 export default function EventCard({
   event,
-  isRegistered,
   isPast,
-  onToggleRegister,
   isSaved = false,
   onToggleSave,
 }: Props) {
@@ -206,7 +202,7 @@ export default function EventCard({
             {attendees} going
           </Text>
 
-          {/* Right group: bookmark (always) + register button (upcoming only) */}
+          {/* Right group: bookmark (always) + register button (upcoming + has URL only) */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             {/* Bookmark — static-style TouchableOpacity (bug-recurrence rule) */}
             <TouchableOpacity
@@ -221,39 +217,28 @@ export default function EventCard({
               />
             </TouchableOpacity>
 
-            {!isPast ? (
-              <Pressable
-                onPress={() => onToggleRegister(event)}
-                style={({ pressed }) =>
-                  isRegistered
-                    ? {
-                        backgroundColor: '#1c1a14',
-                        borderWidth: 1,
-                        borderColor: 'rgba(201,168,76,0.22)',
-                        borderRadius: 8,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        opacity: pressed ? 0.7 : 1,
-                      }
-                    : {
-                        backgroundColor: '#c9a84c',
-                        borderRadius: 8,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        opacity: pressed ? 0.8 : 1,
-                      }
-                }
-              >
-                <Text
-                  style={
-                    isRegistered
-                      ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#FFFFFF' }
-                      : { fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }
+            {/* Register — only rendered when the event has a registration_url and is upcoming */}
+            {!isPast && event.registration_url ? (
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    await Linking.openURL(event.registration_url!);
+                  } catch {
+                    Alert.alert('Could not open the registration link');
                   }
-                >
-                  {isRegistered ? 'Registered' : 'Register'}
+                }}
+                activeOpacity={0.7}
+                style={{
+                  backgroundColor: '#c9a84c',
+                  borderRadius: 8,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                }}
+              >
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }}>
+                  Register
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             ) : null}
           </View>
         </View>

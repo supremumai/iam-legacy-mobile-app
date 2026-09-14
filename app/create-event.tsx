@@ -75,6 +75,7 @@ export default function CreateEventScreen() {
   const [dateInput, setDateInput] = useState('');
   const [timeInput, setTimeInput] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [registrationUrl, setRegistrationUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // ── Validation ────────────────────────────────────────────────────────────
@@ -86,6 +87,13 @@ export default function CreateEventScreen() {
 
   const dateError = dateTouched && parsedDate === null ? 'Enter a valid date' : null;
   const timeError = timeTouched && parsedTime === null ? 'Enter a valid time' : null;
+  const registrationUrlTouched = registrationUrl.trim().length > 0;
+  const registrationUrlError =
+    registrationUrlTouched &&
+    !registrationUrl.trim().startsWith('http://') &&
+    !registrationUrl.trim().startsWith('https://')
+      ? 'Enter a valid URL starting with http:// or https://'
+      : null;
 
   let scheduledDate: Date | null = null;
   if (parsedDate && parsedTime) {
@@ -102,6 +110,7 @@ export default function CreateEventScreen() {
     eventTitle.trim().length > 0 &&
     parsedDate !== null &&
     parsedTime !== null &&
+    !registrationUrlError &&
     !submitting;
 
   // ── Non-admin guard ───────────────────────────────────────────────────────
@@ -152,6 +161,7 @@ export default function CreateEventScreen() {
       event_date: scheduledDate.toISOString(),
       is_online: eventType === 'online',
       image_url: imageUrl.trim() || null,
+      registration_url: registrationUrl.trim() || null,
       created_by: user.id,
     });
     setSubmitting(false);
@@ -477,6 +487,53 @@ export default function CreateEventScreen() {
                 fontSize: 14,
               }}
             />
+          </View>
+
+          {/* Registration link */}
+          <View style={{ marginTop: 16 }}>
+            <Text
+              style={{
+                fontFamily: Fonts.bodySemiBold,
+                fontSize: 13,
+                color: 'rgba(255,255,255,0.55)',
+                marginBottom: 8,
+              }}
+            >
+              Registration link (optional)
+            </Text>
+            <TextInput
+              value={registrationUrl}
+              onChangeText={setRegistrationUrl}
+              placeholder="https://..."
+              placeholderTextColor="rgba(255,255,255,0.35)"
+              autoCapitalize="none"
+              keyboardType="url"
+              style={{
+                backgroundColor: '#1c1a14',
+                borderWidth: 1,
+                borderColor: registrationUrlError
+                  ? '#EF4444'
+                  : 'rgba(201,168,76,0.22)',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                color: '#FFFFFF',
+                fontFamily: Fonts.body,
+                fontSize: 14,
+              }}
+            />
+            {registrationUrlError ? (
+              <Text
+                style={{
+                  fontFamily: Fonts.body,
+                  fontSize: 12,
+                  color: '#EF4444',
+                  marginTop: 4,
+                }}
+              >
+                {registrationUrlError}
+              </Text>
+            ) : null}
           </View>
 
           {/* Submit */}

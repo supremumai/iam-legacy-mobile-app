@@ -158,4 +158,5 @@ export interface EventItem {
   image_url: string | null;
   created_by: string | null;
   created_at: string | null;
+  registration_url: string | null;
 }
