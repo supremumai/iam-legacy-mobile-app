@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import { useIsAdmin } from '../hooks/useIsAdmin';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { pickAndUploadImage } from '../lib/upload';
@@ -37,7 +36,6 @@ interface OptionDraft {
 
 export default function PostComposer({ onPostCreated }: PostComposerProps) {
   const { user, profile } = useAuth();
-  const isAdmin = useIsAdmin();
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [composerMode, setComposerMode] = useState<'post' | 'poll'>('post');
@@ -314,61 +312,59 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         marginTop: 16,
       }}
     >
-      {/* ── Admin-only segmented control: Post / Poll ── */}
-      {isAdmin ? (
-        <View
+      {/* ── Segmented control: Post / Poll ── */}
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: 'rgba(255,255,255,0.06)',
+          borderRadius: 8,
+          padding: 2,
+          marginBottom: 14,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setComposerMode('post')}
+          activeOpacity={0.8}
           style={{
-            flexDirection: 'row',
-            backgroundColor: 'rgba(255,255,255,0.06)',
-            borderRadius: 8,
-            padding: 2,
-            marginBottom: 14,
+            flex: 1,
+            paddingVertical: 7,
+            borderRadius: 6,
+            alignItems: 'center',
+            backgroundColor: composerMode === 'post' ? '#c9a84c' : 'transparent',
           }}
         >
-          <TouchableOpacity
-            onPress={() => setComposerMode('post')}
-            activeOpacity={0.8}
+          <Text
             style={{
-              flex: 1,
-              paddingVertical: 7,
-              borderRadius: 6,
-              alignItems: 'center',
-              backgroundColor: composerMode === 'post' ? '#c9a84c' : 'transparent',
+              fontFamily: Fonts.bodySemiBold,
+              fontSize: 13,
+              color: composerMode === 'post' ? '#0a0900' : 'rgba(255,255,255,0.6)',
             }}
           >
-            <Text
-              style={{
-                fontFamily: Fonts.bodySemiBold,
-                fontSize: 13,
-                color: composerMode === 'post' ? '#0a0900' : 'rgba(255,255,255,0.6)',
-              }}
-            >
-              Post
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setComposerMode('poll')}
-            activeOpacity={0.8}
+            Post
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setComposerMode('poll')}
+          activeOpacity={0.8}
+          style={{
+            flex: 1,
+            paddingVertical: 7,
+            borderRadius: 6,
+            alignItems: 'center',
+            backgroundColor: composerMode === 'poll' ? '#c9a84c' : 'transparent',
+          }}
+        >
+          <Text
             style={{
-              flex: 1,
-              paddingVertical: 7,
-              borderRadius: 6,
-              alignItems: 'center',
-              backgroundColor: composerMode === 'poll' ? '#c9a84c' : 'transparent',
+              fontFamily: Fonts.bodySemiBold,
+              fontSize: 13,
+              color: composerMode === 'poll' ? '#0a0900' : 'rgba(255,255,255,0.6)',
             }}
           >
-            <Text
-              style={{
-                fontFamily: Fonts.bodySemiBold,
-                fontSize: 13,
-                color: composerMode === 'poll' ? '#0a0900' : 'rgba(255,255,255,0.6)',
-              }}
-            >
-              Poll
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
+            Poll
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* ════════════════════════════════════════════════════════
           POST MODE — unchanged from original
@@ -533,7 +529,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         </>
       ) : (
         /* ════════════════════════════════════════════════════════
-           POLL MODE — admin only
+           POLL MODE
            ════════════════════════════════════════════════════════ */
         <View style={{ gap: 12 }}>
           {/* ── Question input ── */}
