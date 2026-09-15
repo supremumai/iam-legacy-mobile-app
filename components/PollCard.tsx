@@ -7,6 +7,7 @@ import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { Poll, PollOption, PollWithMeta, PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PollCardProps {
   post: PostWithAuthor;
@@ -15,14 +16,18 @@ interface PollCardProps {
   onVoteChange: (updated: PollWithMeta) => void;
 }
 
-function formatCloses(closesAt: string | null, isClosed: boolean): string {
+function formatCloses(
+  closesAt: string | null,
+  isClosed: boolean,
+  t: (key: string, params?: object) => string,
+): string {
   if (!closesAt) return '';
-  if (isClosed) return ' · cerrada';
+  if (isClosed) return t('community.poll_closed_suffix');
   const diffMs = new Date(closesAt).getTime() - Date.now();
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (hours < 1) return ' · cierra en menos de 1h';
-  if (hours < 24) return ` · cierra en ${hours}h`;
-  return ` · cierra en ${Math.floor(hours / 24)}d`;
+  if (hours < 1) return t('community.poll_closes_under_1h_suffix');
+  if (hours < 24) return t('community.poll_closes_in_hours_suffix', { hours });
+  return t('community.poll_closes_in_days_suffix', { days: Math.floor(hours / 24) });
 }
 
 export default function PollCard({
@@ -32,6 +37,7 @@ export default function PollCard({
   onVoteChange,
 }: PollCardProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [localMeta, setLocalMeta] = useState<PollWithMeta>(pollMeta);
   const [voting, setVoting] = useState(false);
 
@@ -121,8 +127,8 @@ export default function PollCard({
         setLocalMeta(prevMeta);
         onVoteChange(prevMeta);
         Alert.alert(
-          'No se pudo votar',
-          e instanceof Error ? e.message : 'Error desconocido',
+          t('community.could_not_vote'),
+          e instanceof Error ? e.message : t('common.unknown_error'),
         );
       } finally {
         setVoting(false);
@@ -228,7 +234,7 @@ export default function PollCard({
           }}
         >
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 10, color: '#c9a84c' }}>
-            Encuesta
+            {t('community.poll_badge')}
           </Text>
         </View>
       </View>
@@ -382,8 +388,8 @@ export default function PollCard({
           marginTop: 12,
         }}
       >
-        {total_votes} {total_votes === 1 ? 'voto' : 'votos'}
-        {formatCloses(poll.closes_at, isClosed)}
+        {total_votes === 1 ? t('community.one_vote') : t('community.count_votes', { count: total_votes })}
+        {formatCloses(poll.closes_at, isClosed, t)}
       </Text>
     </View>
   );

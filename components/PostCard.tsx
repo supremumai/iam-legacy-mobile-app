@@ -8,6 +8,7 @@ import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import YouTubePreview from './YouTubePreview';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -37,6 +38,7 @@ export default function PostCard({
   onToggleSave,
 }: PostCardProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const isOwner = post.user_id === currentUserId;
   const author = post.author;
 
@@ -46,7 +48,7 @@ export default function PostCard({
     author?.full_name ??
     (author?.username ? `@${author.username}` : 'Legacy Member');
 
-  const editedSuffix = post.updated_at ? ' (edited)' : '';
+  const editedSuffix = post.updated_at ? t('community.edited_suffix') : '';
   const subLine = author?.username
     ? `@${author.username} · ${formatRelativeTime(post.created_at)}${editedSuffix}`
     : `${formatRelativeTime(post.created_at)}${editedSuffix}`;
@@ -55,12 +57,12 @@ export default function PostCard({
   // ─── Two-step delete: confirm then delete ──────────────────────────────────
   const handleDeletePress = () => {
     Alert.alert(
-      'Delete Post',
-      "This can't be undone.",
+      t('community.delete_post'),
+      t('community.delete_confirm_body'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('events.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -70,15 +72,15 @@ export default function PostCard({
                 .eq('id', post.id);
 
               if (error) {
-                Alert.alert('Could not delete', error.message);
+                Alert.alert(t('community.could_not_delete_post'), error.message);
                 return;
               }
 
               onDeleted(post.id);
             } catch (e: unknown) {
               Alert.alert(
-                'Could not delete',
-                e instanceof Error ? e.message : 'Unknown error',
+                t('community.could_not_delete_post'),
+                e instanceof Error ? e.message : t('common.unknown_error'),
               );
             }
           },
@@ -89,10 +91,10 @@ export default function PostCard({
 
   // ─── Kebab menu ───────────────────────────────────────────────────────────
   const handleOptionsPress = () => {
-    Alert.alert('Post Options', undefined, [
-      { text: 'Edit Post', onPress: () => onEditPost(post) },
-      { text: 'Delete Post', style: 'destructive', onPress: handleDeletePress },
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('community.post_options'), undefined, [
+      { text: t('community.edit_post'), onPress: () => onEditPost(post) },
+      { text: t('community.delete_post'), style: 'destructive', onPress: handleDeletePress },
+      { text: t('common.cancel'), style: 'cancel' },
     ]);
   };
 

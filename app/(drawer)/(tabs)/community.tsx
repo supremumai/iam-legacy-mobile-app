@@ -23,10 +23,12 @@ import PostComposer from '../../../components/PostComposer';
 import PostCard from '../../../components/PostCard';
 import PollCard from '../../../components/PollCard';
 import CommentsSheet from '../../../components/CommentsSheet';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 export default function CommunityScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -261,7 +263,7 @@ export default function CommunityScreen() {
             : p,
         ),
       );
-      Alert.alert('Could not update like', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('community.could_not_update_like'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -284,7 +286,7 @@ export default function CommunityScreen() {
         isCurrentlySaved ? next.add(post.id) : next.delete(post.id);
         return next;
       });
-      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('community.could_not_update_save'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -333,7 +335,7 @@ export default function CommunityScreen() {
             color: '#c9a84c',
           }}
         >
-          Community
+          {t('community.title')}
         </Text>
 
         {/* Members + Leaderboard icon buttons — visible to all users */}
@@ -418,22 +420,22 @@ export default function CommunityScreen() {
                     color: activeTopicId === null ? '#0a0900' : '#FFFFFF',
                   }}
                 >
-                  All
+                  {t('community.filter_all')}
                 </Text>
               </View>
             )}
           </Pressable>
 
-          {topics.map((t) => (
+          {topics.map((topic) => (
             <Pressable
-              key={t.id}
-              onPress={() => setActiveTopicId(t.id)}
+              key={topic.id}
+              onPress={() => setActiveTopicId(topic.id)}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: activeTopicId === t.id ? '#c9a84c' : '#1c1a14',
+                backgroundColor: activeTopicId === topic.id ? '#c9a84c' : '#1c1a14',
                 borderWidth: 1,
-                borderColor: activeTopicId === t.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+                borderColor: activeTopicId === topic.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
                 borderRadius: 100,
                 paddingHorizontal: 14,
                 paddingVertical: 6,
@@ -449,21 +451,21 @@ export default function CommunityScreen() {
                     opacity: pressed ? 0.7 : 1,
                   }}
                 >
-                  {t.icon ? (
+                  {topic.icon ? (
                     <Ionicons
-                      name={t.icon as any}
+                      name={topic.icon as any}
                       size={12}
-                      color={activeTopicId === t.id ? '#0a0900' : '#c9a84c'}
+                      color={activeTopicId === topic.id ? '#0a0900' : '#c9a84c'}
                     />
                   ) : null}
                   <Text
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 12,
-                      color: activeTopicId === t.id ? '#0a0900' : '#FFFFFF',
+                      color: activeTopicId === topic.id ? '#0a0900' : '#FFFFFF',
                     }}
                   >
-                    {t.name}
+                    {topic.name}
                   </Text>
                 </View>
               )}
@@ -482,7 +484,7 @@ export default function CommunityScreen() {
   // show a topic-specific message. Otherwise show the generic "no posts yet".
   const isTopicFilteredEmpty =
     !loading && activeTopicId !== null && posts.length > 0 && filteredPosts.length === 0;
-  const activeTopicName = topics.find((t) => t.id === activeTopicId)?.name ?? 'this topic';
+  const activeTopicName = topics.find((topic) => topic.id === activeTopicId)?.name ?? t('community.this_topic_fallback');
 
   const listEmpty = loading ? (
     <View style={{ alignItems: 'center', paddingVertical: 40 }}>
@@ -491,7 +493,7 @@ export default function CommunityScreen() {
   ) : isTopicFilteredEmpty ? (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No posts in {activeTopicName} yet
+        {t('community.no_posts_in_topic', { topic: activeTopicName })}
       </Text>
       <Text
         style={{
@@ -502,13 +504,13 @@ export default function CommunityScreen() {
           textAlign: 'center',
         }}
       >
-        Be the first to post here.
+        {t('community.be_first_to_post_here')}
       </Text>
     </View>
   ) : (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No posts yet
+        {t('community.no_posts_yet')}
       </Text>
       <Text
         style={{
@@ -519,7 +521,7 @@ export default function CommunityScreen() {
           textAlign: 'center',
         }}
       >
-        Be the first to share something with the community.
+        {t('community.be_first_to_share')}
       </Text>
     </View>
   );
