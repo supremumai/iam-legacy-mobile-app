@@ -13,6 +13,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { LanguageProvider } from '../contexts/LanguageContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -80,8 +81,10 @@ export default function RootLayout() {
   });
 
   return (
-    <AuthProvider>
-      <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
