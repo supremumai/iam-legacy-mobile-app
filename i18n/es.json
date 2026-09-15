@@ -4,6 +4,18 @@
     "language_english": "Inglés",
     "language_spanish": "Español"
   },
+  "home": {
+    "online": "En línea",
+    "untitled_event": "Evento sin título",
+    "community_badge": "Comunidad",
+    "education_badge": "Educación",
+    "upcoming_events": "Próximos eventos",
+    "no_upcoming_events": "No hay próximos eventos",
+    "from_the_community": "De la comunidad",
+    "no_posts_yet": "Aún no hay publicaciones",
+    "latest_in_education": "Lo último en educación",
+    "no_videos_yet": "Aún no hay videos"
+  },
   "drawer": {
     "greeting_fallback": "amigo",
     "welcome": "Bienvenido, %{name}",

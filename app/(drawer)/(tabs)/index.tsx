@@ -13,6 +13,7 @@ import {
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 // ─── Card sub-components ───────────────────────────────────────────────────────
 // All Pressables use the SAFE static-style pattern:
@@ -20,6 +21,7 @@ import GlobalHeader from '../../../components/GlobalHeader';
 //   pressed-opacity         → inner <View style={{ opacity: ... }}> via children render-prop
 
 function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void }) {
+  const { t } = useLanguage();
   const dateLabel = item.event_date
     ? (() => {
         const d = new Date(item.event_date);
@@ -28,7 +30,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
         );
       })()
     : null;
-  const locationLine = item.is_online ? 'Online' : item.location ?? null;
+  const locationLine = item.is_online ? t('home.online') : item.location ?? null;
 
   return (
     <Pressable
@@ -91,7 +93,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
               }}
               numberOfLines={2}
             >
-              {item.title ?? 'Untitled Event'}
+              {item.title ?? t('home.untitled_event')}
             </Text>
             {locationLine ? (
               <Text
@@ -114,6 +116,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
 }
 
 function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () => void }) {
+  const { t } = useLanguage();
   // Image priority: uploaded image → YouTube thumbnail → placeholder
   const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
   const thumbUri = item.image_url
@@ -170,7 +173,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
                 letterSpacing: 0.6,
               }}
             >
-              COMMUNITY
+              {t('home.community_badge')}
             </Text>
             <Text
               style={{
@@ -202,6 +205,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
 }
 
 function ResourceCard({ item, onPress }: { item: HomeResourceCard; onPress: () => void }) {
+  const { t } = useLanguage();
   const thumbUri = item.thumbnail_url ?? youTubeThumbnailUrl(item.youtube_video_id);
 
   return (
@@ -263,7 +267,7 @@ function ResourceCard({ item, onPress }: { item: HomeResourceCard; onPress: () =
                 letterSpacing: 0.6,
               }}
             >
-              EDUCATION
+              {t('home.education_badge')}
             </Text>
             <Text
               style={{
@@ -325,6 +329,7 @@ function CardSeparator() {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Each section has independent loaded/items state
   const [events, setEvents] = useState<HomeEventCard[]>([]);
@@ -366,10 +371,10 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         {/* SECTION 1 — Upcoming Events */}
-        <SectionTitle>Upcoming Events</SectionTitle>
+        <SectionTitle>{t('home.upcoming_events')}</SectionTitle>
         {eventsLoaded ? (
           events.length === 0 ? (
-            <EmptySection message="No upcoming events" />
+            <EmptySection message={t('home.no_upcoming_events')} />
           ) : (
             <FlatList<HomeEventCard>
               horizontal
@@ -386,10 +391,10 @@ export default function HomeScreen() {
         ) : null}
 
         {/* SECTION 2 — From the Community */}
-        <SectionTitle>From the Community</SectionTitle>
+        <SectionTitle>{t('home.from_the_community')}</SectionTitle>
         {postsLoaded ? (
           posts.length === 0 ? (
-            <EmptySection message="No posts yet" />
+            <EmptySection message={t('home.no_posts_yet')} />
           ) : (
             <FlatList<HomePostCard>
               horizontal
@@ -409,10 +414,10 @@ export default function HomeScreen() {
         ) : null}
 
         {/* SECTION 3 — Latest in Education */}
-        <SectionTitle>Latest in Education</SectionTitle>
+        <SectionTitle>{t('home.latest_in_education')}</SectionTitle>
         {resourcesLoaded ? (
           resources.length === 0 ? (
-            <EmptySection message="No videos yet" />
+            <EmptySection message={t('home.no_videos_yet')} />
           ) : (
             <FlatList<HomeResourceCard>
               horizontal
