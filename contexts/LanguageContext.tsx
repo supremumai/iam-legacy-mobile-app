@@ -31,16 +31,18 @@ function detectDeviceLocale(): Locale {
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
+  // Sync the i18n singleton to current React state at render time — BEFORE t() can be called
+  // by any child. This is the source of truth; setLocale also sets it early as belt-and-suspenders.
+  i18n.locale = locale;
+
   useEffect(() => {
     async function loadLocale() {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
         if (stored === 'en' || stored === 'es') {
-          i18n.locale = stored;
           setLocaleState(stored);
         } else {
           const detected = detectDeviceLocale();
-          i18n.locale = detected;
           setLocaleState(detected);
           try {
             await AsyncStorage.setItem(STORAGE_KEY, detected);
@@ -48,7 +50,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {
         const detected = detectDeviceLocale();
-        i18n.locale = detected;
         setLocaleState(detected);
       }
     }
@@ -63,6 +64,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }
 
+  // Recreated on every render — when locale state changes, this re-render means
+  // i18n.locale is already updated (line above), so i18n.t() returns the new strings.
   function t(key: string, params?: object): string {
     return i18n.t(key, params);
   }
