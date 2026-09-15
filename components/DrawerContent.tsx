@@ -71,11 +71,10 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
   const isAdmin = useIsAdmin();
   const { locale, setLocale, t } = useLanguage();
 
-  // First name for the greeting — falls back to username or the generic 'there'
   const firstName =
     profile?.full_name?.split(' ')[0] ??
     profile?.username ??
-    'there';
+    t('drawer.greeting_fallback');
 
   const navigate = (path: string) => {
     navigation.closeDrawer();
@@ -150,7 +149,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             }}
             numberOfLines={1}
           >
-            Welcome, {firstName}
+            {t('drawer.welcome', { name: firstName })}
           </Text>
         </View>
 
@@ -165,15 +164,15 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               marginTop: 16,
             }}
           >
-            <SectionLabel title="Community" />
+            <SectionLabel title={t('drawer.community_section')} />
             <DrawerItem
               icon="calendar-outline"
-              label="Create Event"
+              label={t('drawer.create_event')}
               onPress={() => navigate('/create-event')}
             />
             <DrawerItem
               icon="book-outline"
-              label="Manage Education"
+              label={t('drawer.manage_education')}
               onPress={handleManageEducation}
             />
           </View>
@@ -189,20 +188,20 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             marginTop: 16,
           }}
         >
-          <SectionLabel title="App" />
+          <SectionLabel title={t('drawer.app_section')} />
           <DrawerItem
             icon="people-outline"
-            label="Invite Friends"
+            label={t('drawer.invite_friends')}
             onPress={() => navigate('/invite')}
           />
           <DrawerItem
             icon="help-circle-outline"
-            label="Help & Support"
+            label={t('drawer.help_support')}
             onPress={() => navigate('/support')}
           />
           <DrawerItem
             icon="information-circle-outline"
-            label="About"
+            label={t('drawer.about')}
             onPress={() => navigate('/about')}
           />
 
@@ -278,7 +277,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
         >
           <DrawerItem
             icon="log-out-outline"
-            label="Log Out"
+            label={t('drawer.log_out')}
             onPress={handleSignOut}
           />
         </View>

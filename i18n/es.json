@@ -3,5 +3,17 @@
     "language": "Idioma",
     "language_english": "Inglés",
     "language_spanish": "Español"
+  },
+  "drawer": {
+    "greeting_fallback": "amigo",
+    "welcome": "Bienvenido, %{name}",
+    "community_section": "Comunidad",
+    "create_event": "Crear evento",
+    "manage_education": "Gestionar educación",
+    "app_section": "App",
+    "invite_friends": "Invitar amigos",
+    "help_support": "Ayuda y soporte",
+    "about": "Acerca de",
+    "log_out": "Cerrar sesión"
   }
 }
