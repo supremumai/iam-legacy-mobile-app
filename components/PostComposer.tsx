@@ -19,6 +19,7 @@ import { pickAndUploadImage } from '../lib/upload';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
 import YouTubePreview from './YouTubePreview';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PostComposerProps {
   onPostCreated: () => void;
@@ -36,6 +37,7 @@ interface OptionDraft {
 
 export default function PostComposer({ onPostCreated }: PostComposerProps) {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [composerMode, setComposerMode] = useState<'post' | 'poll'>('post');
@@ -117,7 +119,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         .insert({ user_id: user.id, content: trimmed, image_url: pickedImageUrl, topic_id: selectedTopicId });
 
       if (error) {
-        Alert.alert('Could not post', error.message);
+        Alert.alert(t('composer.could_not_post'), error.message);
         return;
       }
 
@@ -126,7 +128,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
       setSelectedTopicId(null);
       onPostCreated();
     } catch (e: unknown) {
-      Alert.alert('Could not post', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('composer.could_not_post'), e instanceof Error ? e.message : t('common.unknown_error'));
     } finally {
       setSubmitting(false);
     }
@@ -211,8 +213,8 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         try { await supabase.from('posts').delete().eq('id', postId); } catch { /* best-effort */ }
       }
       Alert.alert(
-        'Could not publish poll',
-        e instanceof Error ? e.message : 'Unknown error',
+        t('composer.could_not_publish_poll'),
+        e instanceof Error ? e.message : t('common.unknown_error'),
       );
     } finally {
       setSubmittingPoll(false);
@@ -250,22 +252,22 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                   color: selectedTopicId === null ? '#0a0900' : '#FFFFFF',
                 }}
               >
-                No Topic
+                {t('composer.no_topic')}
               </Text>
             </View>
           )}
         </Pressable>
 
-        {topics.map((t) => (
+        {topics.map((topic) => (
           <Pressable
-            key={t.id}
-            onPress={() => setSelectedTopicId(t.id)}
+            key={topic.id}
+            onPress={() => setSelectedTopicId(topic.id)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: selectedTopicId === t.id ? '#c9a84c' : '#1c1a14',
+              backgroundColor: selectedTopicId === topic.id ? '#c9a84c' : '#1c1a14',
               borderWidth: 1,
-              borderColor: selectedTopicId === t.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+              borderColor: selectedTopicId === topic.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
               borderRadius: 100,
               paddingHorizontal: 12,
               paddingVertical: 6,
@@ -276,21 +278,21 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: pressed ? 0.7 : 1 }}
               >
-                {t.icon ? (
+                {topic.icon ? (
                   <Ionicons
-                    name={t.icon as any}
+                    name={topic.icon as any}
                     size={12}
-                    color={selectedTopicId === t.id ? '#0a0900' : '#c9a84c'}
+                    color={selectedTopicId === topic.id ? '#0a0900' : '#c9a84c'}
                   />
                 ) : null}
                 <Text
                   style={{
                     fontFamily: Fonts.bodySemiBold,
                     fontSize: 12,
-                    color: selectedTopicId === t.id ? '#0a0900' : '#FFFFFF',
+                    color: selectedTopicId === topic.id ? '#0a0900' : '#FFFFFF',
                   }}
                 >
-                  {t.name}
+                  {topic.name}
                 </Text>
               </View>
             )}
@@ -340,7 +342,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               color: composerMode === 'post' ? '#0a0900' : 'rgba(255,255,255,0.6)',
             }}
           >
-            Post
+            {t('composer.tab_post')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -361,7 +363,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               color: composerMode === 'poll' ? '#0a0900' : 'rgba(255,255,255,0.6)',
             }}
           >
-            Poll
+            {t('composer.tab_poll')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -410,7 +412,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               maxLength={2000}
               value={content}
               onChangeText={setContent}
-              placeholder="Share something with the community..."
+              placeholder={t('composer.post_placeholder')}
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
           </View>
@@ -481,7 +483,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     const result = await pickAndUploadImage(user.id, 'posts', { aspect: [4, 3] });
                     setUploadingImage(false);
                     if ('error' in result) {
-                      Alert.alert('Could not attach image', result.error);
+                      Alert.alert(t('composer.could_not_attach_image'), result.error);
                     } else if ('url' in result) {
                       setPickedImageUrl(result.url);
                     }
@@ -520,7 +522,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                       color: isPostDisabled ? 'rgba(10,9,0,0.5)' : '#0a0900',
                     }}
                   >
-                    Post
+                    {t('composer.submit_post')}
                   </Text>
                 )}
               </Pressable>
@@ -539,7 +541,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               maxLength={200}
               value={pollQuestion}
               onChangeText={setPollQuestion}
-              placeholder="What's your question?"
+              placeholder={t('composer.poll_question_placeholder')}
               placeholderTextColor="rgba(255,255,255,0.4)"
               style={{
                 fontSize: 15,
@@ -577,7 +579,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     maxLength={80}
                     value={opt.label}
                     onChangeText={(v) => handleOptionChange(opt.id, v)}
-                    placeholder={`Option ${idx + 1}`}
+                    placeholder={t('composer.option_placeholder', { number: idx + 1 })}
                     placeholderTextColor="rgba(255,255,255,0.3)"
                     style={{
                       flex: 1,
@@ -617,7 +619,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     <Text
                       style={{ fontFamily: Fonts.body, fontSize: 11, color: '#EF4444' }}
                     >
-                      This option already exists
+                      {t('composer.option_duplicate_error')}
                     </Text>
                   ) : null}
                   <Text
@@ -651,7 +653,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               <Text
                 style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#c9a84c' }}
               >
-                Add option
+                {t('composer.add_option')}
               </Text>
             </TouchableOpacity>
           ) : null}
@@ -668,7 +670,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             <Text
               style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' }}
             >
-              Allow multiple answers
+              {t('composer.allow_multiple')}
             </Text>
             <Switch
               value={allowMultiple}
@@ -707,7 +709,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     color: isPollValid ? '#0a0900' : 'rgba(10,9,0,0.45)',
                   }}
                 >
-                  Publish
+                  {t('composer.submit_poll')}
                 </Text>
               )}
             </TouchableOpacity>

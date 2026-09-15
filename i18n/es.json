@@ -46,6 +46,22 @@
     "latest_in_education": "Lo último en educación",
     "no_videos_yet": "Aún no hay videos"
   },
+  "composer": {
+    "tab_post": "Post",
+    "tab_poll": "Encuesta",
+    "post_placeholder": "Comparte algo con la comunidad...",
+    "submit_post": "Publicar",
+    "could_not_post": "No se pudo publicar",
+    "could_not_attach_image": "No se pudo adjuntar la imagen",
+    "no_topic": "Sin tema",
+    "poll_question_placeholder": "¿Cuál es tu pregunta?",
+    "option_placeholder": "Opción %{number}",
+    "option_duplicate_error": "Esta opción ya existe",
+    "add_option": "Agregar opción",
+    "allow_multiple": "Permitir múltiples respuestas",
+    "submit_poll": "Publicar",
+    "could_not_publish_poll": "No se pudo publicar la encuesta"
+  },
   "community": {
     "title": "Comunidad",
     "filter_all": "Todos",
