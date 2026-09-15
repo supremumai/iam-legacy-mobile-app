@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useAuth } from '../contexts/AuthContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 
 // ─── DrawerItem ──────────────────────────────────────────────────────────────
@@ -68,6 +69,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
   const router = useRouter();
   const { profile, signOut } = useAuth();
   const isAdmin = useIsAdmin();
+  const { locale, setLocale, t } = useLanguage();
 
   // First name for the greeting — falls back to username or the generic 'there'
   const firstName =
@@ -203,6 +205,65 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             label="About"
             onPress={() => navigate('/about')}
           />
+
+          {/* Language toggle — does NOT close the drawer; setLocale() only */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 14,
+              borderBottomWidth: 1,
+              borderBottomColor: 'rgba(201,168,76,0.08)',
+              gap: 14,
+            }}
+          >
+            <Ionicons name="language-outline" size={20} color="rgba(255,255,255,0.65)" />
+            <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: '#FFFFFF', flex: 1 }}>
+              {t('settings.language')}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              <TouchableOpacity
+                onPress={() => setLocale('en')}
+                activeOpacity={0.75}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  borderRadius: 6,
+                  backgroundColor: locale === 'en' ? '#c9a84c' : 'rgba(255,255,255,0.1)',
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodySemiBold,
+                    fontSize: 12,
+                    color: locale === 'en' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+                  }}
+                >
+                  EN
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setLocale('es')}
+                activeOpacity={0.75}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  borderRadius: 6,
+                  backgroundColor: locale === 'es' ? '#c9a84c' : 'rgba(255,255,255,0.1)',
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodySemiBold,
+                    fontSize: 12,
+                    color: locale === 'es' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+                  }}
+                >
+                  ES
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* ── Log Out — standalone at bottom after divider ──────────── */}
