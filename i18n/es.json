@@ -130,5 +130,20 @@
     "help_support": "Ayuda y soporte",
     "about": "Acerca de",
     "log_out": "Cerrar sesión"
+  },
+  "profile": {
+    "could_not_load": "No se pudo cargar el perfil",
+    "complete_your_profile": "Completa tu perfil",
+    "legacy_member_fallback": "Miembro Legacy",
+    "add_your_role": "Agrega tu rol",
+    "stat_posts": "Posts",
+    "stat_comments": "Comentarios",
+    "stat_resources": "Recursos",
+    "action_edit": "Editar",
+    "action_saved": "Guardados",
+    "action_settings": "Ajustes",
+    "about_section": "Acerca de",
+    "bio_empty": "Agrega una biografía para contarle a la comunidad quién eres.",
+    "add_bio": "Agregar bio"
   }
 }

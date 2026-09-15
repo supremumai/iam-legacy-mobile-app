@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { fetchProfileWithTopics } from '../lib/profiles';
@@ -28,6 +29,8 @@ export default function ProfileScreen() {
   const { profile: ownProfile, user, refreshProfile, loading: authLoading } = useAuth();
 
   const isOwnProfile = !id || id === user?.id;
+
+  const { t } = useLanguage();
 
   // ── Other-user state ──────────────────────────────────────────────────────
   const [viewedProfile, setViewedProfile] = useState<ProfileWithTopics | null>(null);
@@ -144,19 +147,18 @@ export default function ProfileScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: '#0a0900', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
         <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: '#FFFFFF', marginBottom: 16, textAlign: 'center' }}>
-          Could not load profile
+          {t('profile.could_not_load')}
         </Text>
         <Pressable
           onPress={handleRetry}
-          style={({ pressed }) => ({
+          style={{
             backgroundColor: '#c9a84c',
             borderRadius: 8,
             paddingHorizontal: 24,
             paddingVertical: 10,
-            opacity: pressed ? 0.8 : 1,
-          })}
+          }}
         >
-          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>Retry</Text>
+          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>{t('events.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -166,8 +168,8 @@ export default function ProfileScreen() {
 
   // ── Name / role fallbacks differ by branch ────────────────────────────────
   const displayName = isOwnProfile
-    ? (activeProfile.full_name ?? 'Complete your profile')
-    : (activeProfile.full_name ?? (activeProfile.username ? `@${activeProfile.username}` : 'Legacy Member'));
+    ? (activeProfile.full_name ?? t('profile.complete_your_profile'))
+    : (activeProfile.full_name ?? (activeProfile.username ? `@${activeProfile.username}` : t('profile.legacy_member_fallback')));
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
@@ -181,7 +183,7 @@ export default function ProfileScreen() {
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
+            style={{ alignSelf: 'flex-start' }}
           >
             <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
           </Pressable>
@@ -265,7 +267,7 @@ export default function ProfileScreen() {
             </Text>
           ) : isOwnProfile ? (
             <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: 'rgba(255,255,255,0.35)' }}>
-              Add your role
+              {t('profile.add_your_role')}
             </Text>
           ) : null}
 
@@ -287,11 +289,11 @@ export default function ProfileScreen() {
           {/* Stats row */}
           <View style={{ flexDirection: 'row', marginTop: 20, marginBottom: 2, gap: 40 }}>
             {[
-              { value: loadingPosts ? '—' : formatCount(postsCount), label: 'Posts' },
-              { value: loadingComments ? '—' : formatCount(commentsCount), label: 'Comments' },
-              { value: loadingResources ? '—' : formatCount(resourcesCount), label: 'Resources' },
+              { id: 'posts', value: loadingPosts ? '—' : formatCount(postsCount), label: t('profile.stat_posts') },
+              { id: 'comments', value: loadingComments ? '—' : formatCount(commentsCount), label: t('profile.stat_comments') },
+              { id: 'resources', value: loadingResources ? '—' : formatCount(resourcesCount), label: t('profile.stat_resources') },
             ].map((stat) => (
-              <View key={stat.label} style={{ alignItems: 'center' }}>
+              <View key={stat.id} style={{ alignItems: 'center' }}>
                 <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 20, color: '#c9a84c' }}>
                   {stat.value}
                 </Text>
@@ -308,13 +310,13 @@ export default function ProfileScreen() {
           <View style={{ flexDirection: 'row', paddingHorizontal: 20, marginTop: 16, gap: 10 }}>
             {(
               [
-                { icon: 'create-outline', label: 'Edit', route: '/edit-profile' },
-                { icon: 'bookmark-outline', label: 'Saved', route: '/saved' },
-                { icon: 'settings-outline', label: 'Settings', route: '/settings' },
+                { icon: 'create-outline', id: 'edit', route: '/edit-profile' },
+                { icon: 'bookmark-outline', id: 'saved', route: '/saved' },
+                { icon: 'settings-outline', id: 'settings', route: '/settings' },
               ] as const
-            ).map(({ icon, label, route }) => (
+            ).map(({ icon, id, route }) => (
               <TouchableOpacity
-                key={label}
+                key={id}
                 onPress={() => router.push(route as any)}
                 activeOpacity={0.7}
                 style={{
@@ -336,7 +338,7 @@ export default function ProfileScreen() {
                     marginTop: 5,
                   }}
                 >
-                  {label}
+                  {t(`profile.action_${id}`)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -345,7 +347,7 @@ export default function ProfileScreen() {
 
         {/* About section */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>About</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>{t('profile.about_section')}</Text>
           <View
             style={{
               marginTop: 10,
@@ -363,13 +365,13 @@ export default function ProfileScreen() {
             ) : (
               <View>
                 <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 22 }}>
-                  Add a bio to tell the community who you are.
+                  {t('profile.bio_empty')}
                 </Text>
                 {/* "Add bio" link only appears on own profile */}
                 {isOwnProfile && (
                   <Pressable onPress={() => router.push('/edit-profile' as any)}>
                     <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c', marginTop: 8 }}>
-                      Add bio
+                      {t('profile.add_bio')}
                     </Text>
                   </Pressable>
                 )}

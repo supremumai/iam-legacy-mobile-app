@@ -130,5 +130,20 @@
     "help_support": "Help & Support",
     "about": "About",
     "log_out": "Log Out"
+  },
+  "profile": {
+    "could_not_load": "Could not load profile",
+    "complete_your_profile": "Complete your profile",
+    "legacy_member_fallback": "Legacy Member",
+    "add_your_role": "Add your role",
+    "stat_posts": "Posts",
+    "stat_comments": "Comments",
+    "stat_resources": "Resources",
+    "action_edit": "Edit",
+    "action_saved": "Saved",
+    "action_settings": "Settings",
+    "about_section": "About",
+    "bio_empty": "Add a bio to tell the community who you are.",
+    "add_bio": "Add bio"
   }
 }
