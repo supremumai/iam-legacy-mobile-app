@@ -20,6 +20,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { pickAndUploadImage } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type EventType = 'in-person' | 'online';
 
@@ -34,6 +35,7 @@ export default function CreateEventScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
 
   // Optional `id` param — present in edit mode, absent in create mode.
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -76,9 +78,9 @@ export default function CreateEventScreen() {
         if (cancelled) return;
         if (error || !data) {
           Alert.alert(
-            'Could not load event',
-            error?.message ?? 'Event not found',
-            [{ text: 'OK', onPress: () => router.back() }],
+            t('create_event.could_not_load'),
+            error?.message ?? t('create_event.event_not_found'),
+            [{ text: t('common.ok'), onPress: () => router.back() }],
           );
           return;
         }
@@ -96,8 +98,8 @@ export default function CreateEventScreen() {
         setRegistrationUrl(data.registration_url ?? '');
       } catch (e) {
         if (!cancelled) {
-          Alert.alert('Could not load event', 'Please try again.', [
-            { text: 'OK', onPress: () => router.back() },
+          Alert.alert(t('create_event.could_not_load'), t('create_event.please_try_again'), [
+            { text: t('common.ok'), onPress: () => router.back() },
           ]);
         }
       } finally {
@@ -116,7 +118,7 @@ export default function CreateEventScreen() {
   //                 Editing a past event (e.g. to fix its description) must not be blocked.
   const dateError = (() => {
     if (!isEditing) {
-      return eventDate < new Date() ? "Event date can't be in the past" : null;
+      return eventDate < new Date() ? t('create_event.date_past_error') : null;
     }
     // Edit: original date unchanged → no error (even if the event is already past).
     if (
@@ -125,7 +127,7 @@ export default function CreateEventScreen() {
     ) {
       return null;
     }
-    return eventDate < new Date() ? "Event date can't be in the past" : null;
+    return eventDate < new Date() ? t('create_event.date_past_error') : null;
   })();
 
   const registrationUrlTouched = registrationUrl.trim().length > 0;
@@ -133,7 +135,7 @@ export default function CreateEventScreen() {
     registrationUrlTouched &&
     !registrationUrl.trim().startsWith('http://') &&
     !registrationUrl.trim().startsWith('https://')
-      ? 'Enter a valid URL starting with http:// or https://'
+      ? t('create_event.url_invalid_error')
       : null;
 
   const canSubmit =
@@ -172,7 +174,7 @@ export default function CreateEventScreen() {
               textAlign: 'center',
             }}
           >
-            You don't have access to this page.
+            {t('create_event.no_access')}
           </Text>
         </View>
       </View>
@@ -238,11 +240,11 @@ export default function CreateEventScreen() {
       if ('url' in result) {
         setImageUrl(result.url);
       } else if ('error' in result) {
-        Alert.alert('Could not upload image', result.error);
+        Alert.alert(t('create_event.could_not_upload_image'), result.error);
       }
       // 'cancelled' → do nothing
     } catch {
-      Alert.alert('Could not upload image', 'Please try again.');
+      Alert.alert(t('create_event.could_not_upload_image'), t('create_event.please_try_again'));
     } finally {
       setImageUploading(false);
     }
@@ -268,7 +270,7 @@ export default function CreateEventScreen() {
           })
           .eq('id', id);
         if (error) throw error;
-        Alert.alert('Event updated', undefined, [{ text: 'OK', onPress: () => router.back() }]);
+        Alert.alert(t('create_event.event_updated'), undefined, [{ text: t('common.ok'), onPress: () => router.back() }]);
       } else {
         // Create mode — INSERT new event
         const { error } = await supabase.from('events').insert({
@@ -283,15 +285,15 @@ export default function CreateEventScreen() {
         });
         if (error) throw error;
         Alert.alert(
-          'Event Created',
-          `"${eventTitle.trim()}" has been added to the events list.`,
-          [{ text: 'OK', onPress: () => router.back() }],
+          t('create_event.event_created'),
+          t('create_event.event_created_body', { title: eventTitle.trim() }),
+          [{ text: t('common.ok'), onPress: () => router.back() }],
         );
       }
     } catch (e: unknown) {
       Alert.alert(
-        isEditing ? 'Could not update event' : 'Could not create event',
-        e instanceof Error ? e.message : 'Unknown error',
+        isEditing ? t('create_event.could_not_update') : t('create_event.could_not_create'),
+        e instanceof Error ? e.message : t('common.unknown_error'),
       );
     } finally {
       setSubmitting(false);
@@ -331,7 +333,7 @@ export default function CreateEventScreen() {
               marginTop: 8,
             }}
           >
-            {isEditing ? 'Edit Event' : 'Create Event'}
+            {isEditing ? t('create_event.title_edit') : t('create_event.title_create')}
           </Text>
 
           {/* Title */}
@@ -344,12 +346,12 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Title *
+              {t('create_event.label_title')}
             </Text>
             <TextInput
               value={eventTitle}
               onChangeText={setEventTitle}
-              placeholder="Event title"
+              placeholder={t('create_event.placeholder_title')}
               placeholderTextColor="rgba(255,255,255,0.35)"
               maxLength={200}
               style={{
@@ -376,12 +378,12 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Description
+              {t('create_event.label_description')}
             </Text>
             <TextInput
               value={description}
               onChangeText={setDescription}
-              placeholder="What's this event about?"
+              placeholder={t('create_event.placeholder_description')}
               placeholderTextColor="rgba(255,255,255,0.35)"
               multiline
               maxLength={2000}
@@ -411,12 +413,12 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Location
+              {t('create_event.label_location')}
             </Text>
             <TextInput
               value={location}
               onChangeText={setLocation}
-              placeholder="e.g. Miami, FL or Online — Zoom"
+              placeholder={t('create_event.placeholder_location')}
               placeholderTextColor="rgba(255,255,255,0.35)"
               style={{
                 backgroundColor: '#1c1a14',
@@ -442,12 +444,12 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Event Type
+              {t('create_event.label_event_type')}
             </Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               {(['in-person', 'online'] as EventType[]).map((type) => {
                 const active = eventType === type;
-                const label = type === 'in-person' ? 'In-Person' : 'Online';
+                const label = type === 'in-person' ? t('events.in_person') : t('home.online');
                 return (
                   <Pressable
                     key={type}
@@ -486,7 +488,7 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Date & Time *
+              {t('create_event.label_date_time')}
             </Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
               {/* Date field */}
@@ -584,7 +586,7 @@ export default function CreateEventScreen() {
                   <Text
                     style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}
                   >
-                    Done
+                    {t('create_event.done')}
                   </Text>
                 </TouchableOpacity>
               ) : null}
@@ -610,7 +612,7 @@ export default function CreateEventScreen() {
                   <Text
                     style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}
                   >
-                    Done
+                    {t('create_event.done')}
                   </Text>
                 </TouchableOpacity>
               ) : null}
@@ -634,7 +636,7 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Event Image
+              {t('create_event.label_image')}
             </Text>
             <TouchableOpacity
               onPress={handlePickImage}
@@ -670,7 +672,7 @@ export default function CreateEventScreen() {
                       color: 'rgba(255,255,255,0.35)',
                     }}
                   >
-                    Add event image
+                    {t('create_event.add_image')}
                   </Text>
                 </View>
               )}
@@ -688,7 +690,7 @@ export default function CreateEventScreen() {
                     color: 'rgba(255,255,255,0.45)',
                   }}
                 >
-                  Remove
+                  {t('create_event.remove_image')}
                 </Text>
               </TouchableOpacity>
             ) : null}
@@ -704,7 +706,7 @@ export default function CreateEventScreen() {
                 marginBottom: 8,
               }}
             >
-              Registration link (optional)
+              {t('create_event.label_registration_link')}
             </Text>
             <TextInput
               value={registrationUrl}
@@ -761,7 +763,7 @@ export default function CreateEventScreen() {
               <Text
                 style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}
               >
-                {isEditing ? 'Save Changes' : 'Create Event'}
+                {isEditing ? t('create_event.submit_save') : t('create_event.submit_create')}
               </Text>
             )}
           </Pressable>
