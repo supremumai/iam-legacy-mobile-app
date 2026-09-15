@@ -4,6 +4,36 @@
     "language_english": "Inglés",
     "language_spanish": "Español"
   },
+  "common": {
+    "cancel": "Cancelar",
+    "unknown_error": "Error desconocido"
+  },
+  "events": {
+    "title": "Eventos",
+    "filter_all": "Todos",
+    "filter_this_week": "Esta semana",
+    "in_person": "Presencial",
+    "could_not_load": "No se pudieron cargar los eventos",
+    "retry": "Intentar de nuevo",
+    "upcoming_section": "Próximos eventos",
+    "past_section": "Eventos pasados",
+    "no_match_filter": "Ningún evento coincide con este filtro",
+    "try_different_filter": "Prueba con un filtro diferente.",
+    "no_events_yet": "Aún no hay eventos",
+    "check_back_soon": "Vuelve pronto para ver los próximos eventos de la comunidad.",
+    "could_not_delete": "No se pudo eliminar el evento",
+    "could_not_save": "No se pudo actualizar el guardado",
+    "delete_confirm_title": "¿Eliminar este evento?",
+    "delete_confirm_body": "Esta acción no se puede deshacer.",
+    "delete": "Eliminar",
+    "options_title": "Opciones del evento",
+    "edit_event": "Editar evento",
+    "delete_event": "Eliminar evento",
+    "one_going": "1 asistente",
+    "count_going": "%{count} asistentes",
+    "register": "Registrarse",
+    "could_not_open_link": "No se pudo abrir el enlace de registro"
+  },
   "home": {
     "online": "En línea",
     "untitled_event": "Evento sin título",

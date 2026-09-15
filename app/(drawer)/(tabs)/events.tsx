@@ -19,9 +19,19 @@ import { EventItem } from '../../../types/database';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
 import EventCard from '../../../components/EventCard';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 type FilterType = 'All' | 'This Week' | 'Online' | 'In-Person';
 const FILTERS: FilterType[] = ['All', 'This Week', 'Online', 'In-Person'];
+
+function getFilterLabel(filter: FilterType, t: (key: string) => string): string {
+  switch (filter) {
+    case 'All': return t('events.filter_all');
+    case 'This Week': return t('events.filter_this_week');
+    case 'Online': return t('home.online');
+    case 'In-Person': return t('events.in_person');
+  }
+}
 
 function splitEvents(all: EventItem[]): { upcoming: EventItem[]; past: EventItem[] } {
   const now = new Date();
@@ -57,6 +67,7 @@ function applyFilter(upcoming: EventItem[], filter: FilterType): EventItem[] {
 export default function EventsScreen() {
   const router = useRouter();
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const isAdmin = profile?.is_admin === true;
 
   const [allEvents, setAllEvents] = useState<EventItem[]>([]);
@@ -127,8 +138,8 @@ export default function EventsScreen() {
       // Rollback — restore event; splitEvents re-sorts by date so position is correct
       setAllEvents((prev) => [...prev, event]);
       Alert.alert(
-        'Could not delete event',
-        e instanceof Error ? e.message : 'Unknown error',
+        t('events.could_not_delete'),
+        e instanceof Error ? e.message : t('common.unknown_error'),
       );
     }
   };
@@ -152,7 +163,7 @@ export default function EventsScreen() {
         isCurrentlySaved ? next.add(event.id) : next.delete(event.id);
         return next;
       });
-      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('events.could_not_save'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -174,7 +185,7 @@ export default function EventsScreen() {
             marginTop: 16,
           }}
         >
-          Events
+          {t('events.title')}
         </Text>
         <View
           style={{
@@ -193,7 +204,7 @@ export default function EventsScreen() {
               textAlign: 'center',
             }}
           >
-            Could not load events
+            {t('events.could_not_load')}
           </Text>
           <Pressable
             onPress={() => {
@@ -209,7 +220,7 @@ export default function EventsScreen() {
             })}
           >
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
-              Retry
+              {t('events.retry')}
             </Text>
           </Pressable>
         </View>
@@ -238,7 +249,7 @@ export default function EventsScreen() {
             color: '#c9a84c',
           }}
         >
-          Events
+          {t('events.title')}
         </Text>
         {isAdmin ? (
           <TouchableOpacity
@@ -288,7 +299,7 @@ export default function EventsScreen() {
                   color: active ? '#0a0900' : '#FFFFFF',
                 }}
               >
-                {f}
+                {getFilterLabel(f, t)}
               </Text>
             </Pressable>
           );
@@ -306,7 +317,7 @@ export default function EventsScreen() {
           color: '#c9a84c',
         }}
       >
-        Upcoming Events
+        {t('events.upcoming_section')}
       </Text>
     </View>
   );
@@ -326,7 +337,7 @@ export default function EventsScreen() {
               color: '#c9a84c',
             }}
           >
-            Past Events
+            {t('events.past_section')}
           </Text>
           <View style={{ paddingHorizontal: 20 }}>
             {past.map((event) => (
@@ -354,7 +365,7 @@ export default function EventsScreen() {
   ) : activeFilter !== 'All' && upcoming.length > 0 ? (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No events match this filter
+        {t('events.no_match_filter')}
       </Text>
       <Text
         style={{
@@ -365,13 +376,13 @@ export default function EventsScreen() {
           textAlign: 'center',
         }}
       >
-        Try a different filter.
+        {t('events.try_different_filter')}
       </Text>
     </View>
   ) : (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No events yet
+        {t('events.no_events_yet')}
       </Text>
       <Text
         style={{
@@ -382,7 +393,7 @@ export default function EventsScreen() {
           textAlign: 'center',
         }}
       >
-        Check back soon for upcoming community events.
+        {t('events.check_back_soon')}
       </Text>
     </View>
   );

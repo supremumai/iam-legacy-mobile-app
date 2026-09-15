@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DateParts {
   month: string;
@@ -49,32 +50,36 @@ export default function EventCard({
 }: Props) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
+  const { t } = useLanguage();
   const dateParts = parseDateParts(event.event_date);
   const attendees = event.attendees_count ?? 0;
+  const goingLabel = attendees === 1
+    ? t('events.one_going')
+    : t('events.count_going', { count: attendees });
 
   const isOnline = event.is_online === true;
 
   // ── Delete confirmation (two-step, same pattern as PostCard) ──────────────
   const handleDeletePress = () => {
     Alert.alert(
-      'Delete this event?',
-      "This can't be undone.",
+      t('events.delete_confirm_title'),
+      t('events.delete_confirm_body'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => onDelete?.(event) },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('events.delete'), style: 'destructive', onPress: () => onDelete?.(event) },
       ],
     );
   };
 
   // ── Kebab menu ────────────────────────────────────────────────────────────
   const handleOptionsPress = () => {
-    Alert.alert('Event Options', undefined, [
+    Alert.alert(t('events.options_title'), undefined, [
       {
-        text: 'Edit Event',
+        text: t('events.edit_event'),
         onPress: () => router.push(`/create-event?id=${event.id}` as any),
       },
-      { text: 'Delete Event', style: 'destructive', onPress: handleDeletePress },
-      { text: 'Cancel', style: 'cancel' },
+      { text: t('events.delete_event'), style: 'destructive', onPress: handleDeletePress },
+      { text: t('common.cancel'), style: 'cancel' },
     ]);
   };
 
@@ -168,7 +173,7 @@ export default function EventCard({
                   color: isOnline ? '#1D4ED8' : '#16A34A',
                 }}
               >
-                {isOnline ? 'Online' : 'In-Person'}
+                {isOnline ? t('home.online') : t('events.in_person')}
               </Text>
             </View>
 
@@ -253,7 +258,7 @@ export default function EventCard({
               color: 'rgba(255,255,255,0.55)',
             }}
           >
-            {attendees} going
+            {goingLabel}
           </Text>
 
           {/* Right group: bookmark (always) + register button (upcoming + has URL only) */}
@@ -278,7 +283,7 @@ export default function EventCard({
                   try {
                     await Linking.openURL(event.registration_url!);
                   } catch {
-                    Alert.alert('Could not open the registration link');
+                    Alert.alert(t('events.could_not_open_link'));
                   }
                 }}
                 activeOpacity={0.7}
@@ -290,7 +295,7 @@ export default function EventCard({
                 }}
               >
                 <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }}>
-                  Register
+                  {t('events.register')}
                 </Text>
               </TouchableOpacity>
             ) : null}

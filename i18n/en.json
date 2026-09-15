@@ -4,6 +4,36 @@
     "language_english": "English",
     "language_spanish": "Spanish"
   },
+  "common": {
+    "cancel": "Cancel",
+    "unknown_error": "Unknown error"
+  },
+  "events": {
+    "title": "Events",
+    "filter_all": "All",
+    "filter_this_week": "This Week",
+    "in_person": "In-Person",
+    "could_not_load": "Could not load events",
+    "retry": "Retry",
+    "upcoming_section": "Upcoming Events",
+    "past_section": "Past Events",
+    "no_match_filter": "No events match this filter",
+    "try_different_filter": "Try a different filter.",
+    "no_events_yet": "No events yet",
+    "check_back_soon": "Check back soon for upcoming community events.",
+    "could_not_delete": "Could not delete event",
+    "could_not_save": "Could not update save",
+    "delete_confirm_title": "Delete this event?",
+    "delete_confirm_body": "This can't be undone.",
+    "delete": "Delete",
+    "options_title": "Event Options",
+    "edit_event": "Edit Event",
+    "delete_event": "Delete Event",
+    "one_going": "1 going",
+    "count_going": "%{count} going",
+    "register": "Register",
+    "could_not_open_link": "Could not open the registration link"
+  },
   "home": {
     "online": "Online",
     "untitled_event": "Untitled Event",
