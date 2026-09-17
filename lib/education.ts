@@ -153,6 +153,82 @@ export async function fetchModuleDetail(
   }
 }
 
+export interface EduQuizQuestion {
+  id: string;
+  module_id: string;
+  order_index: number;
+  question: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: 'a' | 'b' | 'c' | 'd';
+  explanation: string | null;
+}
+
+export interface QuizAttemptResult {
+  passed: boolean;
+  score: number;
+  alreadyPassed: boolean;
+}
+
+export async function fetchQuizQuestions(moduleId: string): Promise<EduQuizQuestion[]> {
+  try {
+    const { data, error } = await supabase
+      .from('edu_quiz_questions')
+      .select('id, module_id, order_index, question, option_a, option_b, option_c, option_d, correct_option, explanation')
+      .eq('module_id', moduleId)
+      .order('order_index', { ascending: true });
+    if (error) return [];
+    return (data ?? []) as EduQuizQuestion[];
+  } catch {
+    return [];
+  }
+}
+
+// Read-then-write pattern (consistent with project; single-user writes make races negligible).
+// quiz_passed never reverts to false; best_score stores the historical maximum.
+export async function submitQuizAttempt(
+  userId: string,
+  moduleId: string,
+  score: number,
+  totalQuestions: number,
+): Promise<QuizAttemptResult> {
+  const passed = totalQuestions > 0 && score / totalQuestions >= 0.7;
+  try {
+    const { data: current } = await supabase
+      .from('edu_user_progress')
+      .select('quiz_attempts, best_score, quiz_passed, completed_at')
+      .eq('user_id', userId)
+      .eq('module_id', moduleId)
+      .maybeSingle();
+
+    const alreadyPassed = current?.quiz_passed ?? false;
+    const prevAttempts = current?.quiz_attempts ?? 0;
+    const prevBest = current?.best_score ?? null;
+    const newBest = prevBest === null ? score : Math.max(prevBest, score);
+    const newPassed = alreadyPassed || passed;
+
+    const payload: Record<string, unknown> = {
+      user_id: userId,
+      module_id: moduleId,
+      video_watched: true,
+      quiz_attempts: prevAttempts + 1,
+      best_score: newBest,
+      quiz_passed: newPassed,
+    };
+    if (newPassed && !alreadyPassed) {
+      payload.completed_at = new Date().toISOString();
+    }
+
+    await supabase.from('edu_user_progress').upsert(payload, { onConflict: 'user_id,module_id' });
+
+    return { passed, score, alreadyPassed };
+  } catch {
+    return { passed, score, alreadyPassed: false };
+  }
+}
+
 export async function upsertVideoWatched(moduleId: string, userId: string): Promise<void> {
   try {
     await supabase
