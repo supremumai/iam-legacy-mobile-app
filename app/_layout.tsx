@@ -67,6 +67,7 @@ function RootLayoutInner({ fontsLoaded, fontError }: RootLayoutInnerProps) {
       <Stack.Screen name="invite" options={{ headerShown: false }} />
       <Stack.Screen name="support" options={{ headerShown: false }} />
       <Stack.Screen name="about" options={{ headerShown: false }} />
+      <Stack.Screen name="education" options={{ headerShown: false }} />
     </Stack>
   );
 }

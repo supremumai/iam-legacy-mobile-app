@@ -86,13 +86,6 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
     signOut();
   };
 
-  // Closes the drawer and navigates to the Education tab, signaling it to open
-  // the Add Resource modal via the openModal search param.
-  const handleManageEducation = () => {
-    navigation.closeDrawer();
-    router.push('/education?openModal=1' as any);
-  };
-
   return (
     <View
       style={{
@@ -169,11 +162,6 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               icon="calendar-outline"
               label={t('drawer.create_event')}
               onPress={() => navigate('/create-event')}
-            />
-            <DrawerItem
-              icon="book-outline"
-              label={t('drawer.manage_education')}
-              onPress={handleManageEducation}
             />
           </View>
         ) : null}
