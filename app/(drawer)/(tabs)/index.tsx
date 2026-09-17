@@ -5,11 +5,10 @@ import { useRouter } from 'expo-router';
 import {
   HomeEventCard,
   HomePostCard,
-  HomeResourceCard,
   fetchUpcomingEvents,
   fetchRecentPosts,
-  fetchRecentResources,
 } from '../../../lib/home';
+import { EduCourse, fetchHomeCourses } from '../../../lib/education';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -204,9 +203,27 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
   );
 }
 
-function ResourceCard({ item, onPress }: { item: HomeResourceCard; onPress: () => void }) {
+function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void }) {
   const { t } = useLanguage();
-  const thumbUri = item.thumbnail_url ?? youTubeThumbnailUrl(item.youtube_video_id);
+
+  const difficultyColor =
+    item.difficulty === 'advanced'
+      ? '#EF4444'
+      : item.difficulty === 'intermediate'
+      ? '#F59E0B'
+      : '#10B981';
+
+  const difficultyLabels: Record<string, string> = {
+    beginner: t('education.difficulty_beginner'),
+    intermediate: t('education.difficulty_intermediate'),
+    advanced: t('education.difficulty_advanced'),
+  };
+  const difficultyLabel = item.difficulty ? (difficultyLabels[item.difficulty] ?? item.difficulty) : null;
+
+  const modulesLabel =
+    item.modules_count === 1
+      ? t('home.one_module')
+      : t('home.count_modules', { count: item.modules_count });
 
   return (
     <Pressable
@@ -222,64 +239,64 @@ function ResourceCard({ item, onPress }: { item: HomeResourceCard; onPress: () =
     >
       {({ pressed }) => (
         <View style={{ opacity: pressed ? 0.8 : 1 }}>
-          {/* Media area with play-circle overlay */}
           <View style={{ width: '100%', height: 110 }}>
-            <Image
-              source={{ uri: thumbUri }}
-              style={{ width: '100%', height: 110 }}
-              resizeMode="cover"
-            />
-            {/* Centered play circle */}
-            <View
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            {item.thumbnail_url ? (
+              <Image
+                source={{ uri: item.thumbnail_url }}
+                style={{ width: '100%', height: 110 }}
+                resizeMode="cover"
+              />
+            ) : (
               <View
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 18,
-                  backgroundColor: 'rgba(0,0,0,0.52)',
+                  width: '100%',
+                  height: 110,
+                  backgroundColor: 'rgba(99,102,241,0.15)',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="play" size={16} color="#FFFFFF" />
+                <Ionicons name="book-outline" size={28} color="#6366F1" />
               </View>
-            </View>
+            )}
           </View>
 
-          {/* Body */}
           <View style={{ padding: 12 }}>
-            <Text
-              style={{
-                fontFamily: Fonts.bodyBold,
-                fontSize: 10,
-                color: '#6366F1',
-                textTransform: 'uppercase',
-                letterSpacing: 0.6,
-              }}
-            >
-              {t('home.education_badge')}
-            </Text>
             <Text
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
                 color: '#FFFFFF',
-                marginTop: 3,
+                marginBottom: 6,
               }}
               numberOfLines={2}
             >
               {item.title}
             </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              {difficultyLabel ? (
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodyBold,
+                    fontSize: 10,
+                    color: difficultyColor,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.6,
+                  }}
+                >
+                  {difficultyLabel}
+                </Text>
+              ) : null}
+              <Text
+                style={{
+                  fontFamily: Fonts.body,
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.45)',
+                }}
+              >
+                {modulesLabel}
+              </Text>
+            </View>
           </View>
         </View>
       )}
@@ -336,8 +353,8 @@ export default function HomeScreen() {
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
   const [postsLoaded, setPostsLoaded] = useState(false);
-  const [resources, setResources] = useState<HomeResourceCard[]>([]);
-  const [resourcesLoaded, setResourcesLoaded] = useState(false);
+  const [courses, setCourses] = useState<EduCourse[]>([]);
+  const [coursesLoaded, setCoursesLoaded] = useState(false);
 
   useEffect(() => {
     // Three independent IIFEs — none awaits the others; all fire concurrently.
@@ -354,9 +371,9 @@ export default function HomeScreen() {
     })();
 
     (async () => {
-      const { items } = await fetchRecentResources();
-      setResources(items);
-      setResourcesLoaded(true);
+      const items = await fetchHomeCourses();
+      setCourses(items);
+      setCoursesLoaded(true);
     })();
   }, []);
 
@@ -415,19 +432,22 @@ export default function HomeScreen() {
 
         {/* SECTION 3 — Latest in Education */}
         <SectionTitle>{t('home.latest_in_education')}</SectionTitle>
-        {resourcesLoaded ? (
-          resources.length === 0 ? (
-            <EmptySection message={t('home.no_videos_yet')} />
+        {coursesLoaded ? (
+          courses.length === 0 ? (
+            <EmptySection message={t('home.no_courses_yet')} />
           ) : (
-            <FlatList<HomeResourceCard>
+            <FlatList<EduCourse>
               horizontal
-              data={resources}
+              data={courses}
               keyExtractor={(item) => item.id}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 20 }}
               ItemSeparatorComponent={CardSeparator}
               renderItem={({ item }) => (
-                <ResourceCard item={item} onPress={() => router.push('/education' as any)} />
+                <CourseCard
+                  item={item}
+                  onPress={() => router.push(`/education/course/${item.id}` as any)}
+                />
               )}
             />
           )

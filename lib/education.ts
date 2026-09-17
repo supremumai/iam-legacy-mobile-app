@@ -245,6 +245,23 @@ export async function setModuleVideoUrl(
   }
 }
 
+export async function fetchHomeCourses(): Promise<EduCourse[]> {
+  try {
+    const { data, error } = await supabase
+      .from('edu_courses')
+      .select(
+        'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published',
+      )
+      .eq('is_published', true)
+      .order('order_index', { ascending: true })
+      .limit(3);
+    if (error) return [];
+    return (data ?? []) as EduCourse[];
+  } catch {
+    return [];
+  }
+}
+
 export async function upsertVideoWatched(moduleId: string, userId: string): Promise<void> {
   try {
     await supabase

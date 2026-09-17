@@ -80,7 +80,9 @@
     "from_the_community": "De la comunidad",
     "no_posts_yet": "Aún no hay publicaciones",
     "latest_in_education": "Lo último en educación",
-    "no_videos_yet": "Aún no hay videos"
+    "no_courses_yet": "Aún no hay cursos",
+    "one_module": "1 módulo",
+    "count_modules": "%{count} módulos"
   },
   "composer": {
     "tab_post": "Post",
