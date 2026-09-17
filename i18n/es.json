@@ -131,6 +131,15 @@
     "about": "Acerca de",
     "log_out": "Cerrar sesión"
   },
+  "saved": {
+    "title": "Guardados",
+    "section_events": "Eventos",
+    "section_education": "Educación",
+    "empty_title": "Aún no hay elementos guardados",
+    "empty_body": "Guarda publicaciones, eventos y videos para encontrarlos aquí.",
+    "could_not_remove": "No se pudo eliminar el guardado",
+    "could_not_open_video": "No se pudo abrir el video"
+  },
   "profile": {
     "could_not_load": "No se pudo cargar el perfil",
     "complete_your_profile": "Completa tu perfil",

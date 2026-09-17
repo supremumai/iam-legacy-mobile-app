@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { toggleSave } from '../lib/saves';
 import { HomeEventCard, HomePostCard, HomeResourceCard } from '../lib/home';
@@ -24,14 +25,14 @@ import { Fonts } from '../constants/fonts';
 
 // ─── Display-name helper (mirrors private fn in lib/home.ts) ─────────────────
 
-function resolveDisplayName(profilesRaw: unknown): string {
+function resolveDisplayName(profilesRaw: unknown, legacyFallback: string): string {
   const p: Record<string, unknown> | null = Array.isArray(profilesRaw)
     ? ((profilesRaw[0] as Record<string, unknown>) ?? null)
     : ((profilesRaw as Record<string, unknown>) ?? null);
-  if (!p) return 'Legacy Member';
+  if (!p) return legacyFallback;
   if (p.full_name) return String(p.full_name);
   if (p.username) return `@${String(p.username)}`;
-  return 'Legacy Member';
+  return legacyFallback;
 }
 
 // ─── Carousel layout helpers ──────────────────────────────────────────────────
@@ -73,6 +74,7 @@ function SavedEventCard({
   onUnsave: () => void;
   onPress: () => void;
 }) {
+  const { t } = useLanguage();
   const dateLabel = item.event_date
     ? (() => {
         const d = new Date(item.event_date);
@@ -81,7 +83,7 @@ function SavedEventCard({
         );
       })()
     : null;
-  const locationLine = item.is_online ? 'Online' : item.location ?? null;
+  const locationLine = item.is_online ? t('home.online') : item.location ?? null;
 
   return (
     <View
@@ -145,7 +147,7 @@ function SavedEventCard({
                 }}
                 numberOfLines={2}
               >
-                {item.title ?? 'Untitled Event'}
+                {item.title ?? t('home.untitled_event')}
               </Text>
               {locationLine ? (
                 <Text
@@ -184,6 +186,7 @@ function SavedPostCard({
   onUnsave: () => void;
   onPress: () => void;
 }) {
+  const { t } = useLanguage();
   const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
   const thumbUri = item.image_url
     ? item.image_url
@@ -240,7 +243,7 @@ function SavedPostCard({
                   letterSpacing: 0.6,
                 }}
               >
-                COMMUNITY
+                {t('home.community_badge')}
               </Text>
               <Text
                 style={{
@@ -288,6 +291,7 @@ function SavedResourceCard({
   onUnsave: () => void;
   onPress: () => void;
 }) {
+  const { t } = useLanguage();
   const thumbUri = item.thumbnail_url ?? youTubeThumbnailUrl(item.youtube_video_id);
 
   return (
@@ -349,7 +353,7 @@ function SavedResourceCard({
                   letterSpacing: 0.6,
                 }}
               >
-                EDUCATION
+                {t('home.education_badge')}
               </Text>
               <Text
                 style={{
@@ -383,6 +387,8 @@ export default function SavedScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+
+  const { t } = useLanguage();
 
   const [events, setEvents] = useState<HomeEventCard[]>([]);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
@@ -449,7 +455,7 @@ export default function SavedScreen() {
           content: row.content ?? '',
           image_url: row.image_url ?? null,
           created_at: row.created_at,
-          authorName: resolveDisplayName(row.profiles),
+          authorName: resolveDisplayName(row.profiles, t('profile.legacy_member_fallback')),
         })),
       );
       setResources((resourcesResult.data ?? []) as HomeResourceCard[]);
@@ -460,7 +466,7 @@ export default function SavedScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id]);
+  }, [user?.id, t]);
 
   useEffect(() => {
     setLoading(true);
@@ -481,7 +487,7 @@ export default function SavedScreen() {
       await toggleSave('event', event.id, user.id, true);
     } catch (e: unknown) {
       setEvents((prev) => [...prev, event]);
-      Alert.alert('Could not remove save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('saved.could_not_remove'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -492,7 +498,7 @@ export default function SavedScreen() {
       await toggleSave('post', post.id, user.id, true);
     } catch (e: unknown) {
       setPosts((prev) => [...prev, post]);
-      Alert.alert('Could not remove save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('saved.could_not_remove'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -503,7 +509,7 @@ export default function SavedScreen() {
       await toggleSave('resource', resource.id, user.id, true);
     } catch (e: unknown) {
       setResources((prev) => [...prev, resource]);
-      Alert.alert('Could not remove save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('saved.could_not_remove'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -535,7 +541,7 @@ export default function SavedScreen() {
           marginLeft: 6,
         }}
       >
-        Saved
+        {t('saved.title')}
       </Text>
     </View>
   );
@@ -575,7 +581,7 @@ export default function SavedScreen() {
               textAlign: 'center',
             }}
           >
-            No saved items yet
+            {t('saved.empty_title')}
           </Text>
           <Text
             style={{
@@ -587,7 +593,7 @@ export default function SavedScreen() {
               lineHeight: 21,
             }}
           >
-            Bookmark posts, events, and videos to find them here.
+            {t('saved.empty_body')}
           </Text>
         </View>
       </View>
@@ -614,7 +620,7 @@ export default function SavedScreen() {
         {/* SECTION 1 — Events (hidden when empty) */}
         {events.length > 0 ? (
           <>
-            <SectionTitle>Events</SectionTitle>
+            <SectionTitle>{t('saved.section_events')}</SectionTitle>
             <FlatList<HomeEventCard>
               horizontal
               data={events}
@@ -636,7 +642,7 @@ export default function SavedScreen() {
         {/* SECTION 2 — From the Community (hidden when empty) */}
         {posts.length > 0 ? (
           <>
-            <SectionTitle>From the Community</SectionTitle>
+            <SectionTitle>{t('home.from_the_community')}</SectionTitle>
             <FlatList<HomePostCard>
               horizontal
               data={posts}
@@ -658,7 +664,7 @@ export default function SavedScreen() {
         {/* SECTION 3 — Education (hidden when empty) */}
         {resources.length > 0 ? (
           <>
-            <SectionTitle>Education</SectionTitle>
+            <SectionTitle>{t('saved.section_education')}</SectionTitle>
             <FlatList<HomeResourceCard>
               horizontal
               data={resources}
@@ -672,7 +678,7 @@ export default function SavedScreen() {
                   onUnsave={() => handleUnsaveResource(item)}
                   onPress={() => {
                     Linking.openURL(youTubeWatchUrl(item.youtube_video_id)).catch(() => {
-                      Alert.alert('Could not open video');
+                      Alert.alert(t('saved.could_not_open_video'));
                     });
                   }}
                 />

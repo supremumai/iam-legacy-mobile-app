@@ -131,6 +131,15 @@
     "about": "About",
     "log_out": "Log Out"
   },
+  "saved": {
+    "title": "Saved",
+    "section_events": "Events",
+    "section_education": "Education",
+    "empty_title": "No saved items yet",
+    "empty_body": "Bookmark posts, events, and videos to find them here.",
+    "could_not_remove": "Could not remove save",
+    "could_not_open_video": "Could not open video"
+  },
   "profile": {
     "could_not_load": "Could not load profile",
     "complete_your_profile": "Complete your profile",
