@@ -2,6 +2,7 @@ import { Alert, Image, Linking, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ResourceWithMeta } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { useLanguage } from '../contexts/LanguageContext';
 import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
@@ -34,12 +35,13 @@ export default function ResourceCard({
   onToggleSave,
   onDeleted,
 }: Props) {
+  const { t } = useLanguage();
   const thumbnailUri =
     resource.thumbnail_url ?? youTubeThumbnailUrl(resource.youtube_video_id);
 
   const submitterName =
     resource.submitter?.full_name ??
-    (resource.submitter?.username ? `@${resource.submitter.username}` : 'Legacy Member');
+    (resource.submitter?.username ? `@${resource.submitter.username}` : t('profile.legacy_member_fallback'));
 
   const submitterInitials = getInitials(
     resource.submitter?.full_name ?? null,
@@ -48,15 +50,15 @@ export default function ResourceCard({
 
   function handleOpenVideo() {
     Linking.openURL(youTubeWatchUrl(resource.youtube_video_id)).catch(() => {
-      Alert.alert('Could not open video');
+      Alert.alert(t('saved.could_not_open_video'));
     });
   }
 
   function handleDelete() {
-    Alert.alert('Delete Video', "This can't be undone.", [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('education.delete_video_title'), t('events.delete_confirm_body'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('events.delete'),
         style: 'destructive',
         onPress: async () => {
           const { error } = await supabase
@@ -64,7 +66,7 @@ export default function ResourceCard({
             .delete()
             .eq('id', resource.id);
           if (error) {
-            Alert.alert('Error', error.message);
+            Alert.alert(t('common.error_title'), error.message);
           } else {
             onDeleted(resource.id);
           }
@@ -87,7 +89,6 @@ export default function ResourceCard({
       {/* Thumbnail */}
       <Pressable
         onPress={handleOpenVideo}
-        style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
         <View style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: '#0a0900' }}>
           <Image
@@ -253,12 +254,7 @@ export default function ResourceCard({
           <Pressable
             onPress={() => onToggleLike(resource)}
             hitSlop={8}
-            style={({ pressed }) => ({
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              opacity: pressed ? 0.6 : 1,
-            })}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
           >
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
@@ -280,7 +276,6 @@ export default function ResourceCard({
           <Pressable
             onPress={() => onToggleSave(resource)}
             hitSlop={8}
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
             <Ionicons
               name={isSaved ? 'bookmark' : 'bookmark-outline'}
@@ -294,10 +289,7 @@ export default function ResourceCard({
             <Pressable
               onPress={handleDelete}
               hitSlop={8}
-              style={({ pressed }) => ({
-                marginLeft: 'auto',
-                opacity: pressed ? 0.6 : 1,
-              })}
+              style={{ marginLeft: 'auto' }}
             >
               <Ionicons
                 name="trash-outline"

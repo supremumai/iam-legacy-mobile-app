@@ -9,7 +9,9 @@
     "unknown_error": "Error desconocido",
     "ok": "OK",
     "coming_soon": "Próximamente",
-    "back": "Volver"
+    "back": "Volver",
+    "filter_all": "Todos",
+    "error_title": "Error"
   },
   "create_event": {
     "title_create": "Crear evento",
@@ -184,5 +186,34 @@
     "about_section": "Acerca de",
     "bio_empty": "Agrega una biografía para contarle a la comunidad quién eres.",
     "add_bio": "Agregar bio"
+  },
+  "education": {
+    "title": "Educación",
+    "library": "Biblioteca",
+    "could_not_load": "No se pudo cargar la biblioteca",
+    "no_videos_in_topic": "Aún no hay videos en este tema",
+    "be_first_to_add": "Sé el primero en agregar uno.",
+    "share_first_video": "Comparte el primer video con la comunidad.",
+    "could_not_update_like": "No se pudo actualizar el me gusta",
+    "could_not_update_save": "No se pudo actualizar el guardado",
+    "delete_video_title": "Eliminar video"
+  },
+  "add_resource": {
+    "title": "Compartir un video",
+    "label_url": "URL de YouTube *",
+    "placeholder_url": "Pega un enlace de YouTube...",
+    "url_valid": "Enlace de YouTube válido",
+    "url_invalid": "Ingresa un enlace de YouTube válido",
+    "label_title": "Título *",
+    "placeholder_title": "Título del video",
+    "label_channel": "Nombre del canal",
+    "placeholder_channel": "Nombre del canal (opcional)",
+    "label_description": "Descripción",
+    "placeholder_description": "¿Por qué vale la pena verlo? (opcional)",
+    "label_topic": "Tema *",
+    "already_added_title": "Ya agregado",
+    "already_added_body": "Este video ya está en ese tema.",
+    "could_not_share": "No se pudo compartir",
+    "submit": "Compartir"
   }
 }

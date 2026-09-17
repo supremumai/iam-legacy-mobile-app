@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
 import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { PostAuthor, ResourceWithMeta, Topic } from '../../../types/database';
@@ -83,6 +84,7 @@ type FilterTopic = { id: string; name: string };
 
 export default function EducationScreen() {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const isAdmin = profile?.is_admin === true;
   const router = useRouter();
 
@@ -238,7 +240,7 @@ export default function EducationScreen() {
             : r,
         ),
       );
-      Alert.alert('Could not update like', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('education.could_not_update_like'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -261,7 +263,7 @@ export default function EducationScreen() {
         isSaved ? next.add(resource.id) : next.delete(resource.id);
         return next;
       });
-      Alert.alert('Could not update save', e instanceof Error ? e.message : 'Unknown error');
+      Alert.alert(t('education.could_not_update_save'), e instanceof Error ? e.message : t('common.unknown_error'));
     }
   };
 
@@ -288,7 +290,7 @@ export default function EducationScreen() {
             marginTop: 16,
           }}
         >
-          Education
+          {t('education.title')}
         </Text>
         <View
           style={{
@@ -307,23 +309,22 @@ export default function EducationScreen() {
               textAlign: 'center',
             }}
           >
-            Could not load the library
+            {t('education.could_not_load')}
           </Text>
           <Pressable
             onPress={() => {
               setLoading(true);
               fetchData();
             }}
-            style={({ pressed }) => ({
+            style={{
               backgroundColor: '#c9a84c',
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
-              opacity: pressed ? 0.8 : 1,
-            })}
+            }}
           >
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
-              Retry
+              {t('events.retry')}
             </Text>
           </Pressable>
         </View>
@@ -352,7 +353,7 @@ export default function EducationScreen() {
             color: '#c9a84c',
           }}
         >
-          Education
+          {t('education.title')}
         </Text>
         {isAdmin ? (
           <TouchableOpacity
@@ -399,7 +400,7 @@ export default function EducationScreen() {
               color: selectedTopicId === null ? '#0a0900' : '#FFFFFF',
             }}
           >
-            All
+            {t('common.filter_all')}
           </Text>
         </Pressable>
 
@@ -443,7 +444,7 @@ export default function EducationScreen() {
           color: '#c9a84c',
         }}
       >
-        Library
+        {t('education.library')}
       </Text>
     </View>
   );
@@ -458,7 +459,7 @@ export default function EducationScreen() {
       style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}
     >
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No videos in this topic yet
+        {t('education.no_videos_in_topic')}
       </Text>
       <Text
         style={{
@@ -469,7 +470,7 @@ export default function EducationScreen() {
           textAlign: 'center',
         }}
       >
-        Be the first to add one.
+        {t('education.be_first_to_add')}
       </Text>
     </View>
   ) : (
@@ -477,7 +478,7 @@ export default function EducationScreen() {
       style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}
     >
       <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
-        No videos yet
+        {t('home.no_videos_yet')}
       </Text>
       <Text
         style={{
@@ -488,7 +489,7 @@ export default function EducationScreen() {
           textAlign: 'center',
         }}
       >
-        Share the first video with the community.
+        {t('education.share_first_video')}
       </Text>
     </View>
   );

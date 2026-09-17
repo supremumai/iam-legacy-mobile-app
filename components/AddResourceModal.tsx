@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { Topic } from '../types/database';
 import { Fonts } from '../constants/fonts';
@@ -36,6 +37,7 @@ type TopicPill = Pick<Topic, 'id' | 'name' | 'icon'>;
 
 export default function AddResourceModal({ visible, onClose, onResourceAdded }: Props) {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [topics, setTopics] = useState<TopicPill[]>([]);
   const [topicsLoaded, setTopicsLoaded] = useState(false);
@@ -100,9 +102,9 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
 
     if (error) {
       if (error.code === '23505') {
-        Alert.alert('Already added', 'This video is already in that topic.');
+        Alert.alert(t('add_resource.already_added_title'), t('add_resource.already_added_body'));
       } else {
-        Alert.alert('Could not share', error.message);
+        Alert.alert(t('add_resource.could_not_share'), error.message);
       }
       return;
     }
@@ -168,12 +170,11 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                   color: '#c9a84c',
                 }}
               >
-                Share a Video
+                {t('add_resource.title')}
               </Text>
               <Pressable
                 onPress={handleClose}
                 hitSlop={8}
-                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
               >
                 <Ionicons name="close" size={24} color="rgba(255,255,255,0.55)" />
               </Pressable>
@@ -195,12 +196,12 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                     marginBottom: 8,
                   }}
                 >
-                  YouTube URL *
+                  {t('add_resource.label_url')}
                 </Text>
                 <TextInput
                   value={urlInput}
                   onChangeText={setUrlInput}
-                  placeholder="Paste a YouTube link..."
+                  placeholder={t('add_resource.placeholder_url')}
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   autoCapitalize="none"
                   keyboardType="url"
@@ -237,7 +238,7 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                         marginTop: 4,
                       }}
                     >
-                      Valid YouTube link
+                      {t('add_resource.url_valid')}
                     </Text>
                   </View>
                 ) : urlTouched && !parsedVideoId ? (
@@ -249,7 +250,7 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                       marginTop: 4,
                     }}
                   >
-                    Enter a valid YouTube link
+                    {t('add_resource.url_invalid')}
                   </Text>
                 ) : null}
               </View>
@@ -264,12 +265,12 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                     marginBottom: 8,
                   }}
                 >
-                  Title *
+                  {t('add_resource.label_title')}
                 </Text>
                 <TextInput
                   value={title}
                   onChangeText={setTitle}
-                  placeholder="Video title"
+                  placeholder={t('add_resource.placeholder_title')}
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   maxLength={200}
                   style={{
@@ -296,12 +297,12 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                     marginBottom: 8,
                   }}
                 >
-                  Channel Name
+                  {t('add_resource.label_channel')}
                 </Text>
                 <TextInput
                   value={channelName}
                   onChangeText={setChannelName}
-                  placeholder="Channel name (optional)"
+                  placeholder={t('add_resource.placeholder_channel')}
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   style={{
                     backgroundColor: '#1c1a14',
@@ -327,12 +328,12 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                     marginBottom: 8,
                   }}
                 >
-                  Description
+                  {t('add_resource.label_description')}
                 </Text>
                 <TextInput
                   value={description}
                   onChangeText={setDescription}
-                  placeholder="Why is this worth watching? (optional)"
+                  placeholder={t('add_resource.placeholder_description')}
                   placeholderTextColor="rgba(255,255,255,0.35)"
                   multiline
                   maxLength={2000}
@@ -362,7 +363,7 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                     marginBottom: 8,
                   }}
                 >
-                  Topic *
+                  {t('add_resource.label_topic')}
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {topics.map((topic) => {
@@ -418,7 +419,7 @@ export default function AddResourceModal({ visible, onClose, onResourceAdded }: 
                       color: '#0a0900',
                     }}
                   >
-                    Share
+                    {t('add_resource.submit')}
                   </Text>
                 )}
               </Pressable>

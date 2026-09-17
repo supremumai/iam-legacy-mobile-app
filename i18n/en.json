@@ -9,7 +9,9 @@
     "unknown_error": "Unknown error",
     "ok": "OK",
     "coming_soon": "Coming Soon",
-    "back": "Back"
+    "back": "Back",
+    "filter_all": "All",
+    "error_title": "Error"
   },
   "create_event": {
     "title_create": "Create Event",
@@ -184,5 +186,34 @@
     "about_section": "About",
     "bio_empty": "Add a bio to tell the community who you are.",
     "add_bio": "Add bio"
+  },
+  "education": {
+    "title": "Education",
+    "library": "Library",
+    "could_not_load": "Could not load the library",
+    "no_videos_in_topic": "No videos in this topic yet",
+    "be_first_to_add": "Be the first to add one.",
+    "share_first_video": "Share the first video with the community.",
+    "could_not_update_like": "Could not update like",
+    "could_not_update_save": "Could not update save",
+    "delete_video_title": "Delete Video"
+  },
+  "add_resource": {
+    "title": "Share a Video",
+    "label_url": "YouTube URL *",
+    "placeholder_url": "Paste a YouTube link...",
+    "url_valid": "Valid YouTube link",
+    "url_invalid": "Enter a valid YouTube link",
+    "label_title": "Title *",
+    "placeholder_title": "Video title",
+    "label_channel": "Channel Name",
+    "placeholder_channel": "Channel name (optional)",
+    "label_description": "Description",
+    "placeholder_description": "Why is this worth watching? (optional)",
+    "label_topic": "Topic *",
+    "already_added_title": "Already added",
+    "already_added_body": "This video is already in that topic.",
+    "could_not_share": "Could not share",
+    "submit": "Share"
   }
 }
