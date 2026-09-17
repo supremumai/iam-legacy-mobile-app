@@ -96,6 +96,76 @@ export async function fetchTracks(): Promise<EduTrack[]> {
   }
 }
 
+export interface ModuleDetailResult {
+  module: EduModule | null;
+  progress: EduUserProgress | null;
+  nextModuleId: string | null;
+}
+
+export async function fetchModuleDetail(
+  moduleId: string,
+  userId: string | null,
+): Promise<ModuleDetailResult> {
+  const empty: ModuleDetailResult = { module: null, progress: null, nextModuleId: null };
+
+  try {
+    const { data: mod, error: modError } = await supabase
+      .from('edu_modules')
+      .select(
+        'id, course_id, title, summary, order_index, video_url, video_duration_seconds, key_terms, is_published',
+      )
+      .eq('id', moduleId)
+      .single();
+
+    if (modError || !mod) return empty;
+
+    const module = mod as EduModule;
+
+    const [progressResult, nextResult] = await Promise.all([
+      userId
+        ? supabase
+            .from('edu_user_progress')
+            .select(
+              'module_id, video_watched, quiz_attempts, best_score, quiz_passed, completed_at',
+            )
+            .eq('user_id', userId)
+            .eq('module_id', moduleId)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      supabase
+        .from('edu_modules')
+        .select('id')
+        .eq('course_id', module.course_id)
+        .eq('is_published', true)
+        .gt('order_index', module.order_index)
+        .order('order_index', { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    return {
+      module,
+      progress: (progressResult.data ?? null) as EduUserProgress | null,
+      nextModuleId: nextResult.data?.id ?? null,
+    };
+  } catch {
+    return empty;
+  }
+}
+
+export async function upsertVideoWatched(moduleId: string, userId: string): Promise<void> {
+  try {
+    await supabase
+      .from('edu_user_progress')
+      .upsert(
+        { user_id: userId, module_id: moduleId, video_watched: true },
+        { onConflict: 'user_id,module_id' },
+      );
+  } catch {
+    // silent — progress is best-effort; user can rewatch and it will retry
+  }
+}
+
 export async function fetchCourseDetail(
   courseId: string,
   userId: string | null,
