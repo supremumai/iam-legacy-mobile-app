@@ -92,9 +92,7 @@ export default function QuizResultScreen() {
           marginBottom: 48,
         }}
       >
-        {t('education.your_score')
-          .replace('%{score}', String(scoreNum))
-          .replace('%{total}', String(totalNum))}
+        {t('education.your_score', { score: scoreNum, total: totalNum })}
       </Text>
 
       {/* Primary CTA */}

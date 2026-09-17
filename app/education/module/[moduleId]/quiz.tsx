@@ -230,9 +230,7 @@ export default function QuizScreen() {
             textAlign: 'center',
           }}
         >
-          {t('education.question_progress')
-            .replace('%{current}', String(currentIndex + 1))
-            .replace('%{total}', String(questions.length))}
+          {t('education.question_progress', { current: currentIndex + 1, total: questions.length })}
         </Text>
 
         {/* Segment bar */}
