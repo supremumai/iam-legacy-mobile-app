@@ -1,23 +1,5 @@
 import { supabase } from './supabase';
 
-export type HomeFeedItemType = 'post' | 'resource';
-
-export interface HomeFeedItem {
-  type: HomeFeedItemType;
-  id: string;              // the underlying post or resource id
-  label: string;           // 'COMMUNITY' or 'EDUCATION'
-  accentColor: string;     // '#10B981' for post, '#6366F1' for resource
-  title: string;           // short headline
-  subtitle: string;        // truncated content/title, max 60 chars
-  createdAt: string;       // ISO timestamp, used for sorting
-}
-
-/** Truncate text to `max` characters, appending an ellipsis if trimmed. */
-function truncate(text: string, max: number): string {
-  if (text.length <= max) return text;
-  return text.slice(0, max) + '…';
-}
-
 /**
  * Normalize the `profiles` embed (arrives as an object or a single-element
  * array depending on join type) and return a display name following the
@@ -31,61 +13,6 @@ function getDisplayName(profilesRaw: unknown): string {
   if (p.full_name) return String(p.full_name);
   if (p.username) return `@${String(p.username)}`;
   return 'Legacy Member';
-}
-
-/**
- * Fetch the 3 most-recent posts and 3 most-recent resources in parallel,
- * merge them into a unified HomeFeedItem list sorted by createdAt descending,
- * and return the top 3 total.
- *
- * Never throws — any failure returns { items: [], error: '...' }.
- */
-export async function fetchLatestUpdates(): Promise<{
-  items: HomeFeedItem[];
-  error: string | null;
-}> {
-  try {
-    const [postsResult, resourcesResult] = await Promise.all([
-      supabase
-        .from('posts')
-        .select('id, content, created_at, profiles(full_name, username)')
-        .order('created_at', { ascending: false })
-        .limit(3),
-      supabase
-        .from('resources')
-        .select('id, title, created_at, profiles:submitted_by(full_name, username)')
-        .order('created_at', { ascending: false })
-        .limit(3),
-    ]);
-
-    const postItems: HomeFeedItem[] = (postsResult.data ?? []).map((row: any) => ({
-      type: 'post' as const,
-      id: row.id,
-      label: 'COMMUNITY',
-      accentColor: '#10B981',
-      title: `${getDisplayName(row.profiles)} posted`,
-      subtitle: truncate(row.content ?? '', 60),
-      createdAt: row.created_at,
-    }));
-
-    const resourceItems: HomeFeedItem[] = (resourcesResult.data ?? []).map((row: any) => ({
-      type: 'resource' as const,
-      id: row.id,
-      label: 'EDUCATION',
-      accentColor: '#6366F1',
-      title: 'New video shared',
-      subtitle: truncate(row.title ?? '', 60),
-      createdAt: row.created_at,
-    }));
-
-    const merged = [...postItems, ...resourceItems].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-    return { items: merged.slice(0, 3), error: null };
-  } catch {
-    return { items: [], error: 'Could not load recent activity.' };
-  }
 }
 
 // ─── Carousel types + fetchers ────────────────────────────────────────────────
@@ -161,20 +88,10 @@ export interface HomeResourceCard {
   created_at: string;
 }
 
-/** Fetch up to 5 most-recent educational resources. */
+/** Educational resources were migrated to the LMS — always returns empty. */
 export async function fetchRecentResources(): Promise<{
   items: HomeResourceCard[];
   error: string | null;
 }> {
-  try {
-    const { data, error } = await supabase
-      .from('resources')
-      .select('id, title, youtube_video_id, thumbnail_url, created_at')
-      .order('created_at', { ascending: false })
-      .limit(5);
-    if (error) return { items: [], error: 'Could not load resources.' };
-    return { items: (data ?? []) as HomeResourceCard[], error: null };
-  } catch {
-    return { items: [], error: 'Could not load resources.' };
-  }
+  return { items: [], error: null };
 }

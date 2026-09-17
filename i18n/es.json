@@ -237,13 +237,6 @@
     "admin_video_too_large_body": "El tamaño máximo es 200 MB. Comprime o recorta el video.",
     "admin_permission_required": "Permiso requerido",
     "admin_permission_body": "Se requiere acceso a la biblioteca de fotos. Actívalo en los ajustes de tu dispositivo.",
-    "library": "Biblioteca",
-    "no_videos_in_topic": "Aún no hay videos en este tema",
-    "be_first_to_add": "Sé el primero en agregar uno.",
-    "share_first_video": "Comparte el primer video con la comunidad.",
-    "could_not_update_like": "No se pudo actualizar el me gusta",
-    "could_not_update_save": "No se pudo actualizar el guardado",
-    "delete_video_title": "Eliminar video"
   },
   "add_resource": {
     "title": "Compartir un video",

@@ -440,12 +440,7 @@ export default function SavedScreen() {
               .select('id, content, image_url, created_at, profiles(full_name, username)')
               .in('id', postIds)
           : Promise.resolve(noData),
-        resourceIds.length > 0
-          ? supabase
-              .from('resources')
-              .select('id, title, youtube_video_id, thumbnail_url, created_at')
-              .in('id', resourceIds)
-          : Promise.resolve(noData),
+        Promise.resolve(noData),
       ]);
 
       setEvents((eventsResult.data ?? []) as HomeEventCard[]);

@@ -112,20 +112,8 @@ export default function ProfileScreen() {
       }
     })();
 
-    (async () => {
-      try {
-        const { count } = await supabase
-          .from('resources')
-          .select('id', { count: 'exact', head: true })
-          .eq('submitted_by', targetUserId);
-        setResourcesCount(count ?? 0);
-      } catch (e) {
-        console.warn('[Profile] resources count threw:', e);
-        setResourcesCount(0);
-      } finally {
-        setLoadingResources(false);
-      }
-    })();
+    setResourcesCount(0);
+    setLoadingResources(false);
   }, [targetUserId]);
 
   // ── Loading ───────────────────────────────────────────────────────────────

@@ -86,27 +86,6 @@ export interface MemberListItem {
   is_admin: boolean;
 }
 
-export interface Resource {
-  id: string;
-  submitted_by: string;
-  topic_id: string;
-  title: string;
-  description: string | null;
-  youtube_url: string;
-  youtube_video_id: string;
-  thumbnail_url: string | null;
-  channel_name: string | null;
-  duration_seconds: number | null;
-  likes_count: number;
-  views_count: number;
-  created_at: string;
-}
-
-export type ResourceWithMeta = Resource & {
-  submitter: PostAuthor | null;
-  topic: Topic | null;
-};
-
 // ─── Poll types ───────────────────────────────────────────────────────────────
 
 export interface Poll {
