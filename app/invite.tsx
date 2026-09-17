@@ -2,11 +2,13 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 
 export default function InviteScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0900', paddingTop: insets.top }}>
@@ -36,7 +38,7 @@ export default function InviteScreen() {
             marginLeft: 12,
           }}
         >
-          Invite Friends
+          {t('drawer.invite_friends')}
         </Text>
       </View>
 
@@ -60,7 +62,7 @@ export default function InviteScreen() {
             textAlign: 'center',
           }}
         >
-          Coming Soon
+          {t('common.coming_soon')}
         </Text>
         <Text
           style={{
@@ -71,7 +73,7 @@ export default function InviteScreen() {
             lineHeight: 23,
           }}
         >
-          Soon you'll be able to invite your contacts to join the Legacy community.
+          {t('invite.body')}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -87,7 +89,7 @@ export default function InviteScreen() {
           }}
         >
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}>
-            Back
+            {t('common.back')}
           </Text>
         </TouchableOpacity>
       </View>

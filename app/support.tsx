@@ -2,11 +2,13 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0900', paddingTop: insets.top }}>
@@ -36,7 +38,7 @@ export default function SupportScreen() {
             marginLeft: 12,
           }}
         >
-          Help & Support
+          {t('drawer.help_support')}
         </Text>
       </View>
 
@@ -60,7 +62,7 @@ export default function SupportScreen() {
             textAlign: 'center',
           }}
         >
-          Coming Soon
+          {t('common.coming_soon')}
         </Text>
         <Text
           style={{
@@ -71,7 +73,7 @@ export default function SupportScreen() {
             lineHeight: 23,
           }}
         >
-          We're building a help center to answer your questions and provide support.
+          {t('support.body')}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -87,7 +89,7 @@ export default function SupportScreen() {
           }}
         >
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}>
-            Back
+            {t('common.back')}
           </Text>
         </TouchableOpacity>
       </View>

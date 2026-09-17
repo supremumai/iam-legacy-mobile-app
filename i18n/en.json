@@ -7,7 +7,9 @@
   "common": {
     "cancel": "Cancel",
     "unknown_error": "Unknown error",
-    "ok": "OK"
+    "ok": "OK",
+    "coming_soon": "Coming Soon",
+    "back": "Back"
   },
   "create_event": {
     "title_create": "Create Event",
@@ -130,6 +132,15 @@
     "help_support": "Help & Support",
     "about": "About",
     "log_out": "Log Out"
+  },
+  "invite": {
+    "body": "Soon you'll be able to invite your contacts to join the Legacy community."
+  },
+  "support": {
+    "body": "We're building a help center to answer your questions and provide support."
+  },
+  "about": {
+    "body": "Here you'll find the story, mission, and version details for the I Am Legacy app."
   },
   "members": {
     "title": "Members",

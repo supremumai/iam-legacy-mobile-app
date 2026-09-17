@@ -7,7 +7,9 @@
   "common": {
     "cancel": "Cancelar",
     "unknown_error": "Error desconocido",
-    "ok": "OK"
+    "ok": "OK",
+    "coming_soon": "Próximamente",
+    "back": "Volver"
   },
   "create_event": {
     "title_create": "Crear evento",
@@ -130,6 +132,15 @@
     "help_support": "Ayuda y soporte",
     "about": "Acerca de",
     "log_out": "Cerrar sesión"
+  },
+  "invite": {
+    "body": "Pronto podrás invitar a tus contactos a unirse a la comunidad Legacy."
+  },
+  "support": {
+    "body": "Estamos construyendo un centro de ayuda para responder tus preguntas y brindarte soporte."
+  },
+  "about": {
+    "body": "Aquí encontrarás la historia, la misión y los detalles de versión de la app I Am Legacy."
   },
   "members": {
     "title": "Miembros",

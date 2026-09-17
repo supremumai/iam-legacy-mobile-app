@@ -2,11 +2,13 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0900', paddingTop: insets.top }}>
@@ -36,7 +38,7 @@ export default function AboutScreen() {
             marginLeft: 12,
           }}
         >
-          About
+          {t('drawer.about')}
         </Text>
       </View>
 
@@ -60,7 +62,7 @@ export default function AboutScreen() {
             textAlign: 'center',
           }}
         >
-          Coming Soon
+          {t('common.coming_soon')}
         </Text>
         <Text
           style={{
@@ -71,7 +73,7 @@ export default function AboutScreen() {
             lineHeight: 23,
           }}
         >
-          Here you'll find the story, mission, and version details for the I Am Legacy app.
+          {t('about.body')}
         </Text>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -87,7 +89,7 @@ export default function AboutScreen() {
           }}
         >
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}>
-            Back
+            {t('common.back')}
           </Text>
         </TouchableOpacity>
       </View>
