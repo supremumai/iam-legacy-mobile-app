@@ -229,6 +229,22 @@ export async function submitQuizAttempt(
   }
 }
 
+export async function setModuleVideoUrl(
+  moduleId: string,
+  url: string | null,
+): Promise<{ error: string } | null> {
+  try {
+    const { error } = await supabase
+      .from('edu_modules')
+      .update({ video_url: url })
+      .eq('id', moduleId);
+    if (error) return { error: error.message };
+    return null;
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not save URL' };
+  }
+}
+
 export async function upsertVideoWatched(moduleId: string, userId: string): Promise<void> {
   try {
     await supabase
