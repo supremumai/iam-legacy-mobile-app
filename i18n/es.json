@@ -131,6 +131,25 @@
     "about": "Acerca de",
     "log_out": "Cerrar sesión"
   },
+  "members": {
+    "title": "Miembros",
+    "loading": "Cargando...",
+    "one_person": "1 persona en la comunidad",
+    "count_people": "%{count} personas en la comunidad",
+    "search_placeholder": "Buscar miembros...",
+    "no_members_yet": "Aún no hay miembros",
+    "no_members_found": "No se encontraron miembros",
+    "try_different_search": "Prueba con otra búsqueda.",
+    "could_not_load": "No se pudieron cargar los miembros",
+    "this_member_fallback": "este miembro",
+    "remove_admin_title": "Quitar acceso de administrador",
+    "remove_admin_confirm": "¿Quitar el acceso de administrador a %{name}?",
+    "remove": "Quitar",
+    "error_title": "Error",
+    "error_generic": "No se pudo actualizar el estado de administrador.",
+    "error_last_admin": "Este es el único administrador. Promueve a alguien más primero.",
+    "error_no_permission": "No tienes permiso para hacer esto."
+  },
   "saved": {
     "title": "Guardados",
     "section_events": "Eventos",

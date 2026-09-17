@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
@@ -26,6 +27,7 @@ export default function MembersScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
+  const { t } = useLanguage();
 
   const [members, setMembers] = useState<MemberListItem[]>([]);
   // Separate map for optimistic admin-status updates, keyed by profile id.
@@ -109,13 +111,13 @@ export default function MembersScreen() {
       setAdminMap((prev) => new Map(prev).set(member.id, prevValue));
 
       const msg = e instanceof Error ? e.message : String(e);
-      let alertMsg = 'Could not update admin status.';
+      let alertMsg = t('members.error_generic');
       if (msg.includes('Cannot remove the last remaining admin')) {
-        alertMsg = 'This is the only admin. Promote someone else first.';
+        alertMsg = t('members.error_last_admin');
       } else if (msg.includes('Only admins can change admin status')) {
-        alertMsg = "You don't have permission to do this.";
+        alertMsg = t('members.error_no_permission');
       }
-      Alert.alert('Error', alertMsg);
+      Alert.alert(t('members.error_title'), alertMsg);
     }
   };
 
@@ -126,14 +128,14 @@ export default function MembersScreen() {
   const handleToggleAdmin = (member: MemberListItem, newValue: boolean) => {
     if (!newValue) {
       // admin → member: confirm first
-      const name = member.full_name ?? member.username ?? 'this member';
+      const name = member.full_name ?? member.username ?? t('members.this_member_fallback');
       Alert.alert(
-        'Remove Admin Access',
-        `Remove admin access from ${name}?`,
+        t('members.remove_admin_title'),
+        t('members.remove_admin_confirm', { name }),
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('common.cancel'), style: 'cancel' },
           {
-            text: 'Remove',
+            text: t('members.remove'),
             style: 'destructive',
             onPress: () => {
               performToggle(member, newValue);
@@ -159,8 +161,10 @@ export default function MembersScreen() {
     : members;
 
   const subtitleText = loading
-    ? 'Loading...'
-    : `${members.length} ${members.length === 1 ? 'person' : 'people'} in the community`;
+    ? t('members.loading')
+    : members.length === 1
+    ? t('members.one_person')
+    : t('members.count_people', { count: members.length });
 
   // ── Error state ──────────────────────────────────────────────────────────────
   if (!loading && error) {
@@ -193,7 +197,7 @@ export default function MembersScreen() {
               textAlign: 'center',
             }}
           >
-            Could not load members
+            {t('members.could_not_load')}
           </Text>
           <TouchableOpacity
             onPress={fetchMembers}
@@ -206,7 +210,7 @@ export default function MembersScreen() {
             }}
           >
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
-              Retry
+              {t('events.retry')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -232,7 +236,7 @@ export default function MembersScreen() {
       {/* Title */}
       <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
         <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>
-          Members
+          {t('members.title')}
         </Text>
         <Text
           style={{
@@ -270,7 +274,7 @@ export default function MembersScreen() {
             fontSize: 15,
             color: '#FFFFFF',
           }}
-          placeholder="Search members..."
+          placeholder={t('members.search_placeholder')}
           placeholderTextColor="rgba(255,255,255,0.4)"
           value={searchText}
           onChangeText={setSearchText}
@@ -303,14 +307,14 @@ export default function MembersScreen() {
                 <Text
                   style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}
                 >
-                  No members yet
+                  {t('members.no_members_yet')}
                 </Text>
               ) : (
                 <>
                   <Text
                     style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}
                   >
-                    No members found
+                    {t('members.no_members_found')}
                   </Text>
                   <Text
                     style={{
@@ -320,7 +324,7 @@ export default function MembersScreen() {
                       marginTop: 4,
                     }}
                   >
-                    Try a different search.
+                    {t('members.try_different_search')}
                   </Text>
                 </>
               )}
@@ -330,7 +334,7 @@ export default function MembersScreen() {
             const initials = getInitials(member.full_name, member.username);
             const displayName =
               member.full_name ??
-              (member.username ? `@${member.username}` : 'Legacy Member');
+              (member.username ? `@${member.username}` : t('profile.legacy_member_fallback'));
             const secondLine = [member.role, member.location].filter(Boolean).join(' · ');
 
             // Toggle visible only to admin viewers on rows that aren't their own.

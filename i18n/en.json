@@ -131,6 +131,25 @@
     "about": "About",
     "log_out": "Log Out"
   },
+  "members": {
+    "title": "Members",
+    "loading": "Loading...",
+    "one_person": "1 person in the community",
+    "count_people": "%{count} people in the community",
+    "search_placeholder": "Search members...",
+    "no_members_yet": "No members yet",
+    "no_members_found": "No members found",
+    "try_different_search": "Try a different search.",
+    "could_not_load": "Could not load members",
+    "this_member_fallback": "this member",
+    "remove_admin_title": "Remove Admin Access",
+    "remove_admin_confirm": "Remove admin access from %{name}?",
+    "remove": "Remove",
+    "error_title": "Error",
+    "error_generic": "Could not update admin status.",
+    "error_last_admin": "This is the only admin. Promote someone else first.",
+    "error_no_permission": "You don't have permission to do this."
+  },
   "saved": {
     "title": "Saved",
     "section_events": "Events",
