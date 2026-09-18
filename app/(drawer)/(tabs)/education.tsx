@@ -3,19 +3,26 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { fetchTracks, EduTrack } from '../../../lib/education';
+import {
+  fetchTracks,
+  fetchContinueLearning,
+  EduTrack,
+  ContinueLearningResult,
+} from '../../../lib/education';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
 import TrackCard from '../../../components/education/TrackCard';
+import ContinueLearningCard from '../../../components/education/ContinueLearningCard';
 
 export default function EducationScreen() {
   const { t } = useLanguage();
   const router = useRouter();
-  useAuth(); // keep auth context alive
+  const { user } = useAuth();
 
   const [tracks, setTracks] = useState<EduTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [continueLearning, setContinueLearning] = useState<ContinueLearningResult | null>(null);
 
   const load = useCallback(async () => {
     setError(false);
@@ -33,6 +40,13 @@ export default function EducationScreen() {
     setLoading(true);
     load();
   }, [load]);
+
+  useEffect(() => {
+    (async () => {
+      const result = await fetchContinueLearning(user?.id ?? null);
+      setContinueLearning(result);
+    })();
+  }, [user?.id]);
 
   const handleTrackPress = (track: EduTrack) => {
     if (track.courses.length === 1) {
@@ -111,6 +125,38 @@ export default function EducationScreen() {
             {t('education.lms_subtitle')}
           </Text>
         </View>
+
+        {/* Continue Learning strip — only shown when user has an in-progress module */}
+        {continueLearning ? (
+          <>
+            <Text
+              style={{
+                fontFamily: Fonts.heading,
+                fontSize: 18,
+                color: '#c9a84c',
+                paddingHorizontal: 20,
+                marginTop: 8,
+                marginBottom: 12,
+              }}
+            >
+              {t('education.continue_learning')}
+            </Text>
+            <ContinueLearningCard
+              item={continueLearning}
+              onPress={() => {
+                if (continueLearning.videoWatched) {
+                  router.push(
+                    `/education/module/${continueLearning.moduleId}/quiz` as any,
+                  );
+                } else {
+                  router.push(
+                    `/education/module/${continueLearning.moduleId}` as any,
+                  );
+                }
+              }}
+            />
+          </>
+        ) : null}
 
         {loading ? (
           <View style={{ alignItems: 'center', paddingVertical: 48 }}>

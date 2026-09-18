@@ -200,6 +200,8 @@
     "difficulty_beginner": "Principiante",
     "difficulty_intermediate": "Intermedio",
     "difficulty_advanced": "Avanzado",
+    "continue_learning": "Continuar aprendiendo",
+    "continue_subtitle": "%{course} · Módulo %{n}",
     "video_coming_soon": "Video próximamente",
     "video_not_available": "Video no disponible aún — vuelve más tarde.",
     "take_quiz": "Hacer el cuestionario",

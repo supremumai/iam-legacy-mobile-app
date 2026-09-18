@@ -245,6 +245,60 @@ export async function setModuleVideoUrl(
   }
 }
 
+export interface ContinueLearningResult {
+  moduleId: string;
+  moduleTitle: string;
+  courseTitle: string;
+  courseId: string;
+  moduleOrderIndex: number;
+  videoWatched: boolean;
+}
+
+export async function fetchContinueLearning(
+  userId: string | null,
+): Promise<ContinueLearningResult | null> {
+  if (!userId) return null;
+  try {
+    const { data: progress } = await supabase
+      .from('edu_user_progress')
+      .select('module_id, video_watched')
+      .eq('user_id', userId)
+      .eq('quiz_passed', false)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!progress) return null;
+
+    const { data: mod, error: modError } = await supabase
+      .from('edu_modules')
+      .select('id, title, order_index, course_id')
+      .eq('id', progress.module_id)
+      .single();
+
+    if (modError || !mod) return null;
+
+    const { data: course, error: courseError } = await supabase
+      .from('edu_courses')
+      .select('id, title')
+      .eq('id', mod.course_id)
+      .single();
+
+    if (courseError || !course) return null;
+
+    return {
+      moduleId: progress.module_id,
+      moduleTitle: mod.title,
+      courseTitle: course.title,
+      courseId: course.id,
+      moduleOrderIndex: mod.order_index,
+      videoWatched: progress.video_watched ?? false,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchHomeCourses(): Promise<EduCourse[]> {
   try {
     const { data, error } = await supabase
