@@ -98,6 +98,21 @@ export async function pickAndUploadImage(
   }
 }
 
+const MEDIA_PUBLIC_MARKER = '/storage/v1/object/public/media/';
+
+export async function deleteEventImageIfOwned(imageUrl: string | null | undefined): Promise<void> {
+  if (!imageUrl) return;
+  const idx = imageUrl.indexOf(MEDIA_PUBLIC_MARKER);
+  if (idx === -1) return;
+  const path = imageUrl.slice(idx + MEDIA_PUBLIC_MARKER.length);
+  if (!path) return;
+  try {
+    await supabase.storage.from('media').remove([path]);
+  } catch (e) {
+    console.warn('[Storage] deleteEventImageIfOwned failed:', e);
+  }
+}
+
 const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200 MB — matches bucket limit
 
 // Uploads a video file to the 'edu-videos' Storage bucket using streaming (uploadAsync)

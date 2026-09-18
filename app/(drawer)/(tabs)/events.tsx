@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { fetchSavedIds, toggleSave } from '../../../lib/saves';
+import { deleteEventImageIfOwned } from '../../../lib/upload';
 import { EventItem } from '../../../types/database';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -131,6 +132,8 @@ export default function EventsScreen() {
   const handleDeleteEvent = async (event: EventItem) => {
     // Optimistic remove
     setAllEvents((prev) => prev.filter((e) => e.id !== event.id));
+    // Delete Storage image first (silent — never blocks DB delete)
+    await deleteEventImageIfOwned(event.image_url);
     try {
       const { error } = await supabase.from('events').delete().eq('id', event.id);
       if (error) throw error;
