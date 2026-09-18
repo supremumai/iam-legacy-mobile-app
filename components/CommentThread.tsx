@@ -15,6 +15,7 @@ import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { buildCommentThreads } from '../lib/comments';
+import { useLanguage } from '../contexts/LanguageContext';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { CommentWithAuthor, PostAuthor, ThreadedComment } from '../types/database';
 import { Fonts } from '../constants/fonts';
@@ -112,6 +113,7 @@ interface CommentRowProps {
 }
 
 function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: CommentRowProps) {
+  const { locale } = useLanguage();
   const isOwner = comment.user_id === currentUserId;
   const authorName = resolveDisplayName(comment.author);
   const avatarSize = isReply ? 22 : 28;
@@ -146,7 +148,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
               }}
             >
               {' · '}
-              {formatRelativeTime(comment.created_at)}
+              {formatRelativeTime(comment.created_at, locale)}
             </Text>
           </Text>
           {isOwner && (

@@ -20,6 +20,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { toggleSave } from '../lib/saves';
 import { HomeEventCard, HomePostCard, HomeResourceCard } from '../lib/home';
+import { formatMonthDayLabel } from '../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
 
@@ -74,14 +75,9 @@ function SavedEventCard({
   onUnsave: () => void;
   onPress: () => void;
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const dateLabel = item.event_date
-    ? (() => {
-        const d = new Date(item.event_date);
-        return (
-          d.toLocaleString('en-US', { month: 'short' }).toUpperCase() + ' ' + d.getDate()
-        );
-      })()
+    ? formatMonthDayLabel(new Date(item.event_date), locale)
     : null;
   const locationLine = item.is_online ? t('home.online') : item.location ?? null;
 

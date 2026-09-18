@@ -38,7 +38,7 @@ export default function PostCard({
   onToggleSave,
 }: PostCardProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const isOwner = post.user_id === currentUserId;
   const author = post.author;
 
@@ -50,8 +50,8 @@ export default function PostCard({
 
   const editedSuffix = post.updated_at ? t('community.edited_suffix') : '';
   const subLine = author?.username
-    ? `@${author.username} · ${formatRelativeTime(post.created_at)}${editedSuffix}`
-    : `${formatRelativeTime(post.created_at)}${editedSuffix}`;
+    ? `@${author.username} · ${formatRelativeTime(post.created_at, locale)}${editedSuffix}`
+    : `${formatRelativeTime(post.created_at, locale)}${editedSuffix}`;
   const videoId = findFirstYouTubeVideoId(post.content);
 
   // ─── Two-step delete: confirm then delete ──────────────────────────────────

@@ -5,23 +5,20 @@ import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useLanguage } from '../contexts/LanguageContext';
+import { formatIsoMonthUpper } from '../lib/dateFormat';
 
 interface DateParts {
   month: string;
   day: string;
 }
 
-function parseDateParts(isoString: string | null): DateParts {
+function parseDateParts(isoString: string | null, locale: string): DateParts {
   if (!isoString) return { month: '—', day: '—' };
-  // Parse as local date to avoid UTC offset shifting the day
   const parts = isoString.split('T')[0].split('-');
   if (parts.length < 3) return { month: '—', day: '—' };
-  const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10) - 1; // 0-indexed
   const day = parseInt(parts[2], 10);
-  const d = new Date(year, month, day);
   return {
-    month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase(),
+    month: formatIsoMonthUpper(isoString, locale),
     day: String(day),
   };
 }
@@ -50,8 +47,8 @@ export default function EventCard({
 }: Props) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
-  const { t } = useLanguage();
-  const dateParts = parseDateParts(event.event_date);
+  const { t, locale } = useLanguage();
+  const dateParts = parseDateParts(event.event_date, locale);
   const attendees = event.attendees_count ?? 0;
   const goingLabel = attendees === 1
     ? t('events.one_going')

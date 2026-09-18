@@ -37,7 +37,7 @@ export default function PollCard({
   onVoteChange,
 }: PollCardProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [localMeta, setLocalMeta] = useState<PollWithMeta>(pollMeta);
   const [voting, setVoting] = useState(false);
 
@@ -51,8 +51,8 @@ export default function PollCard({
   const displayName =
     author?.full_name ?? (author?.username ? `@${author.username}` : 'Legacy Member');
   const subLine = author?.username
-    ? `@${author.username} · ${formatRelativeTime(post.created_at)}`
-    : formatRelativeTime(post.created_at);
+    ? `@${author.username} · ${formatRelativeTime(post.created_at, locale)}`
+    : formatRelativeTime(post.created_at, locale);
 
   const { poll, options, userVotedOptionIds, total_votes } = localMeta;
   const isClosed = poll.closes_at !== null && new Date(poll.closes_at) < new Date();

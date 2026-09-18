@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase';
 import { pickAndUploadImage } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
 import { useLanguage } from '../contexts/LanguageContext';
+import { formatDateFull, formatTime } from '../lib/dateFormat';
 
 type EventType = 'in-person' | 'online';
 
@@ -35,7 +36,7 @@ export default function CreateEventScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, profile } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Optional `id` param — present in edit mode, absent in create mode.
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -521,11 +522,7 @@ export default function CreateEventScreen() {
                   }}
                   numberOfLines={1}
                 >
-                  {eventDate.toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+                  {formatDateFull(eventDate, locale)}
                 </Text>
               </TouchableOpacity>
 
@@ -550,10 +547,7 @@ export default function CreateEventScreen() {
               >
                 <Ionicons name="time-outline" size={16} color="rgba(255,255,255,0.55)" />
                 <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: '#FFFFFF' }}>
-                  {eventDate.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  })}
+                  {formatTime(eventDate, locale)}
                 </Text>
               </TouchableOpacity>
             </View>

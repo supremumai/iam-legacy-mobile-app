@@ -9,6 +9,7 @@ import {
   fetchRecentPosts,
 } from '../../../lib/home';
 import { EduCourse, fetchHomeCourses } from '../../../lib/education';
+import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
 import { Fonts } from '../../../constants/fonts';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -20,14 +21,9 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 //   pressed-opacity         → inner <View style={{ opacity: ... }}> via children render-prop
 
 function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const dateLabel = item.event_date
-    ? (() => {
-        const d = new Date(item.event_date);
-        return (
-          d.toLocaleString('en-US', { month: 'short' }).toUpperCase() + ' ' + d.getDate()
-        );
-      })()
+    ? formatMonthDayLabel(new Date(item.event_date), locale)
     : null;
   const locationLine = item.is_online ? t('home.online') : item.location ?? null;
 

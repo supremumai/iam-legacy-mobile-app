@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
@@ -33,6 +34,7 @@ export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const { locale } = useLanguage();
 
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   // Track which items were unread at open-time — stays stable after mark-as-read fires
@@ -304,7 +306,7 @@ export default function NotificationsScreen() {
                       marginTop: 2,
                     }}
                   >
-                    {formatRelativeTime(notification.created_at)}
+                    {formatRelativeTime(notification.created_at, locale)}
                   </Text>
                 </View>
 
