@@ -319,6 +319,29 @@ export async function fetchHomeCourses(): Promise<EduCourse[]> {
   }
 }
 
+export async function updateQuizQuestion(
+  id: string,
+  fields: {
+    question: string;
+    option_a: string;
+    option_b: string;
+    option_c: string;
+    option_d: string;
+    correct_option: 'A' | 'B' | 'C' | 'D';
+  },
+): Promise<string | null> {
+  try {
+    const { error } = await supabase
+      .from('edu_quiz_questions')
+      .update(fields)
+      .eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not save';
+  }
+}
+
 export async function upsertVideoWatched(moduleId: string, userId: string): Promise<void> {
   try {
     await supabase

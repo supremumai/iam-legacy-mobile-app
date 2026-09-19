@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useIsAdmin } from '../../../hooks/useIsAdmin';
 import {
   fetchCourseDetail,
   CourseDetailResult,
@@ -27,9 +28,11 @@ function getModuleStatus(
   modules: EduModule[],
   index: number,
   progressMap: Record<string, import('../../../lib/education').EduUserProgress>,
+  isAdmin?: boolean,
 ): ModuleStatus {
   const mod = modules[index];
   if (progressMap[mod.id]?.quiz_passed === true) return 'completed';
+  if (isAdmin) return 'unlocked';
   if (index === 0) return 'unlocked';
   if (progressMap[modules[index - 1].id]?.quiz_passed === true) return 'unlocked';
   return 'locked';
@@ -40,6 +43,7 @@ export default function CourseDetailScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
+  const isAdmin = useIsAdmin();
 
   const [result, setResult] = useState<CourseDetailResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +77,7 @@ export default function CourseDetailScreen() {
   const handleStartOrContinue = () => {
     if (!result?.modules?.length) return;
     const firstUnlocked = result.modules.find(
-      (_, i) => getModuleStatus(result.modules, i, result.progressMap) !== 'locked',
+      (_, i) => getModuleStatus(result.modules, i, result.progressMap, isAdmin) !== 'locked',
     );
     if (firstUnlocked) handleModulePress(firstUnlocked.id);
   };
@@ -230,7 +234,7 @@ export default function CourseDetailScreen() {
           </Text>
 
           {modules.map((mod, i) => {
-            const status = getModuleStatus(modules, i, progressMap);
+            const status = getModuleStatus(modules, i, progressMap, isAdmin);
             return (
               <ModuleRow
                 key={mod.id}

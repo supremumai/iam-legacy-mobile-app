@@ -18,7 +18,9 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { useIsAdmin } from '../../../hooks/useIsAdmin';
 import {
   fetchModuleDetail,
+  fetchQuizQuestions,
   setModuleVideoUrl,
+  updateQuizQuestion,
   upsertVideoWatched,
   ModuleDetailResult,
 } from '../../../lib/education';
@@ -30,6 +32,27 @@ const BG = '#0a0900';
 const RED = '#e53935';
 
 const DIRECT_VIDEO_EXTS = ['.mp4', '.mov', '.m4v', '.webm'];
+
+type QuizOptionKey = 'A' | 'B' | 'C' | 'D';
+const QUIZ_OPTIONS: QuizOptionKey[] = ['A', 'B', 'C', 'D'];
+const QUIZ_OPT_KEYS = [
+  { key: 'option_a' as const, label: 'A' },
+  { key: 'option_b' as const, label: 'B' },
+  { key: 'option_c' as const, label: 'C' },
+  { key: 'option_d' as const, label: 'D' },
+] as const;
+
+interface QuizQEdit {
+  id: string;
+  question: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: QuizOptionKey;
+  saving: boolean;
+  error: string | null;
+}
 
 function isDirectVideoUrl(url: string): boolean {
   if (!url.startsWith('http://') && !url.startsWith('https://')) return false;
@@ -50,11 +73,14 @@ export default function ModuleVideoScreen() {
   const [localWatched, setLocalWatched] = useState(false);
   const upsertDone = useRef(false);
 
-  // Admin panel state
+  // Admin panel state — video
   const [adminUploading, setAdminUploading] = useState(false);
   const [adminUrlInput, setAdminUrlInput] = useState('');
   const [adminUrlError, setAdminUrlError] = useState<string | null>(null);
   const [adminUrlSaving, setAdminUrlSaving] = useState(false);
+
+  // Admin panel state — quiz questions
+  const [quizEdits, setQuizEdits] = useState<QuizQEdit[]>([]);
 
   const load = useCallback(async () => {
     if (!moduleId) return;
@@ -63,12 +89,26 @@ export default function ModuleVideoScreen() {
       const data = await fetchModuleDetail(moduleId, user?.id ?? null);
       setResult(data);
       if (!data.module) setError(true);
+      if (isAdmin) {
+        const qs = await fetchQuizQuestions(moduleId);
+        setQuizEdits(qs.map((q) => ({
+          id: q.id,
+          question: q.question,
+          option_a: q.option_a,
+          option_b: q.option_b,
+          option_c: q.option_c,
+          option_d: q.option_d,
+          correct_option: q.correct_option.toUpperCase() as QuizOptionKey,
+          saving: false,
+          error: null,
+        })));
+      }
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [moduleId, user?.id]);
+  }, [moduleId, user?.id, isAdmin]);
 
   useEffect(() => {
     setLoading(true);
@@ -197,6 +237,40 @@ export default function ModuleVideoScreen() {
         },
       ],
     );
+  }
+
+  function updateQuizEdit(idx: number, patch: Partial<QuizQEdit>) {
+    setQuizEdits((prev) => prev.map((q, i) => (i === idx ? { ...q, ...patch } : q)));
+  }
+
+  async function handleSaveQuestion(idx: number) {
+    const edit = quizEdits[idx];
+    if (
+      !edit.question.trim() ||
+      !edit.option_a.trim() ||
+      !edit.option_b.trim() ||
+      !edit.option_c.trim() ||
+      !edit.option_d.trim()
+    ) {
+      updateQuizEdit(idx, { error: t('education.admin_question_empty') });
+      return;
+    }
+    updateQuizEdit(idx, { saving: true, error: null });
+    let errMsg: string | null = null;
+    try {
+      errMsg = await updateQuizQuestion(edit.id, {
+        question: edit.question.trim(),
+        option_a: edit.option_a.trim(),
+        option_b: edit.option_b.trim(),
+        option_c: edit.option_c.trim(),
+        option_d: edit.option_d.trim(),
+        correct_option: edit.correct_option,
+      });
+    } catch (e: any) {
+      errMsg = e?.message ?? t('education.admin_question_save_error');
+    } finally {
+      updateQuizEdit(idx, { saving: false, error: errMsg });
+    }
   }
 
   const handleQuizPress = () => {
@@ -474,6 +548,151 @@ export default function ModuleVideoScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+            )}
+          </View>
+        )}
+
+        {/* Admin quiz questions panel */}
+        {isAdmin && (
+          <View
+            style={{
+              marginHorizontal: 20,
+              marginTop: 16,
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(201,168,76,0.2)',
+              paddingTop: 14,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 16 }}>
+              <Ionicons name="help-circle-outline" size={13} color="rgba(201,168,76,0.6)" />
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.6)', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                {t('education.admin_quiz_questions')}
+              </Text>
+            </View>
+
+            {quizEdits.length === 0 ? (
+              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.35)', textAlign: 'center', paddingVertical: 12 }}>
+                {t('education.admin_no_questions')}
+              </Text>
+            ) : (
+              quizEdits.map((edit, idx) => (
+                <View
+                  key={edit.id}
+                  style={{
+                    backgroundColor: '#111000',
+                    borderWidth: 1,
+                    borderColor: 'rgba(201,168,76,0.15)',
+                    borderRadius: 10,
+                    padding: 14,
+                    marginBottom: 12,
+                  }}
+                >
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.5)', letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
+                    {t('education.admin_question')} {idx + 1}
+                  </Text>
+
+                  <TextInput
+                    value={edit.question}
+                    onChangeText={(v) => updateQuizEdit(idx, { question: v, error: null })}
+                    multiline
+                    placeholder={t('education.admin_question')}
+                    placeholderTextColor="rgba(255,255,255,0.22)"
+                    style={{
+                      backgroundColor: BG,
+                      borderWidth: 1,
+                      borderColor: 'rgba(201,168,76,0.2)',
+                      borderRadius: 8,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      fontFamily: Fonts.body,
+                      fontSize: 14,
+                      color: '#FFFFFF',
+                      marginBottom: 10,
+                      minHeight: 60,
+                      textAlignVertical: 'top',
+                    }}
+                  />
+
+                  {QUIZ_OPT_KEYS.map(({ key, label }) => (
+                    <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: 'rgba(201,168,76,0.6)', width: 20, textAlign: 'center' }}>
+                        {label}
+                      </Text>
+                      <TextInput
+                        value={edit[key]}
+                        onChangeText={(v) => updateQuizEdit(idx, { [key]: v, error: null } as Partial<QuizQEdit>)}
+                        placeholder={`${t('education.admin_option')} ${label}`}
+                        placeholderTextColor="rgba(255,255,255,0.22)"
+                        style={{
+                          flex: 1,
+                          backgroundColor: BG,
+                          borderWidth: 1,
+                          borderColor: 'rgba(201,168,76,0.2)',
+                          borderRadius: 8,
+                          paddingHorizontal: 12,
+                          paddingVertical: 8,
+                          fontFamily: Fonts.body,
+                          fontSize: 14,
+                          color: '#FFFFFF',
+                        }}
+                      />
+                    </View>
+                  ))}
+
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 8, marginTop: 2 }}>
+                    {t('education.admin_correct_answer')}
+                  </Text>
+                  <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+                    {QUIZ_OPTIONS.map((opt) => (
+                      <TouchableOpacity
+                        key={opt}
+                        onPress={() => updateQuizEdit(idx, { correct_option: opt, error: null })}
+                        activeOpacity={0.75}
+                        style={{
+                          backgroundColor: edit.correct_option === opt ? 'rgba(201,168,76,0.2)' : BG,
+                          borderWidth: 1.5,
+                          borderColor: edit.correct_option === opt ? GOLD : 'rgba(201,168,76,0.25)',
+                          borderRadius: 8,
+                          paddingVertical: 8,
+                          paddingHorizontal: 14,
+                        }}
+                      >
+                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: edit.correct_option === opt ? GOLD : 'rgba(255,255,255,0.4)' }}>
+                          {opt}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {!!edit.error && (
+                    <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: RED, marginBottom: 8 }}>
+                      {edit.error}
+                    </Text>
+                  )}
+
+                  <TouchableOpacity
+                    onPress={edit.saving ? undefined : () => handleSaveQuestion(idx)}
+                    activeOpacity={edit.saving ? 1 : 0.8}
+                    style={{
+                      backgroundColor: 'rgba(201,168,76,0.12)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(201,168,76,0.35)',
+                      borderRadius: 8,
+                      paddingVertical: 10,
+                      alignItems: 'center',
+                      opacity: edit.saving ? 0.6 : 1,
+                    }}
+                  >
+                    {edit.saving ? (
+                      <ActivityIndicator size="small" color={GOLD} />
+                    ) : (
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: GOLD }}>
+                        {t('education.admin_save_question')}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              ))
             )}
           </View>
         )}

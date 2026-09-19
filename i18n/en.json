@@ -241,6 +241,14 @@
     "admin_video_too_large_body": "Maximum file size is 200 MB. Please compress or trim the video.",
     "admin_permission_required": "Permission required",
     "admin_permission_body": "Photo library access is required. Enable it in your device settings.",
+    "admin_quiz_questions": "Quiz Questions",
+    "admin_question": "Question",
+    "admin_option": "Option",
+    "admin_correct_answer": "Correct Answer",
+    "admin_save_question": "Save",
+    "admin_question_empty": "Question and all options must be filled in.",
+    "admin_question_save_error": "Could not save question.",
+    "admin_no_questions": "No questions yet."
   },
   "add_resource": {
     "title": "Share a Video",

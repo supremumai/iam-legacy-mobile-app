@@ -241,6 +241,14 @@
     "admin_video_too_large_body": "El tamaño máximo es 200 MB. Comprime o recorta el video.",
     "admin_permission_required": "Permiso requerido",
     "admin_permission_body": "Se requiere acceso a la biblioteca de fotos. Actívalo en los ajustes de tu dispositivo.",
+    "admin_quiz_questions": "Preguntas del cuestionario",
+    "admin_question": "Pregunta",
+    "admin_option": "Opción",
+    "admin_correct_answer": "Respuesta correcta",
+    "admin_save_question": "Guardar",
+    "admin_question_empty": "La pregunta y todas las opciones deben estar completas.",
+    "admin_question_save_error": "No se pudo guardar la pregunta.",
+    "admin_no_questions": "Aún no hay preguntas."
   },
   "add_resource": {
     "title": "Compartir un video",
