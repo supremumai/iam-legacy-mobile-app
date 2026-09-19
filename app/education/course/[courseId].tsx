@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { useIsAdmin } from '../../../hooks/useIsAdmin';
+import { useAdminInEducation } from '../../../hooks/useAdminInEducation';
 import {
   fetchCourseDetail,
   CourseDetailResult,
@@ -43,7 +43,7 @@ export default function CourseDetailScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
-  const isAdmin = useIsAdmin();
+  const isAdmin = useAdminInEducation();
 
   const [result, setResult] = useState<CourseDetailResult | null>(null);
   const [loading, setLoading] = useState(true);

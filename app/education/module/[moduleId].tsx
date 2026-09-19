@@ -15,7 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { useIsAdmin } from '../../../hooks/useIsAdmin';
+import { useAdminInEducation } from '../../../hooks/useAdminInEducation';
 import {
   fetchModuleDetail,
   fetchQuizQuestions,
@@ -65,7 +65,7 @@ export default function ModuleVideoScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
-  const isAdmin = useIsAdmin();
+  const isAdmin = useAdminInEducation();
 
   const [result, setResult] = useState<ModuleDetailResult | null>(null);
   const [loading, setLoading] = useState(true);

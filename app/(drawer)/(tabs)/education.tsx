@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useIsAdmin } from '../../../hooks/useIsAdmin';
+import { useEducationPreview } from '../../../contexts/EducationPreviewContext';
 import {
   fetchTracks,
   fetchContinueLearning,
@@ -14,10 +16,14 @@ import GlobalHeader from '../../../components/GlobalHeader';
 import TrackCard from '../../../components/education/TrackCard';
 import ContinueLearningCard from '../../../components/education/ContinueLearningCard';
 
+const GOLD = '#c9a84c';
+
 export default function EducationScreen() {
   const { t } = useLanguage();
   const router = useRouter();
   const { user } = useAuth();
+  const isAdmin = useIsAdmin();
+  const { previewAsMember, togglePreview } = useEducationPreview();
 
   const [tracks, setTracks] = useState<EduTrack[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,6 +130,42 @@ export default function EducationScreen() {
           >
             {t('education.lms_subtitle')}
           </Text>
+
+          {/* Admin-only preview toggle */}
+          {isAdmin && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: 14,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+                backgroundColor: previewAsMember ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.04)',
+                borderWidth: 1,
+                borderColor: previewAsMember ? 'rgba(201,168,76,0.35)' : 'rgba(255,255,255,0.1)',
+                borderRadius: 10,
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: Fonts.bodySemiBold,
+                  fontSize: 13,
+                  color: previewAsMember ? GOLD : 'rgba(255,255,255,0.55)',
+                }}
+              >
+                {previewAsMember
+                  ? t('education.preview_mode_on')
+                  : t('education.preview_view_as_member')}
+              </Text>
+              <Switch
+                value={previewAsMember}
+                onValueChange={togglePreview}
+                trackColor={{ false: 'rgba(255,255,255,0.15)', true: 'rgba(201,168,76,0.45)' }}
+                thumbColor={previewAsMember ? GOLD : 'rgba(255,255,255,0.7)'}
+              />
+            </View>
+          )}
         </View>
 
         {/* Continue Learning strip — only shown when user has an in-progress module */}

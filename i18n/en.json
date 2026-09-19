@@ -248,7 +248,9 @@
     "admin_save_question": "Save",
     "admin_question_empty": "Question and all options must be filled in.",
     "admin_question_save_error": "Could not save question.",
-    "admin_no_questions": "No questions yet."
+    "admin_no_questions": "No questions yet.",
+    "preview_view_as_member": "View as member",
+    "preview_mode_on": "Preview mode on"
   },
   "add_resource": {
     "title": "Share a Video",

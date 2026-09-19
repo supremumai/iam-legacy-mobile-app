@@ -248,7 +248,9 @@
     "admin_save_question": "Guardar",
     "admin_question_empty": "La pregunta y todas las opciones deben estar completas.",
     "admin_question_save_error": "No se pudo guardar la pregunta.",
-    "admin_no_questions": "Aún no hay preguntas."
+    "admin_no_questions": "Aún no hay preguntas.",
+    "preview_view_as_member": "Ver como miembro",
+    "preview_mode_on": "Modo vista previa activo"
   },
   "add_resource": {
     "title": "Compartir un video",

@@ -14,6 +14,7 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { EducationPreviewProvider } from '../contexts/EducationPreviewContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -84,7 +85,9 @@ export default function RootLayout() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
+        <EducationPreviewProvider>
+          <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
+        </EducationPreviewProvider>
       </AuthProvider>
     </LanguageProvider>
   );
