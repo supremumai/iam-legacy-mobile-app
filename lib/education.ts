@@ -180,7 +180,10 @@ export async function fetchQuizQuestions(moduleId: string): Promise<EduQuizQuest
       .eq('module_id', moduleId)
       .order('order_index', { ascending: true });
     if (error) return [];
-    return (data ?? []) as EduQuizQuestion[];
+    return (data ?? []).map((q) => ({
+      ...q,
+      correct_option: (q.correct_option as string).toLowerCase() as EduQuizQuestion['correct_option'],
+    }));
   } catch {
     return [];
   }
