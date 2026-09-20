@@ -21,6 +21,8 @@ export interface EduTrack {
   thumbnail_url: string | null;
   is_published: boolean;
   courses: EduCourse[];
+  progress_percent: number;
+  modules_done: number;
 }
 
 export interface EduModule {
@@ -58,7 +60,7 @@ export interface CourseDetailResult {
   enrollment: EduEnrollment | null;
 }
 
-export async function fetchTracks(): Promise<EduTrack[]> {
+export async function fetchTracks(userId?: string | null): Promise<EduTrack[]> {
   try {
     const { data: tracks, error: tracksError } = await supabase
       .from('tracks')
@@ -87,10 +89,37 @@ export async function fetchTracks(): Promise<EduTrack[]> {
       coursesByTrack[c.track_id].push(c as EduCourse);
     }
 
-    return tracks.map((t) => ({
-      ...t,
-      courses: coursesByTrack[t.id] ?? [],
-    })) as EduTrack[];
+    // Bulk-fetch enrollments for the user across all courses (no N+1).
+    const progressByCourse: Record<string, number> = {};
+    if (userId) {
+      const allCourseIds = (courses ?? []).map((c) => c.id);
+      if (allCourseIds.length > 0) {
+        const { data: enrollments } = await supabase
+          .from('edu_enrollments')
+          .select('course_id, progress_percent')
+          .eq('user_id', userId)
+          .in('course_id', allCourseIds);
+        for (const e of enrollments ?? []) {
+          progressByCourse[e.course_id] = e.progress_percent ?? 0;
+        }
+      }
+    }
+
+    return tracks.map((t) => {
+      const trackCourses = coursesByTrack[t.id] ?? [];
+      // Each track has 1 course today; use the first course's enrollment.
+      const primary = trackCourses[0];
+      const progress = primary ? (progressByCourse[primary.id] ?? 0) : 0;
+      const totalModules = primary?.modules_count ?? 0;
+      // N derived from progress_percent × modules_count (avoids extra query).
+      const modulesDone = Math.min(Math.round((progress / 100) * totalModules), totalModules);
+      return {
+        ...t,
+        courses: trackCourses,
+        progress_percent: progress,
+        modules_done: modulesDone,
+      };
+    }) as EduTrack[];
   } catch {
     return [];
   }

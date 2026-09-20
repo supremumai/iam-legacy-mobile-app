@@ -250,7 +250,10 @@
     "admin_question_save_error": "Could not save question.",
     "admin_no_questions": "No questions yet.",
     "preview_view_as_member": "View as member",
-    "preview_mode_on": "Preview mode on"
+    "preview_mode_on": "Preview mode on",
+    "track_modules_label": "%{count} modules",
+    "track_modules_done": "%{done} of %{total} done",
+    "track_not_started": "Not started"
   },
   "add_resource": {
     "title": "Share a Video",

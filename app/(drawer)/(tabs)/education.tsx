@@ -33,14 +33,14 @@ export default function EducationScreen() {
   const load = useCallback(async () => {
     setError(false);
     try {
-      const data = await fetchTracks();
+      const data = await fetchTracks(user?.id);
       setTracks(data);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setLoading(true);

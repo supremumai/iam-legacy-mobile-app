@@ -1,14 +1,25 @@
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { EduTrack } from '../../lib/education';
 
-// Track gradient bands when no thumbnail_url — each track gets a unique color.
-const TRACK_GRADIENTS = [
-  ['#1a1200', '#2e1f00'],
-  ['#0d1a1a', '#001f2e'],
-  ['#1a0d1a', '#2e0033'],
+type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
+
+const ICON_MAP: Array<[string, IoniconsName]> = [
+  ['wholesale', 'cash-outline'],
+  ['investment', 'trending-up-outline'],
+  ['financ', 'business-outline'],
 ];
+const ICON_FALLBACK: IoniconsName = 'book-outline';
+
+function getTrackIcon(title: string): IoniconsName {
+  const lower = title.toLowerCase();
+  for (const [key, icon] of ICON_MAP) {
+    if (lower.includes(key)) return icon;
+  }
+  return ICON_FALLBACK;
+}
 
 interface TrackCardProps {
   track: EduTrack;
@@ -16,13 +27,13 @@ interface TrackCardProps {
   onPress: () => void;
 }
 
-export default function TrackCard({ track, index, onPress }: TrackCardProps) {
-  const gradient = TRACK_GRADIENTS[index % TRACK_GRADIENTS.length];
+export default function TrackCard({ track, onPress }: TrackCardProps) {
+  const { t } = useLanguage();
+  const icon = getTrackIcon(track.title);
   const totalModules = track.courses.reduce((sum, c) => sum + (c.modules_count ?? 0), 0);
-  const meta =
-    track.courses.length === 1
-      ? `${totalModules} modules`
-      : `${track.courses.length} courses · ${totalModules} modules`;
+  const progress = track.progress_percent ?? 0;
+  const done = track.modules_done ?? 0;
+  const barWidth = `${Math.min(Math.max(progress, 0), 100)}%` as const;
 
   return (
     <TouchableOpacity
@@ -31,85 +42,135 @@ export default function TrackCard({ track, index, onPress }: TrackCardProps) {
       style={{
         marginHorizontal: 20,
         marginBottom: 16,
-        borderRadius: 14,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.18)',
+        borderRadius: 12,
+        borderWidth: 0.5,
+        borderColor: 'rgba(197,164,84,0.25)',
+        backgroundColor: '#1c1a14',
+        padding: 16,
       }}
     >
-      {/* Thumbnail band */}
+      {/* Top row: thematic icon + progress % */}
       <View
         style={{
-          height: 80,
-          backgroundColor: gradient[0],
-          borderBottomWidth: 1,
-          borderBottomColor: 'rgba(201,168,76,0.12)',
-          alignItems: 'flex-end',
-          justifyContent: 'flex-end',
-          padding: 12,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 12,
         }}
       >
         <View
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: 'rgba(201,168,76,0.12)',
+            width: 44,
+            height: 44,
+            borderRadius: 10,
+            backgroundColor: 'rgba(197,164,84,0.12)',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="book-outline" size={18} color="rgba(201,168,76,0.6)" />
+          <Ionicons name={icon} size={22} color="#c5a454" />
         </View>
-      </View>
-
-      {/* Body */}
-      <View
-        style={{
-          backgroundColor: '#110f09',
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          gap: 12,
-        }}
-      >
-        <View style={{ flex: 1 }}>
+        {progress > 0 && (
           <Text
             style={{
-              fontFamily: Fonts.heading,
-              fontSize: 17,
-              color: '#c9a84c',
-              marginBottom: 2,
+              fontFamily: Fonts.bodySemiBold,
+              fontSize: 13,
+              color: '#5fa564',
             }}
-            numberOfLines={2}
           >
-            {track.title}
+            {progress}%
           </Text>
-          {!!track.tagline && (
-            <Text
-              style={{
-                fontFamily: Fonts.body,
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.55)',
-                marginBottom: 4,
-              }}
-              numberOfLines={1}
-            >
-              {track.tagline}
-            </Text>
-          )}
+        )}
+      </View>
+
+      {/* Title */}
+      <Text
+        style={{
+          fontFamily: Fonts.heading,
+          fontSize: 17,
+          color: '#e8e0cc',
+          marginBottom: 4,
+        }}
+        numberOfLines={2}
+      >
+        {track.title}
+      </Text>
+
+      {/* Tagline */}
+      {!!track.tagline && (
+        <Text
+          style={{
+            fontFamily: Fonts.body,
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.45)',
+            marginBottom: 12,
+          }}
+          numberOfLines={1}
+        >
+          {track.tagline}
+        </Text>
+      )}
+
+      {/* Progress bar */}
+      <View
+        style={{
+          height: 5,
+          borderRadius: 3,
+          backgroundColor: 'rgba(255,255,255,0.08)',
+          marginBottom: 10,
+          overflow: 'hidden',
+        }}
+      >
+        {progress > 0 && (
+          <View
+            style={{
+              height: '100%',
+              width: barWidth,
+              borderRadius: 3,
+              backgroundColor: '#c5a454',
+            }}
+          />
+        )}
+      </View>
+
+      {/* Footer row: total modules (left) + done count (right) */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: Fonts.body,
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.4)',
+          }}
+        >
+          {t('education.track_modules_label', { count: totalModules })}
+        </Text>
+        {progress > 0 ? (
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 12,
-              color: 'rgba(201,168,76,0.7)',
+              color: '#c5a454',
             }}
           >
-            {meta}
+            {t('education.track_modules_done', { done, total: totalModules })}
           </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={18} color="rgba(201,168,76,0.5)" />
+        ) : (
+          <Text
+            style={{
+              fontFamily: Fonts.body,
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.35)',
+            }}
+          >
+            {t('education.track_not_started')}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );
