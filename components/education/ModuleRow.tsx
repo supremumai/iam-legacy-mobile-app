@@ -5,6 +5,9 @@ import type { EduModule } from '../../lib/education';
 
 export type ModuleStatus = 'completed' | 'unlocked' | 'locked';
 
+const CIRCLE = 18;
+const LINE_COLOR = 'rgba(197,164,84,0.22)';
+
 function formatDuration(seconds: number | null): string {
   if (!seconds) return '';
   if (seconds < 60) return `${seconds} sec`;
@@ -14,57 +17,79 @@ function formatDuration(seconds: number | null): string {
 interface ModuleRowProps {
   module: EduModule;
   status: ModuleStatus;
+  index: number;
+  total: number;
   onPress: () => void;
 }
 
-export default function ModuleRow({ module, status, onPress }: ModuleRowProps) {
+export default function ModuleRow({ module, status, index, total, onPress }: ModuleRowProps) {
+  const isFirst = index === 0;
+  const isLast = index === total - 1;
+  const isCompleted = status === 'completed';
   const isLocked = status === 'locked';
   const duration = formatDuration(module.video_duration_seconds);
 
-  const icon =
-    status === 'completed'
-      ? 'checkmark-circle'
-      : status === 'unlocked'
-        ? 'play-circle'
-        : 'lock-closed';
+  const iconName = isCompleted ? 'checkmark' : isLocked ? 'lock-closed' : 'play';
+  const iconColor = isCompleted ? '#0a0900' : isLocked ? 'rgba(255,255,255,0.35)' : '#c5a454';
 
-  const iconColor =
-    status === 'locked' ? 'rgba(255,255,255,0.3)' : '#c9a84c';
+  const circleStyle = {
+    width: CIRCLE,
+    height: CIRCLE,
+    borderRadius: CIRCLE / 2,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: isCompleted ? '#c5a454' : 'transparent',
+    borderWidth: isCompleted ? 0 : 1.5,
+    borderColor: isCompleted
+      ? undefined
+      : isLocked
+        ? 'rgba(255,255,255,0.2)'
+        : '#c5a454',
+  };
 
-  const content = (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(201,168,76,0.08)',
-        opacity: isLocked ? 0.4 : 1,
-        gap: 14,
-      }}
-    >
-      {/* Order number */}
-      <Text
+  const rowContent = (
+    <View style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
+      {/* Timeline gutter */}
+      <View style={{ width: 36, alignItems: 'center' }}>
+        {/* Top connector */}
+        <View
+          style={{
+            width: 1.5,
+            height: 14,
+            backgroundColor: isFirst ? 'transparent' : LINE_COLOR,
+          }}
+        />
+        {/* Status circle */}
+        <View style={circleStyle}>
+          <Ionicons name={iconName as any} size={9} color={iconColor} />
+        </View>
+        {/* Bottom connector — flex:1 to stretch to row height */}
+        <View
+          style={{
+            width: 1.5,
+            flex: 1,
+            minHeight: 14,
+            backgroundColor: isLast ? 'transparent' : LINE_COLOR,
+          }}
+        />
+      </View>
+
+      {/* Content */}
+      <View
         style={{
-          fontFamily: Fonts.bodyBold,
-          fontSize: 13,
-          color: 'rgba(201,168,76,0.6)',
-          width: 22,
-          textAlign: 'center',
+          flex: 1,
+          paddingLeft: 12,
+          paddingTop: 8,
+          paddingBottom: 18,
+          opacity: isLocked ? 0.4 : 1,
         }}
       >
-        {module.order_index}
-      </Text>
-
-      {/* Title + duration */}
-      <View style={{ flex: 1 }}>
         <Text
           style={{
             fontFamily: Fonts.bodySemiBold,
             fontSize: 15,
             color: '#FFFFFF',
-            marginBottom: duration ? 2 : 0,
+            marginBottom: duration ? 3 : 0,
           }}
           numberOfLines={2}
         >
@@ -82,19 +107,16 @@ export default function ModuleRow({ module, status, onPress }: ModuleRowProps) {
           </Text>
         )}
       </View>
-
-      {/* Status icon */}
-      <Ionicons name={icon as any} size={22} color={iconColor} />
     </View>
   );
 
   if (isLocked) {
-    return <View>{content}</View>;
+    return <View>{rowContent}</View>;
   }
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      {content}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{}}>
+      {rowContent}
     </TouchableOpacity>
   );
 }

@@ -1,5 +1,19 @@
 import { supabase } from './supabase';
 
+const TRACK_ICON_MAP: Array<[string, string]> = [
+  ['wholesale', 'cash-outline'],
+  ['investment', 'trending-up-outline'],
+  ['financ', 'business-outline'],
+];
+
+export function getTrackIcon(trackTitle: string): string {
+  const lower = trackTitle.toLowerCase();
+  for (const [key, icon] of TRACK_ICON_MAP) {
+    if (lower.includes(key)) return icon;
+  }
+  return 'book-outline';
+}
+
 export interface EduCourse {
   id: string;
   track_id: string;
@@ -58,6 +72,7 @@ export interface CourseDetailResult {
   modules: EduModule[];
   progressMap: Record<string, EduUserProgress>;
   enrollment: EduEnrollment | null;
+  trackTitle: string | null;
 }
 
 export async function fetchTracks(userId?: string | null): Promise<EduTrack[]> {
@@ -393,6 +408,7 @@ export async function fetchCourseDetail(
     modules: [],
     progressMap: {},
     enrollment: null,
+    trackTitle: null,
   };
 
   try {
@@ -442,11 +458,22 @@ export async function fetchCourseDetail(
       enrollment = (enrollmentResult.data ?? null) as EduEnrollment | null;
     }
 
+    let trackTitle: string | null = null;
+    if (courseResult.data.track_id) {
+      const { data: trackData } = await supabase
+        .from('tracks')
+        .select('title')
+        .eq('id', courseResult.data.track_id)
+        .maybeSingle();
+      trackTitle = trackData?.title ?? null;
+    }
+
     return {
       course: courseResult.data as EduCourse,
       modules,
       progressMap,
       enrollment,
+      trackTitle,
     };
   } catch {
     return empty;

@@ -7,11 +7,11 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAdminInEducation } from '../../../hooks/useAdminInEducation';
 import {
   fetchCourseDetail,
+  getTrackIcon,
   CourseDetailResult,
   EduModule,
 } from '../../../lib/education';
 import { Fonts } from '../../../constants/fonts';
-import ProgressRing from '../../../components/education/ProgressRing';
 import ModuleRow from '../../../components/education/ModuleRow';
 import type { ModuleStatus } from '../../../components/education/ModuleRow';
 
@@ -69,8 +69,6 @@ export default function CourseDetailScreen() {
   }, [load]);
 
   const handleModulePress = (moduleId: string) => {
-    // STUB navigation — Batch 67 replaces /education/module/[moduleId] with the
-    // real video + quiz screen. This is safe to tap and shows a placeholder.
     router.push(`/education/module/${moduleId}` as any);
   };
 
@@ -125,9 +123,12 @@ export default function CourseDetailScreen() {
     );
   }
 
-  const { course, modules, progressMap, enrollment } = result;
+  const { course, modules, progressMap, enrollment, trackTitle } = result;
   const progressPct = enrollment?.progress_percent ?? 0;
   const hasStarted = progressPct > 0;
+  const modulesDone = Object.values(progressMap).filter((p) => p.quiz_passed).length;
+  const barWidth = `${Math.min(Math.max(progressPct, 0), 100)}%` as const;
+  const trackIcon = getTrackIcon(trackTitle ?? '');
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
@@ -141,98 +142,133 @@ export default function CourseDetailScreen() {
           <Ionicons name="arrow-back" size={24} color="#c9a84c" />
         </TouchableOpacity>
 
-        {/* Hero */}
+        {/* Hero card */}
         <View
           style={{
-            paddingHorizontal: 20,
-            paddingBottom: 24,
-            borderBottomWidth: 1,
-            borderBottomColor: 'rgba(201,168,76,0.12)',
+            marginHorizontal: 20,
+            marginBottom: 24,
+            borderRadius: 16,
+            borderWidth: 0.5,
+            borderColor: 'rgba(197,164,84,0.25)',
+            backgroundColor: '#1c1a14',
+            padding: 20,
           }}
         >
-          {/* Difficulty badge */}
-          {!!course.difficulty && (
+          {/* Top row: track icon + difficulty badge / course title */}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
             <View
               style={{
-                alignSelf: 'flex-start',
-                backgroundColor: 'rgba(201,168,76,0.12)',
-                borderRadius: 99,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                marginBottom: 10,
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                backgroundColor: 'rgba(197,164,84,0.12)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
               }}
             >
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: '#c9a84c' }}>
-                {difficultyLabel(course.difficulty, t)}
+              <Ionicons name={trackIcon as any} size={24} color="#c5a454" />
+            </View>
+
+            <View style={{ flex: 1 }}>
+              {!!course.difficulty && (
+                <View
+                  style={{
+                    alignSelf: 'flex-start',
+                    backgroundColor: 'rgba(201,168,76,0.12)',
+                    borderRadius: 99,
+                    paddingHorizontal: 10,
+                    paddingVertical: 3,
+                    marginBottom: 6,
+                  }}
+                >
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: '#c9a84c' }}>
+                    {difficultyLabel(course.difficulty, t)}
+                  </Text>
+                </View>
+              )}
+              <Text
+                style={{
+                  fontFamily: Fonts.heading,
+                  fontSize: 20,
+                  color: '#e8e0cc',
+                  lineHeight: 26,
+                }}
+                numberOfLines={3}
+              >
+                {course.title}
               </Text>
             </View>
-          )}
+          </View>
 
-          <Text
-            style={{
-              fontFamily: Fonts.heading,
-              fontSize: 26,
-              color: '#c9a84c',
-              marginBottom: 8,
-              lineHeight: 32,
-            }}
-          >
-            {course.title}
-          </Text>
-
+          {/* Description */}
           {!!course.description && (
             <Text
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 14,
-                color: 'rgba(255,255,255,0.6)',
+                color: 'rgba(255,255,255,0.55)',
                 lineHeight: 20,
-                marginBottom: 20,
+                marginBottom: 16,
               }}
             >
               {course.description}
             </Text>
           )}
 
-          {/* Progress ring + start/continue button */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
-            <ProgressRing percent={progressPct} size={84} strokeWidth={7} />
-
-            <TouchableOpacity
-              onPress={handleStartOrContinue}
-              activeOpacity={0.8}
-              style={{
-                flex: 1,
-                backgroundColor: '#c9a84c',
-                borderRadius: 10,
-                paddingVertical: 14,
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}>
-                {hasStarted ? t('education.continue_course') : t('education.start_course')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Module list */}
-        <View style={{ paddingTop: 8 }}>
-          <Text
+          {/* Progress bar */}
+          <View
             style={{
-              fontFamily: Fonts.bodySemiBold,
-              fontSize: 12,
-              color: 'rgba(201,168,76,0.6)',
-              letterSpacing: 1.1,
-              textTransform: 'uppercase',
-              paddingHorizontal: 20,
-              paddingTop: 16,
-              paddingBottom: 8,
+              height: 5,
+              borderRadius: 3,
+              backgroundColor: 'rgba(255,255,255,0.08)',
+              marginBottom: 8,
+              overflow: 'hidden',
             }}
           >
-            {`${modules.length} ${modules.length === 1 ? 'module' : 'modules'}`}
+            {progressPct > 0 && (
+              <View
+                style={{
+                  height: '100%',
+                  width: barWidth,
+                  borderRadius: 3,
+                  backgroundColor: '#c5a454',
+                }}
+              />
+            )}
+          </View>
+
+          {/* Progress count */}
+          <Text
+            style={{
+              fontFamily: Fonts.body,
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.45)',
+              marginBottom: 16,
+            }}
+          >
+            {t('education.course_modules_complete', { done: modulesDone, total: modules.length })}
           </Text>
 
+          {/* Start / Continue button */}
+          <TouchableOpacity
+            onPress={handleStartOrContinue}
+            activeOpacity={0.8}
+            style={{
+              backgroundColor: '#c9a84c',
+              borderRadius: 10,
+              paddingVertical: 14,
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}>
+              {hasStarted ? t('education.continue_course') : t('education.start_course')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Module timeline list */}
+        <View style={{ paddingBottom: 48 }}>
           {modules.map((mod, i) => {
             const status = getModuleStatus(modules, i, progressMap, isAdmin);
             return (
@@ -240,13 +276,13 @@ export default function CourseDetailScreen() {
                 key={mod.id}
                 module={mod}
                 status={status}
+                index={i}
+                total={modules.length}
                 onPress={() => handleModulePress(mod.id)}
               />
             );
           })}
         </View>
-
-        <View style={{ paddingBottom: 48 }} />
       </ScrollView>
     </View>
   );

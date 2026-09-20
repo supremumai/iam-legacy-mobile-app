@@ -253,7 +253,8 @@
     "preview_mode_on": "Preview mode on",
     "track_modules_label": "%{count} modules",
     "track_modules_done": "%{done} of %{total} done",
-    "track_not_started": "Not started"
+    "track_not_started": "Not started",
+    "course_modules_complete": "%{done} of %{total} modules complete"
   },
   "add_resource": {
     "title": "Share a Video",

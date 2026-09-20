@@ -253,7 +253,8 @@
     "preview_mode_on": "Modo vista previa activo",
     "track_modules_label": "%{count} módulos",
     "track_modules_done": "%{done} de %{total} completados",
-    "track_not_started": "Sin empezar"
+    "track_not_started": "Sin empezar",
+    "course_modules_complete": "%{done} de %{total} módulos completados"
   },
   "add_resource": {
     "title": "Compartir un video",

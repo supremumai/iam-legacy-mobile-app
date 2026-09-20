@@ -2,24 +2,8 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { getTrackIcon } from '../../lib/education';
 import type { EduTrack } from '../../lib/education';
-
-type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
-
-const ICON_MAP: Array<[string, IoniconsName]> = [
-  ['wholesale', 'cash-outline'],
-  ['investment', 'trending-up-outline'],
-  ['financ', 'business-outline'],
-];
-const ICON_FALLBACK: IoniconsName = 'book-outline';
-
-function getTrackIcon(title: string): IoniconsName {
-  const lower = title.toLowerCase();
-  for (const [key, icon] of ICON_MAP) {
-    if (lower.includes(key)) return icon;
-  }
-  return ICON_FALLBACK;
-}
 
 interface TrackCardProps {
   track: EduTrack;
@@ -68,7 +52,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             justifyContent: 'center',
           }}
         >
-          <Ionicons name={icon} size={22} color="#c5a454" />
+          <Ionicons name={icon as any} size={22} color="#c5a454" />
         </View>
         {progress > 0 && (
           <Text
