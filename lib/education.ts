@@ -144,13 +144,14 @@ export interface ModuleDetailResult {
   module: EduModule | null;
   progress: EduUserProgress | null;
   nextModuleId: string | null;
+  totalModules: number;
 }
 
 export async function fetchModuleDetail(
   moduleId: string,
   userId: string | null,
 ): Promise<ModuleDetailResult> {
-  const empty: ModuleDetailResult = { module: null, progress: null, nextModuleId: null };
+  const empty: ModuleDetailResult = { module: null, progress: null, nextModuleId: null, totalModules: 0 };
 
   try {
     const { data: mod, error: modError } = await supabase
@@ -165,7 +166,7 @@ export async function fetchModuleDetail(
 
     const module = mod as EduModule;
 
-    const [progressResult, nextResult] = await Promise.all([
+    const [progressResult, nextResult, courseResult] = await Promise.all([
       userId
         ? supabase
             .from('edu_user_progress')
@@ -185,12 +186,18 @@ export async function fetchModuleDetail(
         .order('order_index', { ascending: true })
         .limit(1)
         .maybeSingle(),
+      supabase
+        .from('edu_courses')
+        .select('modules_count')
+        .eq('id', module.course_id)
+        .maybeSingle(),
     ]);
 
     return {
       module,
       progress: (progressResult.data ?? null) as EduUserProgress | null,
       nextModuleId: nextResult.data?.id ?? null,
+      totalModules: courseResult.data?.modules_count ?? 0,
     };
   } catch {
     return empty;

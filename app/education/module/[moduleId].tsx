@@ -313,10 +313,13 @@ export default function ModuleVideoScreen() {
   }
 
   const { module } = result;
+  const totalModules = result.totalModules ?? 0;
+  const moduleNumber = module.order_index + 1;
 
   return (
     <View style={{ flex: 1, backgroundColor: BG }}>
       <ScrollView showsVerticalScrollIndicator={false}>
+
         {/* Back */}
         <TouchableOpacity
           onPress={() => router.back()}
@@ -326,9 +329,59 @@ export default function ModuleVideoScreen() {
           <Ionicons name="arrow-back" size={24} color={GOLD} />
         </TouchableOpacity>
 
-        {/* Header */}
-        <View style={{ paddingHorizontal: 20, paddingBottom: 20 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: GOLD, lineHeight: 28, marginBottom: 8 }}>
+        {/* ── VIDEO / PLACEHOLDER — full width, first ── */}
+        <View style={{ position: 'relative' }}>
+          {hasVideo ? (
+            <VideoView
+              player={player}
+              style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000' }}
+              nativeControls
+              allowsFullscreen
+              contentFit="contain"
+            />
+          ) : (
+            <View
+              style={{
+                width: '100%',
+                aspectRatio: 16 / 9,
+                backgroundColor: '#1a1600',
+                borderBottomWidth: 1,
+                borderBottomColor: 'rgba(201,168,76,0.15)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+              }}
+            >
+              <Ionicons name="videocam-outline" size={40} color="rgba(201,168,76,0.4)" />
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: 'rgba(255,255,255,0.45)' }}>
+                {t('education.video_coming_soon')}
+              </Text>
+            </View>
+          )}
+
+          {/* Badge: Module N of M */}
+          <View
+            style={{
+              position: 'absolute',
+              top: 12,
+              left: 12,
+              backgroundColor: 'rgba(0,0,0,0.65)',
+              borderRadius: 8,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+            }}
+          >
+            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: GOLD }}>
+              {totalModules > 0
+                ? t('education.module_badge', { n: moduleNumber, total: totalModules })
+                : `Module ${moduleNumber}`}
+            </Text>
+          </View>
+        </View>
+
+        {/* ── CONTEXT — title, description, key terms ── */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 }}>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: '#e8e0cc', lineHeight: 28, marginBottom: 8 }}>
             {module.title}
           </Text>
 
@@ -344,8 +397,7 @@ export default function ModuleVideoScreen() {
                 <View
                   key={term}
                   style={{
-                    borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.35)',
+                    backgroundColor: 'rgba(197,164,84,0.1)',
                     borderRadius: 99,
                     paddingHorizontal: 10,
                     paddingVertical: 4,
@@ -360,57 +412,60 @@ export default function ModuleVideoScreen() {
           )}
         </View>
 
-        {/* Video or placeholder */}
-        {hasVideo ? (
-          <VideoView
-            player={player}
-            style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000' }}
-            nativeControls
-            allowsFullscreen
-            contentFit="contain"
-          />
-        ) : (
-          <View
+        {/* ── QUIZ BUTTON ── */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 }}>
+          <TouchableOpacity
+            onPress={canTakeQuiz ? handleQuizPress : undefined}
+            activeOpacity={canTakeQuiz ? 0.8 : 1}
             style={{
-              marginHorizontal: 20,
-              borderRadius: 12,
-              backgroundColor: '#1a1600',
-              borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.15)',
-              aspectRatio: 16 / 9,
+              backgroundColor: GOLD,
+              borderRadius: 10,
+              paddingVertical: 14,
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
+              opacity: canTakeQuiz ? 1 : 0.4,
             }}
           >
-            <Ionicons name="videocam-outline" size={40} color="rgba(201,168,76,0.4)" />
-            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: 'rgba(255,255,255,0.45)' }}>
-              {t('education.video_coming_soon')}
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: BG }}>
+              {quizPassed ? t('education.review_quiz') : t('education.take_quiz')}
             </Text>
-          </View>
-        )}
+          </TouchableOpacity>
 
-        {/* Admin panel — invisible to members */}
+          {!hasVideo && (
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 8 }}>
+              {t('education.video_not_available')}
+            </Text>
+          )}
+
+          {hasVideo && !canTakeQuiz && (
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 8 }}>
+              {t('education.watch_to_unlock')}
+            </Text>
+          )}
+        </View>
+
+        {/* ── ADMIN SECTION — video panel + quiz panel, grouped at bottom ── */}
         {isAdmin && (
           <View
             style={{
               marginHorizontal: 20,
-              marginTop: 16,
+              marginTop: 4,
               borderTopWidth: 1,
               borderTopColor: 'rgba(201,168,76,0.2)',
-              paddingTop: 14,
+              paddingTop: 16,
+              paddingBottom: 48,
             }}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 12 }}>
+            {/* ADMIN header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }}>
               <Ionicons name="settings-outline" size={13} color="rgba(201,168,76,0.6)" />
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.6)', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.6)', letterSpacing: 1, textTransform: 'uppercase' }}>
                 {t('education.admin_panel')}
               </Text>
             </View>
 
+            {/* Video management sub-panel */}
             {!hasVideo ? (
               <>
-                {/* Upload button */}
                 <TouchableOpacity
                   onPress={adminUploading ? undefined : handlePickVideo}
                   activeOpacity={adminUploading ? 1 : 0.8}
@@ -449,7 +504,6 @@ export default function ModuleVideoScreen() {
                   {t('education.admin_or')}
                 </Text>
 
-                {/* URL input */}
                 <TextInput
                   value={adminUrlInput}
                   onChangeText={(text) => { setAdminUrlInput(text); setAdminUrlError(null); }}
@@ -497,7 +551,6 @@ export default function ModuleVideoScreen() {
                 </TouchableOpacity>
               </>
             ) : (
-              /* Module already has video — Replace / Remove */
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <TouchableOpacity
                   onPress={adminUploading ? undefined : handlePickVideo}
@@ -549,184 +602,146 @@ export default function ModuleVideoScreen() {
                 </TouchableOpacity>
               </View>
             )}
-          </View>
-        )}
 
-        {/* Admin quiz questions panel */}
-        {isAdmin && (
-          <View
-            style={{
-              marginHorizontal: 20,
-              marginTop: 16,
-              borderTopWidth: 1,
-              borderTopColor: 'rgba(201,168,76,0.2)',
-              paddingTop: 14,
-            }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 16 }}>
-              <Ionicons name="help-circle-outline" size={13} color="rgba(201,168,76,0.6)" />
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.6)', letterSpacing: 0.8, textTransform: 'uppercase' }}>
-                {t('education.admin_quiz_questions')}
-              </Text>
-            </View>
+            {/* Quiz questions sub-panel */}
+            <View style={{ marginTop: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 16 }}>
+                <Ionicons name="help-circle-outline" size={13} color="rgba(201,168,76,0.6)" />
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.6)', letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                  {t('education.admin_quiz_questions')}
+                </Text>
+              </View>
 
-            {quizEdits.length === 0 ? (
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.35)', textAlign: 'center', paddingVertical: 12 }}>
-                {t('education.admin_no_questions')}
-              </Text>
-            ) : (
-              quizEdits.map((edit, idx) => (
-                <View
-                  key={edit.id}
-                  style={{
-                    backgroundColor: '#111000',
-                    borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.15)',
-                    borderRadius: 10,
-                    padding: 14,
-                    marginBottom: 12,
-                  }}
-                >
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.5)', letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
-                    {t('education.admin_question')} {idx + 1}
-                  </Text>
-
-                  <TextInput
-                    value={edit.question}
-                    onChangeText={(v) => updateQuizEdit(idx, { question: v, error: null })}
-                    multiline
-                    placeholder={t('education.admin_question')}
-                    placeholderTextColor="rgba(255,255,255,0.22)"
+              {quizEdits.length === 0 ? (
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.35)', textAlign: 'center', paddingVertical: 12 }}>
+                  {t('education.admin_no_questions')}
+                </Text>
+              ) : (
+                quizEdits.map((edit, idx) => (
+                  <View
+                    key={edit.id}
                     style={{
-                      backgroundColor: BG,
+                      backgroundColor: '#111000',
                       borderWidth: 1,
-                      borderColor: 'rgba(201,168,76,0.2)',
-                      borderRadius: 8,
-                      paddingHorizontal: 12,
-                      paddingVertical: 8,
-                      fontFamily: Fonts.body,
-                      fontSize: 14,
-                      color: '#FFFFFF',
-                      marginBottom: 10,
-                      minHeight: 60,
-                      textAlignVertical: 'top',
-                    }}
-                  />
-
-                  {QUIZ_OPT_KEYS.map(({ key, label }) => (
-                    <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: 'rgba(201,168,76,0.6)', width: 20, textAlign: 'center' }}>
-                        {label}
-                      </Text>
-                      <TextInput
-                        value={edit[key]}
-                        onChangeText={(v) => updateQuizEdit(idx, { [key]: v, error: null } as Partial<QuizQEdit>)}
-                        placeholder={`${t('education.admin_option')} ${label}`}
-                        placeholderTextColor="rgba(255,255,255,0.22)"
-                        style={{
-                          flex: 1,
-                          backgroundColor: BG,
-                          borderWidth: 1,
-                          borderColor: 'rgba(201,168,76,0.2)',
-                          borderRadius: 8,
-                          paddingHorizontal: 12,
-                          paddingVertical: 8,
-                          fontFamily: Fonts.body,
-                          fontSize: 14,
-                          color: '#FFFFFF',
-                        }}
-                      />
-                    </View>
-                  ))}
-
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 8, marginTop: 2 }}>
-                    {t('education.admin_correct_answer')}
-                  </Text>
-                  <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
-                    {QUIZ_OPTIONS.map((opt) => (
-                      <TouchableOpacity
-                        key={opt}
-                        onPress={() => updateQuizEdit(idx, { correct_option: opt, error: null })}
-                        activeOpacity={0.75}
-                        style={{
-                          backgroundColor: edit.correct_option === opt ? 'rgba(201,168,76,0.2)' : BG,
-                          borderWidth: 1.5,
-                          borderColor: edit.correct_option === opt ? GOLD : 'rgba(201,168,76,0.25)',
-                          borderRadius: 8,
-                          paddingVertical: 8,
-                          paddingHorizontal: 14,
-                        }}
-                      >
-                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: edit.correct_option === opt ? GOLD : 'rgba(255,255,255,0.4)' }}>
-                          {opt}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  {!!edit.error && (
-                    <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: RED, marginBottom: 8 }}>
-                      {edit.error}
-                    </Text>
-                  )}
-
-                  <TouchableOpacity
-                    onPress={edit.saving ? undefined : () => handleSaveQuestion(idx)}
-                    activeOpacity={edit.saving ? 1 : 0.8}
-                    style={{
-                      backgroundColor: 'rgba(201,168,76,0.12)',
-                      borderWidth: 1,
-                      borderColor: 'rgba(201,168,76,0.35)',
-                      borderRadius: 8,
-                      paddingVertical: 10,
-                      alignItems: 'center',
-                      opacity: edit.saving ? 0.6 : 1,
+                      borderColor: 'rgba(201,168,76,0.15)',
+                      borderRadius: 10,
+                      padding: 14,
+                      marginBottom: 12,
                     }}
                   >
-                    {edit.saving ? (
-                      <ActivityIndicator size="small" color={GOLD} />
-                    ) : (
-                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: GOLD }}>
-                        {t('education.admin_save_question')}
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(201,168,76,0.5)', letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
+                      {t('education.admin_question')} {idx + 1}
+                    </Text>
+
+                    <TextInput
+                      value={edit.question}
+                      onChangeText={(v) => updateQuizEdit(idx, { question: v, error: null })}
+                      multiline
+                      placeholder={t('education.admin_question')}
+                      placeholderTextColor="rgba(255,255,255,0.22)"
+                      style={{
+                        backgroundColor: BG,
+                        borderWidth: 1,
+                        borderColor: 'rgba(201,168,76,0.2)',
+                        borderRadius: 8,
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        fontFamily: Fonts.body,
+                        fontSize: 14,
+                        color: '#FFFFFF',
+                        marginBottom: 10,
+                        minHeight: 60,
+                        textAlignVertical: 'top',
+                      }}
+                    />
+
+                    {QUIZ_OPT_KEYS.map(({ key, label }) => (
+                      <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: 'rgba(201,168,76,0.6)', width: 20, textAlign: 'center' }}>
+                          {label}
+                        </Text>
+                        <TextInput
+                          value={edit[key]}
+                          onChangeText={(v) => updateQuizEdit(idx, { [key]: v, error: null } as Partial<QuizQEdit>)}
+                          placeholder={`${t('education.admin_option')} ${label}`}
+                          placeholderTextColor="rgba(255,255,255,0.22)"
+                          style={{
+                            flex: 1,
+                            backgroundColor: BG,
+                            borderWidth: 1,
+                            borderColor: 'rgba(201,168,76,0.2)',
+                            borderRadius: 8,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                            fontFamily: Fonts.body,
+                            fontSize: 14,
+                            color: '#FFFFFF',
+                          }}
+                        />
+                      </View>
+                    ))}
+
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 8, marginTop: 2 }}>
+                      {t('education.admin_correct_answer')}
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+                      {QUIZ_OPTIONS.map((opt) => (
+                        <TouchableOpacity
+                          key={opt}
+                          onPress={() => updateQuizEdit(idx, { correct_option: opt, error: null })}
+                          activeOpacity={0.75}
+                          style={{
+                            backgroundColor: edit.correct_option === opt ? 'rgba(201,168,76,0.2)' : BG,
+                            borderWidth: 1.5,
+                            borderColor: edit.correct_option === opt ? GOLD : 'rgba(201,168,76,0.25)',
+                            borderRadius: 8,
+                            paddingVertical: 8,
+                            paddingHorizontal: 14,
+                          }}
+                        >
+                          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: edit.correct_option === opt ? GOLD : 'rgba(255,255,255,0.4)' }}>
+                            {opt}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    {!!edit.error && (
+                      <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: RED, marginBottom: 8 }}>
+                        {edit.error}
                       </Text>
                     )}
-                  </TouchableOpacity>
-                </View>
-              ))
-            )}
+
+                    <TouchableOpacity
+                      onPress={edit.saving ? undefined : () => handleSaveQuestion(idx)}
+                      activeOpacity={edit.saving ? 1 : 0.8}
+                      style={{
+                        backgroundColor: 'rgba(201,168,76,0.12)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(201,168,76,0.35)',
+                        borderRadius: 8,
+                        paddingVertical: 10,
+                        alignItems: 'center',
+                        opacity: edit.saving ? 0.6 : 1,
+                      }}
+                    >
+                      {edit.saving ? (
+                        <ActivityIndicator size="small" color={GOLD} />
+                      ) : (
+                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: GOLD }}>
+                          {t('education.admin_save_question')}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
+            </View>
           </View>
         )}
 
-        {/* Quiz button */}
-        <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 }}>
-          <TouchableOpacity
-            onPress={canTakeQuiz ? handleQuizPress : undefined}
-            activeOpacity={canTakeQuiz ? 0.8 : 1}
-            style={{
-              backgroundColor: GOLD,
-              borderRadius: 10,
-              paddingVertical: 14,
-              alignItems: 'center',
-              opacity: canTakeQuiz ? 1 : 0.4,
-            }}
-          >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: BG }}>
-              {quizPassed ? t('education.review_quiz') : t('education.take_quiz')}
-            </Text>
-          </TouchableOpacity>
+        {!isAdmin && <View style={{ paddingBottom: 48 }} />}
 
-          {!hasVideo && (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 8 }}>
-              {t('education.video_not_available')}
-            </Text>
-          )}
-
-          {hasVideo && !canTakeQuiz && (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 8 }}>
-              {t('education.watch_to_unlock')}
-            </Text>
-          )}
-        </View>
       </ScrollView>
     </View>
   );

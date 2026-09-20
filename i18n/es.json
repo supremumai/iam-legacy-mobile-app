@@ -254,7 +254,8 @@
     "track_modules_label": "%{count} módulos",
     "track_modules_done": "%{done} de %{total} completados",
     "track_not_started": "Sin empezar",
-    "course_modules_complete": "%{done} de %{total} módulos completados"
+    "course_modules_complete": "%{done} de %{total} módulos completados",
+    "module_badge": "Módulo %{n} de %{total}"
   },
   "add_resource": {
     "title": "Compartir un video",
