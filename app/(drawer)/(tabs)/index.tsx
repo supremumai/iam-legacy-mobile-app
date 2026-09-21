@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -12,6 +12,7 @@ import { EduCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
 import { Fonts } from '../../../constants/fonts';
+import { Colors } from '../../../constants/colors';
 import GlobalHeader from '../../../components/GlobalHeader';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
@@ -33,9 +34,9 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -54,12 +55,12 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: 'rgba(245,158,11,0.15)',
+                  backgroundColor: Colors.warningBg,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="calendar-outline" size={28} color="#F59E0B" />
+                <Ionicons name="calendar-outline" size={28} color={Colors.warning} />
               </View>
             )}
           </View>
@@ -71,7 +72,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 11,
-                  color: '#F59E0B',
+                  color: Colors.warning,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -83,7 +84,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 14,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 marginTop: 4,
               }}
               numberOfLines={2}
@@ -95,7 +96,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: 'rgba(255,255,255,0.45)',
+                  color: Colors.textTertiary,
                   marginTop: 3,
                 }}
                 numberOfLines={1}
@@ -126,9 +127,9 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -147,12 +148,12 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: 'rgba(16,185,129,0.15)',
+                  backgroundColor: Colors.successBg,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="chatbubble-outline" size={28} color="#10B981" />
+                <Ionicons name="chatbubble-outline" size={28} color={Colors.success} />
               </View>
             )}
           </View>
@@ -163,7 +164,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.bodyBold,
                 fontSize: 10,
-                color: '#10B981',
+                color: Colors.success,
                 textTransform: 'uppercase',
                 letterSpacing: 0.6,
               }}
@@ -174,7 +175,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 marginTop: 3,
               }}
               numberOfLines={1}
@@ -185,7 +186,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 12,
-                color: 'rgba(255,255,255,0.45)',
+                color: Colors.textTertiary,
                 marginTop: 3,
               }}
               numberOfLines={2}
@@ -204,10 +205,10 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
 
   const difficultyColor =
     item.difficulty === 'advanced'
-      ? '#EF4444'
+      ? Colors.error
       : item.difficulty === 'intermediate'
-      ? '#F59E0B'
-      : '#10B981';
+      ? Colors.warning
+      : Colors.success;
 
   const difficultyLabels: Record<string, string> = {
     beginner: t('education.difficulty_beginner'),
@@ -227,9 +228,9 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -247,12 +248,12 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: 'rgba(201,168,76,0.12)',
+                  backgroundColor: Colors.borderSubtle,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="book-outline" size={28} color="#c9a84c" />
+                <Ionicons name="book-outline" size={28} color={Colors.gold} />
               </View>
             )}
           </View>
@@ -262,7 +263,7 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 marginBottom: 6,
               }}
               numberOfLines={2}
@@ -287,7 +288,7 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 11,
-                  color: 'rgba(255,255,255,0.45)',
+                  color: Colors.textTertiary,
                 }}
               >
                 {modulesLabel}
@@ -308,7 +309,7 @@ function SectionTitle({ children }: { children: string }) {
       style={{
         fontFamily: Fonts.heading,
         fontSize: 18,
-        color: '#c9a84c',
+        color: Colors.gold,
         paddingHorizontal: 20,
         marginTop: 28,
         marginBottom: 12,
@@ -325,7 +326,7 @@ function EmptySection({ message }: { message: string }) {
       style={{
         fontFamily: Fonts.body,
         fontSize: 13,
-        color: 'rgba(255,255,255,0.45)',
+        color: Colors.textTertiary,
         paddingHorizontal: 20,
       }}
     >
@@ -374,7 +375,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <GlobalHeader />
 
       {/* ── Carousels ────────────────────────────────────────────────────── */}

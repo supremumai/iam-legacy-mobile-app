@@ -1,6 +1,7 @@
-import { Drawer } from 'expo-router/drawer';
+﻿import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DrawerContent from '../../components/DrawerContent';
+import { Colors } from '../../constants/colors';
 
 export default function DrawerLayout() {
   return (
@@ -13,7 +14,7 @@ export default function DrawerLayout() {
           drawerType: 'front',
           swipeEnabled: true,
           drawerStyle: {
-            backgroundColor: '#0a0900',
+            backgroundColor: Colors.background,
             width: 300,
           },
         }}

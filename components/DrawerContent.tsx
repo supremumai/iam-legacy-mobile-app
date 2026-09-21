@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+﻿import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 // ─── DrawerItem ──────────────────────────────────────────────────────────────
 // All tappable rows use TouchableOpacity with static style (never Pressable with
@@ -32,12 +33,12 @@ function DrawerItem({
         alignItems: 'center',
         paddingVertical: 14,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(201,168,76,0.08)',
+        borderBottomColor: Colors.borderSubtle,
         gap: 14,
       }}
     >
-      <Ionicons name={icon} size={20} color="rgba(255,255,255,0.65)" />
-      <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: '#FFFFFF' }}>
+      <Ionicons name={icon} size={20} color={Colors.textSecondary} />
+      <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: Colors.textPrimary }}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -51,7 +52,7 @@ function SectionLabel({ title }: { title: string }) {
       style={{
         fontFamily: Fonts.bodySemiBold,
         fontSize: 10,
-        color: '#c9a84c',
+        color: Colors.gold,
         letterSpacing: 1.2,
         textTransform: 'uppercase',
         marginBottom: 4,
@@ -90,7 +91,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
     <View
       style={{
         flex: 1,
-        backgroundColor: '#0a0900',
+        backgroundColor: Colors.background,
         paddingTop: insets.top,
       }}
     >
@@ -113,7 +114,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             activeOpacity={0.65}
             hitSlop={12}
           >
-            <Ionicons name="close" size={24} color="rgba(255,255,255,0.55)" />
+            <Ionicons name="close" size={24} color={Colors.textMuted} />
           </TouchableOpacity>
         </View>
 
@@ -124,7 +125,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             paddingTop: 4,
             paddingBottom: 20,
             borderBottomWidth: 1,
-            borderBottomColor: 'rgba(201,168,76,0.22)',
+            borderBottomColor: Colors.border,
           }}
         >
           <Image
@@ -136,7 +137,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             style={{
               fontFamily: Fonts.heading,
               fontSize: 11,
-              color: '#c9a84c',
+              color: Colors.gold,
               letterSpacing: 1.5,
               marginTop: 6,
             }}
@@ -153,7 +154,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               paddingTop: 20,
               paddingHorizontal: 20,
               borderTopWidth: 1,
-              borderTopColor: 'rgba(201,168,76,0.12)',
+              borderTopColor: Colors.borderSubtle,
               marginTop: 16,
             }}
           >
@@ -172,7 +173,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             paddingTop: 20,
             paddingHorizontal: 20,
             borderTopWidth: 1,
-            borderTopColor: 'rgba(201,168,76,0.12)',
+            borderTopColor: Colors.borderSubtle,
             marginTop: 16,
           }}
         >
@@ -200,12 +201,12 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
               alignItems: 'center',
               paddingVertical: 14,
               borderBottomWidth: 1,
-              borderBottomColor: 'rgba(201,168,76,0.08)',
+              borderBottomColor: Colors.borderSubtle,
               gap: 14,
             }}
           >
-            <Ionicons name="language-outline" size={20} color="rgba(255,255,255,0.65)" />
-            <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: '#FFFFFF', flex: 1 }}>
+            <Ionicons name="language-outline" size={20} color={Colors.textSecondary} />
+            <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: Colors.textPrimary, flex: 1 }}>
               {t('settings.language')}
             </Text>
             <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -216,14 +217,14 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
                   paddingHorizontal: 12,
                   paddingVertical: 5,
                   borderRadius: 6,
-                  backgroundColor: locale === 'en' ? '#c9a84c' : 'rgba(255,255,255,0.1)',
+                  backgroundColor: locale === 'en' ? Colors.gold : Colors.whiteOverlay10,
                 }}
               >
                 <Text
                   style={{
                     fontFamily: Fonts.bodySemiBold,
                     fontSize: 12,
-                    color: locale === 'en' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+                    color: locale === 'en' ? Colors.background : Colors.textSecondary,
                   }}
                 >
                   EN
@@ -236,14 +237,14 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
                   paddingHorizontal: 12,
                   paddingVertical: 5,
                   borderRadius: 6,
-                  backgroundColor: locale === 'es' ? '#c9a84c' : 'rgba(255,255,255,0.1)',
+                  backgroundColor: locale === 'es' ? Colors.gold : Colors.whiteOverlay10,
                 }}
               >
                 <Text
                   style={{
                     fontFamily: Fonts.bodySemiBold,
                     fontSize: 12,
-                    color: locale === 'es' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+                    color: locale === 'es' ? Colors.background : Colors.textSecondary,
                   }}
                 >
                   ES
@@ -259,7 +260,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             marginTop: 16,
             paddingHorizontal: 20,
             borderTopWidth: 1,
-            borderTopColor: 'rgba(201,168,76,0.12)',
+            borderTopColor: Colors.borderSubtle,
             paddingTop: 8,
           }}
         >
