@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,6 +18,7 @@ import { getInitials } from '../lib/avatar';
 import { pickAndUploadImage } from '../lib/upload';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -235,9 +236,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
         <Pressable
           onPress={() => setSelectedTopicId(null)}
           style={{
-            backgroundColor: selectedTopicId === null ? '#c9a84c' : '#1c1a14',
+            backgroundColor: selectedTopicId === null ? Colors.gold : Colors.surface,
             borderWidth: 1,
-            borderColor: selectedTopicId === null ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+            borderColor: selectedTopicId === null ? Colors.gold : Colors.border,
             borderRadius: 100,
             paddingHorizontal: 12,
             paddingVertical: 6,
@@ -249,7 +250,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 12,
-                  color: selectedTopicId === null ? '#0a0900' : '#FFFFFF',
+                  color: selectedTopicId === null ? Colors.background : Colors.textPrimary,
                 }}
               >
                 {t('composer.no_topic')}
@@ -265,9 +266,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: selectedTopicId === topic.id ? '#c9a84c' : '#1c1a14',
+              backgroundColor: selectedTopicId === topic.id ? Colors.gold : Colors.surface,
               borderWidth: 1,
-              borderColor: selectedTopicId === topic.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+              borderColor: selectedTopicId === topic.id ? Colors.gold : Colors.border,
               borderRadius: 100,
               paddingHorizontal: 12,
               paddingVertical: 6,
@@ -282,14 +283,14 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                   <Ionicons
                     name={topic.icon as any}
                     size={12}
-                    color={selectedTopicId === topic.id ? '#0a0900' : '#c9a84c'}
+                    color={selectedTopicId === topic.id ? Colors.background : Colors.gold}
                   />
                 ) : null}
                 <Text
                   style={{
                     fontFamily: Fonts.bodySemiBold,
                     fontSize: 12,
-                    color: selectedTopicId === topic.id ? '#0a0900' : '#FFFFFF',
+                    color: selectedTopicId === topic.id ? Colors.background : Colors.textPrimary,
                   }}
                 >
                   {topic.name}
@@ -305,9 +306,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
   return (
     <View
       style={{
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         borderRadius: 12,
         padding: 16,
         marginHorizontal: 20,
@@ -318,7 +319,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: 'rgba(255,255,255,0.06)',
+          backgroundColor: Colors.whiteOverlay10,
           borderRadius: 8,
           padding: 2,
           marginBottom: 14,
@@ -332,14 +333,14 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             paddingVertical: 7,
             borderRadius: 6,
             alignItems: 'center',
-            backgroundColor: composerMode === 'post' ? '#c9a84c' : 'transparent',
+            backgroundColor: composerMode === 'post' ? Colors.gold : 'transparent',
           }}
         >
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 13,
-              color: composerMode === 'post' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+              color: composerMode === 'post' ? Colors.background : Colors.textSecondary,
             }}
           >
             {t('composer.tab_post')}
@@ -353,14 +354,14 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             paddingVertical: 7,
             borderRadius: 6,
             alignItems: 'center',
-            backgroundColor: composerMode === 'poll' ? '#c9a84c' : 'transparent',
+            backgroundColor: composerMode === 'poll' ? Colors.gold : 'transparent',
           }}
         >
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 13,
-              color: composerMode === 'poll' ? '#0a0900' : 'rgba(255,255,255,0.6)',
+              color: composerMode === 'poll' ? Colors.background : Colors.textSecondary,
             }}
           >
             {t('composer.tab_poll')}
@@ -380,9 +381,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 width: 36,
                 height: 36,
                 borderRadius: 18,
-                backgroundColor: '#1c1a14',
+                backgroundColor: Colors.surface,
                 borderWidth: 1,
-                borderColor: 'rgba(201,168,76,0.22)',
+                borderColor: Colors.border,
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
@@ -391,7 +392,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               {profile?.avatar_url ? (
                 <Image source={{ uri: profile.avatar_url }} style={{ width: 36, height: 36 }} />
               ) : (
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 12, color: '#FFFFFF' }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 12, color: Colors.textPrimary }}>
                   {initials}
                 </Text>
               )}
@@ -404,7 +405,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 marginLeft: 12,
                 fontSize: 15,
                 fontFamily: Fonts.body,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 minHeight: 40,
                 textAlignVertical: 'top',
               }}
@@ -413,7 +414,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               value={content}
               onChangeText={setContent}
               placeholder={t('composer.post_placeholder')}
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
             />
           </View>
 
@@ -436,12 +437,12 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                   width: 22,
                   height: 22,
                   borderRadius: 11,
-                  backgroundColor: 'rgba(0,0,0,0.55)',
+                  backgroundColor: Colors.overlay,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="close-circle" size={22} color="#FFFFFF" />
+                <Ionicons name="close-circle" size={22} color={Colors.textPrimary} />
               </Pressable>
             </View>
           ) : null}
@@ -468,7 +469,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 12,
-                    color: content.length > 1900 ? '#EF4444' : 'rgba(255,255,255,0.55)',
+                    color: content.length > 1900 ? Colors.error : Colors.textMuted,
                   }}
                 >
                   {content.length}/2000
@@ -493,9 +494,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                   style={({ pressed }) => ({ opacity: pressed || uploadingImage ? 0.5 : 1 })}
                 >
                   {uploadingImage ? (
-                    <ActivityIndicator color="#c9a84c" size="small" />
+                    <ActivityIndicator color={Colors.gold} size="small" />
                   ) : (
-                    <Ionicons name="image-outline" size={20} color="#c9a84c" />
+                    <Ionicons name="image-outline" size={20} color={Colors.gold} />
                   )}
                 </Pressable>
               </View>
@@ -504,7 +505,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 onPress={handlePost}
                 disabled={isPostDisabled}
                 style={{
-                  backgroundColor: isPostDisabled ? 'rgba(201,168,76,0.3)' : '#c9a84c',
+                  backgroundColor: isPostDisabled ? Colors.borderStrong : Colors.gold,
                   borderRadius: 8,
                   paddingHorizontal: 16,
                   paddingVertical: 8,
@@ -513,13 +514,13 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 }}
               >
                 {submitting ? (
-                  <ActivityIndicator color="rgba(10,9,0,0.5)" size="small" />
+                  <ActivityIndicator color={Colors.overlay} size="small" />
                 ) : (
                   <Text
                     style={{
                       fontFamily: Fonts.bodyBold,
                       fontSize: 13,
-                      color: isPostDisabled ? 'rgba(10,9,0,0.5)' : '#0a0900',
+                      color: isPostDisabled ? Colors.overlay : Colors.background,
                     }}
                   >
                     {t('composer.submit_post')}
@@ -542,16 +543,16 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               value={pollQuestion}
               onChangeText={setPollQuestion}
               placeholder={t('composer.poll_question_placeholder')}
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               style={{
                 fontSize: 15,
                 fontFamily: Fonts.body,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 minHeight: 48,
                 textAlignVertical: 'top',
-                backgroundColor: 'rgba(255,255,255,0.04)',
+                backgroundColor: Colors.whiteOverlay4,
                 borderWidth: 1,
-                borderColor: 'rgba(201,168,76,0.22)',
+                borderColor: Colors.border,
                 borderRadius: 8,
                 padding: 10,
               }}
@@ -560,7 +561,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 11,
-                color: pollQuestion.length > 180 ? '#EF4444' : 'rgba(255,255,255,0.4)',
+                color: pollQuestion.length > 180 ? Colors.error : Colors.textTertiary,
                 textAlign: 'right',
                 marginTop: 3,
               }}
@@ -580,15 +581,15 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     value={opt.label}
                     onChangeText={(v) => handleOptionChange(opt.id, v)}
                     placeholder={t('composer.option_placeholder', { number: idx + 1 })}
-                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    placeholderTextColor={Colors.textFaint}
                     style={{
                       flex: 1,
                       fontSize: 14,
                       fontFamily: Fonts.body,
-                      color: '#FFFFFF',
-                      backgroundColor: 'rgba(255,255,255,0.04)',
+                      color: Colors.textPrimary,
+                      backgroundColor: Colors.whiteOverlay4,
                       borderWidth: 1,
-                      borderColor: isDup ? '#EF4444' : 'rgba(201,168,76,0.22)',
+                      borderColor: isDup ? Colors.error : Colors.border,
                       borderRadius: 8,
                       paddingHorizontal: 10,
                       paddingVertical: 9,
@@ -601,7 +602,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                       activeOpacity={0.7}
                       hitSlop={8}
                     >
-                      <Ionicons name="close-circle" size={22} color="rgba(255,255,255,0.4)" />
+                      <Ionicons name="close-circle" size={22} color={Colors.textTertiary} />
                     </TouchableOpacity>
                   ) : (
                     <View style={{ width: 22 }} />
@@ -617,7 +618,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 >
                   {isDup ? (
                     <Text
-                      style={{ fontFamily: Fonts.body, fontSize: 11, color: '#EF4444' }}
+                      style={{ fontFamily: Fonts.body, fontSize: 11, color: Colors.error }}
                     >
                       {t('composer.option_duplicate_error')}
                     </Text>
@@ -626,7 +627,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 11,
-                      color: opt.label.length > 70 ? '#EF4444' : 'rgba(255,255,255,0.35)',
+                      color: opt.label.length > 70 ? Colors.error : Colors.textFaint,
                     }}
                   >
                     {opt.label.length}/80
@@ -649,9 +650,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 paddingVertical: 2,
               }}
             >
-              <Ionicons name="add-circle-outline" size={18} color="#c9a84c" />
+              <Ionicons name="add-circle-outline" size={18} color={Colors.gold} />
               <Text
-                style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#c9a84c' }}
+                style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.gold }}
               >
                 {t('composer.add_option')}
               </Text>
@@ -668,15 +669,15 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
             }}
           >
             <Text
-              style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.8)' }}
+              style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textPrimary }}
             >
               {t('composer.allow_multiple')}
             </Text>
             <Switch
               value={allowMultiple}
               onValueChange={setAllowMultiple}
-              thumbColor={allowMultiple ? '#c9a84c' : 'rgba(255,255,255,0.6)'}
-              trackColor={{ false: 'rgba(255,255,255,0.15)', true: 'rgba(201,168,76,0.45)' }}
+              thumbColor={allowMultiple ? Colors.gold : Colors.textSecondary}
+              trackColor={{ false: Colors.textFaint, true: Colors.borderStrong }}
             />
           </View>
 
@@ -691,7 +692,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               activeOpacity={0.8}
               style={{
                 backgroundColor:
-                  isPollValid && !submittingPoll ? '#c9a84c' : 'rgba(201,168,76,0.3)',
+                  isPollValid && !submittingPoll ? Colors.gold : Colors.borderStrong,
                 borderRadius: 8,
                 paddingHorizontal: 20,
                 paddingVertical: 9,
@@ -700,13 +701,13 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               }}
             >
               {submittingPoll ? (
-                <ActivityIndicator color="rgba(10,9,0,0.5)" size="small" />
+                <ActivityIndicator color={Colors.overlay} size="small" />
               ) : (
                 <Text
                   style={{
                     fontFamily: Fonts.bodyBold,
                     fontSize: 13,
-                    color: isPollValid ? '#0a0900' : 'rgba(10,9,0,0.45)',
+                    color: isPollValid ? Colors.background : Colors.overlay,
                   }}
                 >
                   {t('composer.submit_poll')}

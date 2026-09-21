@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 // Batch 45: Members and Leaderboard moved to Community title row. Only Notifications remains.
 const ITEMS = [
@@ -67,7 +68,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
             >
               {({ pressed }) => (
                 <View style={{ opacity: pressed ? 0.6 : 1 }}>
-                  <Ionicons name={item.icon} size={24} color="#c9a84c" />
+                  <Ionicons name={item.icon} size={24} color={Colors.gold} />
                 </View>
               )}
             </Pressable>
@@ -82,7 +83,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
                   minWidth: 16,
                   height: 16,
                   borderRadius: 8,
-                  backgroundColor: '#EF4444',
+                  backgroundColor: Colors.error,
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingHorizontal: unreadCount >= 10 ? 4 : 0,
@@ -92,7 +93,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
                   style={{
                     fontFamily: Fonts.bodyBold,
                     fontSize: 10,
-                    color: '#FFFFFF',
+                    color: Colors.textPrimary,
                   }}
                 >
                   {badgeLabel}

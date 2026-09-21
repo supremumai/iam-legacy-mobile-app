@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TouchableOpacity, Alert, Image } from 'react-native';
+﻿import { View, Text, Pressable, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { supabase } from '../lib/supabase';
@@ -7,6 +7,7 @@ import { formatRelativeTime } from '../lib/time';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -101,9 +102,9 @@ export default function PostCard({
   return (
     <View
       style={{
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         borderRadius: 12,
         padding: 16,
         marginHorizontal: 20,
@@ -128,9 +129,9 @@ export default function PostCard({
                     width: 40,
                     height: 40,
                     borderRadius: 20,
-                    backgroundColor: '#1c1a14',
+                    backgroundColor: Colors.surface,
                     borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.22)',
+                    borderColor: Colors.border,
                     alignItems: 'center',
                     justifyContent: 'center',
                     overflow: 'hidden',
@@ -140,20 +141,20 @@ export default function PostCard({
                   {author.avatar_url ? (
                     <Image source={{ uri: author.avatar_url }} style={{ width: 40, height: 40 }} />
                   ) : (
-                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}>
+                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.textPrimary }}>
                       {initials}
                     </Text>
                   )}
                 </View>
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}>
                     {displayName}
                   </Text>
                   <Text
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.55)',
+                      color: Colors.textMuted,
                       marginTop: 1,
                     }}
                   >
@@ -170,9 +171,9 @@ export default function PostCard({
                 width: 40,
                 height: 40,
                 borderRadius: 20,
-                backgroundColor: '#1c1a14',
+                backgroundColor: Colors.surface,
                 borderWidth: 1,
-                borderColor: 'rgba(201,168,76,0.22)',
+                borderColor: Colors.border,
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
@@ -182,20 +183,20 @@ export default function PostCard({
               {author?.avatar_url ? (
                 <Image source={{ uri: author.avatar_url }} style={{ width: 40, height: 40 }} />
               ) : (
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.textPrimary }}>
                   {initials}
                 </Text>
               )}
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}>
                 {displayName}
               </Text>
               <Text
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: 'rgba(255,255,255,0.55)',
+                  color: Colors.textMuted,
                   marginTop: 1,
                 }}
               >
@@ -215,7 +216,7 @@ export default function PostCard({
           >
             {({ pressed }) => (
               <View style={{ opacity: pressed ? 0.6 : 1 }}>
-                <Ionicons name="ellipsis-horizontal" size={20} color="rgba(255,255,255,0.55)" />
+                <Ionicons name="ellipsis-horizontal" size={20} color={Colors.textMuted} />
               </View>
             )}
           </Pressable>
@@ -229,9 +230,9 @@ export default function PostCard({
             flexDirection: 'row',
             alignItems: 'center',
             alignSelf: 'flex-start',
-            backgroundColor: '#111008',
+            backgroundColor: Colors.surfaceAlt,
             borderWidth: 1,
-            borderColor: 'rgba(201,168,76,0.22)',
+            borderColor: Colors.border,
             borderRadius: 100,
             paddingHorizontal: 10,
             paddingVertical: 4,
@@ -241,9 +242,9 @@ export default function PostCard({
           }}
         >
           {post.topic.icon ? (
-            <Ionicons name={post.topic.icon as any} size={12} color="#c9a84c" />
+            <Ionicons name={post.topic.icon as any} size={12} color={Colors.gold} />
           ) : null}
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: '#c9a84c' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.gold }}>
             {post.topic.name}
           </Text>
         </View>
@@ -258,7 +259,7 @@ export default function PostCard({
           style={{
             fontFamily: Fonts.body,
             fontSize: 14,
-            color: '#FFFFFF',
+            color: Colors.textPrimary,
             lineHeight: 21,
             marginTop: 12,
           }}
@@ -303,9 +304,9 @@ export default function PostCard({
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
               size={16}
-              color={isLiked ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+              color={isLiked ? Colors.gold : Colors.textMuted}
             />
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textMuted }}>
               {post.likes_count}
             </Text>
           </Pressable>
@@ -314,8 +315,8 @@ export default function PostCard({
             hitSlop={8}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
           >
-            <Ionicons name="chatbubble-outline" size={16} color="rgba(255,255,255,0.55)" />
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+            <Ionicons name="chatbubble-outline" size={16} color={Colors.textMuted} />
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textMuted }}>
               {post.comments_count}
             </Text>
           </Pressable>
@@ -330,7 +331,7 @@ export default function PostCard({
           <Ionicons
             name={isSaved ? 'bookmark' : 'bookmark-outline'}
             size={17}
-            color={isSaved ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+            color={isSaved ? Colors.gold : Colors.textMuted}
           />
         </TouchableOpacity>
       </View>

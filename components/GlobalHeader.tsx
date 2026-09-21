@@ -1,4 +1,4 @@
-import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
+﻿import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { getInitials } from '../lib/avatar';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import AccessBar from './AccessBar';
 
 /** Shared header used by all 4 tabs. Takes no props — fully self-contained. */
@@ -27,7 +28,7 @@ export default function GlobalHeader() {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#0a0900',
+        backgroundColor: Colors.background,
       }}
     >
       {/* Logo lockup: hamburger trigger + "I AM LEGACY" wordmark */}
@@ -38,13 +39,13 @@ export default function GlobalHeader() {
           activeOpacity={0.7}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Ionicons name="menu-outline" size={24} color="#c9a84c" />
+          <Ionicons name="menu-outline" size={24} color={Colors.gold} />
         </TouchableOpacity>
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 15,
-            color: '#c9a84c',
+            color: Colors.gold,
             letterSpacing: 0.5,
           }}
           numberOfLines={1}
@@ -64,9 +65,9 @@ export default function GlobalHeader() {
             width: 40,
             height: 40,
             borderRadius: 20,
-            backgroundColor: '#1c1a14',
+            backgroundColor: Colors.surface,
             borderWidth: 1,
-            borderColor: 'rgba(201,168,76,0.22)',
+            borderColor: Colors.border,
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
@@ -90,7 +91,7 @@ export default function GlobalHeader() {
                 />
               ) : (
                 <Text
-                  style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}
+                  style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.textPrimary }}
                 >
                   {initials}
                 </Text>

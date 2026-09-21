@@ -1,8 +1,9 @@
-import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
+﻿import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatIsoMonthUpper } from '../lib/dateFormat';
@@ -88,9 +89,9 @@ export default function EventCard({
   return (
     <View
       style={{
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         borderRadius: 12,
         marginBottom: 12,
         overflow: 'hidden',
@@ -109,12 +110,12 @@ export default function EventCard({
           style={{
             width: '100%',
             aspectRatio: 16 / 9,
-            backgroundColor: '#111008',
+            backgroundColor: Colors.surfaceAlt,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="calendar-outline" size={32} color="rgba(255,255,255,0.35)" />
+          <Ionicons name="calendar-outline" size={32} color={Colors.textFaint} />
         </View>
       )}
 
@@ -126,9 +127,9 @@ export default function EventCard({
           <View
             style={{
               width: 52,
-              backgroundColor: '#111008',
+              backgroundColor: Colors.surfaceAlt,
               borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.22)',
+              borderColor: Colors.border,
               borderRadius: 8,
               alignItems: 'center',
               paddingVertical: 8,
@@ -138,7 +139,7 @@ export default function EventCard({
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 11,
-                color: 'rgba(255,255,255,0.55)',
+                color: Colors.textMuted,
                 textTransform: 'uppercase',
                 letterSpacing: 0.5,
               }}
@@ -149,7 +150,7 @@ export default function EventCard({
               style={{
                 fontFamily: Fonts.bodyBold,
                 fontSize: 20,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 marginTop: 2,
               }}
             >
@@ -190,7 +191,7 @@ export default function EventCard({
                 <Ionicons
                   name="ellipsis-horizontal"
                   size={20}
-                  color="rgba(255,255,255,0.55)"
+                  color={Colors.textMuted}
                 />
               </TouchableOpacity>
             ) : null}
@@ -203,7 +204,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 17,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginTop: 12,
             }}
           >
@@ -214,12 +215,12 @@ export default function EventCard({
         {/* Location */}
         {event.location ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.55)" />
+            <Ionicons name="location-outline" size={14} color={Colors.textMuted} />
             <Text
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 13,
-                color: 'rgba(255,255,255,0.55)',
+                color: Colors.textMuted,
                 marginLeft: 4,
               }}
             >
@@ -235,7 +236,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.body,
               fontSize: 13,
-              color: 'rgba(255,255,255,0.55)',
+              color: Colors.textMuted,
               marginTop: 8,
               lineHeight: 19,
             }}
@@ -257,7 +258,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.body,
               fontSize: 13,
-              color: 'rgba(255,255,255,0.55)',
+              color: Colors.textMuted,
             }}
           >
             {goingLabel}
@@ -274,7 +275,7 @@ export default function EventCard({
               <Ionicons
                 name={isSaved ? 'bookmark' : 'bookmark-outline'}
                 size={20}
-                color={isSaved ? '#c9a84c' : 'rgba(255,255,255,0.55)'}
+                color={isSaved ? Colors.gold : Colors.textMuted}
               />
             </TouchableOpacity>
 
@@ -290,13 +291,13 @@ export default function EventCard({
                 }}
                 activeOpacity={0.7}
                 style={{
-                  backgroundColor: '#c9a84c',
+                  backgroundColor: Colors.gold,
                   borderRadius: 8,
                   paddingHorizontal: 16,
                   paddingVertical: 8,
                 }}
               >
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.background }}>
                   {t('events.register')}
                 </Text>
               </TouchableOpacity>
