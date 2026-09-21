@@ -72,7 +72,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         style={{
           fontFamily: Fonts.heading,
           fontSize: 17,
-          color: '#e8e0cc',
+          color: '#FFFFFF',
           marginBottom: 4,
         }}
         numberOfLines={2}

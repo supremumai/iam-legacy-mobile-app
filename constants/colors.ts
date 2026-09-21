@@ -81,21 +81,7 @@ export const Colors = {
   successBg:      'rgba(16,185,129,0.15)',  // success chip / card tint        (3×)
   warningBg:      'rgba(245,158,11,0.15)', // warning chip / card tint         (2×)
 
-  // ── Off-palette — owner review required ─────────────────────────────────────
-  // These colors fall outside the core gold/black palette.
-  // Each has a specific documented use. DO NOT consolidate without owner sign-off.
-  //
-  // EventCard badge system (online vs in-person events) — intentional paired design:
-  successAlt:     '#16a34a',  // in-person event badge text                   (2×)
-  successLight:   '#dcfce7',  // in-person event badge bg                     (1×)
-  info:           '#1d4ed8',  // online event badge text                      (1×)
-  blueLight:      '#dbeafe',  // online event badge bg                        (1×)
-  //
-  // Accent (indigo) — education section UI:
-  accent:         '#6366f1',  // education section icon + saved.tsx topic label (2×)
-  //
-  // Education heading text — warm cream instead of white (deliberate design):
-  cream:          '#e8e0cc',  // education content heading text               (3×)
+  // (off-palette tokens removed in Batch 82 — see commit for decisions)
 
 } as const;
 

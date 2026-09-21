@@ -247,12 +247,12 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: 'rgba(99,102,241,0.15)',
+                  backgroundColor: 'rgba(201,168,76,0.12)',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="book-outline" size={28} color="#6366F1" />
+                <Ionicons name="book-outline" size={28} color="#c9a84c" />
               </View>
             )}
           </View>

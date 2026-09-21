@@ -194,7 +194,7 @@ export default function EditProfileScreen() {
       usernameHintColor = '#EF4444';
     } else if (usernameStatus === 'available') {
       usernameHint = 'Username available';
-      usernameHintColor = '#16A34A';
+      usernameHintColor = '#10B981';
     }
     // 'idle' with content means either unchanged or check-error passthrough — no hint
   }

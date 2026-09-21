@@ -381,7 +381,7 @@ export default function ModuleVideoScreen() {
 
         {/* ── CONTEXT — title, description, key terms ── */}
         <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: '#e8e0cc', lineHeight: 28, marginBottom: 8 }}>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: '#FFFFFF', lineHeight: 28, marginBottom: 8 }}>
             {module.title}
           </Text>
 

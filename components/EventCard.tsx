@@ -7,6 +7,11 @@ import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatIsoMonthUpper } from '../lib/dateFormat';
 
+const BADGE_COLORS = {
+  online:   { bg: '#dbeafe', text: '#1d4ed8' },
+  inPerson: { bg: '#dcfce7', text: '#16a34a' },
+} as const;
+
 interface DateParts {
   month: string;
   day: string;
@@ -157,7 +162,7 @@ export default function EventCard({
             {/* Online / In-Person badge */}
             <View
               style={{
-                backgroundColor: isOnline ? '#DBEAFE' : '#DCFCE7',
+                backgroundColor: isOnline ? BADGE_COLORS.online.bg : BADGE_COLORS.inPerson.bg,
                 borderRadius: 999,
                 paddingHorizontal: 10,
                 paddingVertical: 4,
@@ -167,7 +172,7 @@ export default function EventCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 11,
-                  color: isOnline ? '#1D4ED8' : '#16A34A',
+                  color: isOnline ? BADGE_COLORS.online.text : BADGE_COLORS.inPerson.text,
                 }}
               >
                 {isOnline ? t('home.online') : t('events.in_person')}

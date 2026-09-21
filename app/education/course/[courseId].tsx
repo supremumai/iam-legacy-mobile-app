@@ -191,7 +191,7 @@ export default function CourseDetailScreen() {
                 style={{
                   fontFamily: Fonts.heading,
                   fontSize: 20,
-                  color: '#e8e0cc',
+                  color: '#FFFFFF',
                   lineHeight: 26,
                 }}
                 numberOfLines={3}

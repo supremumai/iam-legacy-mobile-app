@@ -344,7 +344,7 @@ function SavedResourceCard({
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 10,
-                  color: '#6366F1',
+                  color: '#c9a84c',
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
