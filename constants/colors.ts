@@ -1,99 +1,101 @@
 // ─── Color Tokens ─────────────────────────────────────────────────────────────
-// Names describe semantic ROLE, not raw values.
-// Current palette values are noted in comments — change here to repaint the app.
-// This file is the foundation; inline replacements happen in subsequent batches.
+// Semantic role names — change a value here to repaint the whole app.
+// Current palette values noted in comments.
+// Batch 81: consolidated from 65 → 26 tokens. Merge decisions documented inline.
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const Colors = {
 
   // ── Surfaces ────────────────────────────────────────────────────────────────
-  // Screen backgrounds and card/sheet elevations.
+  // Merged: surfaceDeep (#181510, 1×) → surface. surfaceDark (#110f09, 1×) → surfaceAlt.
   background:     '#0a0900',  // deepest black — main screen bg              (99×)
-  surface:        '#1c1a14',  // charcoal — cards, bottom sheets, modals     (54×)
-  surfaceAlt:     '#111008',  // mid-dark — alternate card bg                ( 9×)
-  surfaceDeep:    '#181510',  // between background and surface              ( 1×)
-  surfaceDark:    '#110f09',  // near-background dark variant                ( 1×)
+  surface:        '#1c1a14',  // charcoal — cards, sheets, modals            (54×)
+  surfaceAlt:     '#111008',  // mid-dark — alternate card bg                 (9×)
 
-  // ── Brand / Gold ────────────────────────────────────────────────────────────
-  // Primary brand accent. All gold shades live here.
-  gold:           '#c9a84c',  // primary gold — icons, CTAs, highlights     (157×)
-  goldAlt:        '#c5a454',  // alternate gold — slight hue shift            ( 6×)
-  goldWarm:       '#c98a4c',  // warmer-toned gold variant                    ( 1×)
-  goldBright:     '#e8c060',  // brighter gold — elevated highlights          ( 2×)
-  goldLight:      '#f5d070',  // lightest gold — subtle accents               ( 1×)
+  // ── Brand gold ──────────────────────────────────────────────────────────────
+  // Merged: goldAlt (#c5a454, 6×) → gold (minor hue drift, not design intent).
+  //         goldWarm (#c98a4c, 1×) → gold.
+  //         goldBright (#e8c060) and goldWarm (#c98a4c) appear ONLY in the
+  //         TROPHY_COLORS tuple in leaderboard.tsx — left inline there intentionally.
+  //         goldLight (#f5d070) had 0 actual screen uses — dropped.
+  gold:           '#c9a84c',  // primary gold — icons, CTAs, highlights      (157×)
 
-  // ── Text ────────────────────────────────────────────────────────────────────
-  // All foreground text colors, from full-white down to near-invisible.
+  // ── Text whites ─────────────────────────────────────────────────────────────
+  // 12 Batch-80 variants consolidated to a 5-level scale.
+  // Merge notes:
+  //   textFaint65 (0.65, 2×) → textSecondary  (drawer nav icons, 0.05 away)
+  //   textFaint70 (0.7, 1×)  → textSecondary  (Switch thumb off, 0.1 away)
+  //   textFaint80 (0.8, 1×)  → textPrimary    (PostComposer toggle label, near-white)
+  //   textFaint90 (0.9, 1×)  → textPrimary    (YouTubePreview play icon)
+  //   textFaint75 (0.75, 1×) → stays INLINE in TROPHY_COLORS (silver trophy icon)
+  //   textFaint85 (0.85, 1×) → textPrimary    (quiz option text, near-white)
+  //   textHalf    (0.5, 7×)  → textMuted      (0.05 closer to muted than tertiary)
+  //   textTertiary45 (0.45, 12×) → textTertiary (0.05 closer to tertiary than muted)
+  //   textSubtle  (0.35, 12×) → textFaint     (0.05 away; 12× uses noted — inspect if visually harsh)
+  //   textFaint25 (0.25, 1×) → textFaint
+  //   textFaint20 (0.2, 2×)  → textFaint      (locked module border + drag handle)
+  //   textFaint15 (0.15, 2×) → textFaint      (Switch track + quiz progress bar)
   textPrimary:    '#ffffff',                 // white — headings, main labels (114×)
-  textMuted:      'rgba(255,255,255,0.55)',  // muted — body / secondary text  (64×)
-  textSecondary:  'rgba(255,255,255,0.6)',   // secondary labels               (10×)
-  textHalf:       'rgba(255,255,255,0.5)',   // half-opacity labels             ( 7×)
-  textTertiary:   'rgba(255,255,255,0.4)',   // tertiary / placeholder text    (16×)
-  textTertiary45: 'rgba(255,255,255,0.45)', // tertiary variant                (12×)
-  textSubtle:     'rgba(255,255,255,0.35)',  // subtle — captions, metadata    (12×)
-  textFaint:      'rgba(255,255,255,0.3)',   // faint — timestamps, disabled    ( 9×)
-  textFaint65:    'rgba(255,255,255,0.65)', // near-secondary                   ( 2×)
-  textFaint25:    'rgba(255,255,255,0.25)', // very faint                       ( 1×)
-  textFaint20:    'rgba(255,255,255,0.2)',   // barely visible                  ( 2×)
-  textFaint15:    'rgba(255,255,255,0.15)', // barely visible                   ( 2×)
-  textFaint70:    'rgba(255,255,255,0.7)',   // near-primary dimmed             ( 1×)
-  textFaint75:    'rgba(255,255,255,0.75)', // near-primary                     ( 1×)
-  textFaint80:    'rgba(255,255,255,0.8)',   // near-white                      ( 1×)
-  textFaint90:    'rgba(255,255,255,0.9)',   // almost white                    ( 1×)
+  textSecondary:  'rgba(255,255,255,0.6)',   // secondary labels, nav icons   (10×)
+  textMuted:      'rgba(255,255,255,0.55)',  // muted body text — most common  (64×)
+  textTertiary:   'rgba(255,255,255,0.4)',   // tertiary / placeholder         (28× incl. 0.45)
+  textFaint:      'rgba(255,255,255,0.3)',   // faint — disabled, timestamps   (26× incl. 0.35, 0.2, 0.15)
 
-  // ── White overlays (ultra-low opacity — fills and tint backgrounds) ─────────
-  whiteOverlay10: 'rgba(255,255,255,0.1)',   // very subtle tint               ( 6×)
-  whiteOverlay8:  'rgba(255,255,255,0.08)',  // near-transparent tint          ( 1×)
-  whiteOverlay6:  'rgba(255,255,255,0.06)',  // hairline tint                  ( 1×)
-  whiteOverlay4:  'rgba(255,255,255,0.04)',  // ghost tint                     ( 4×)
+  // ── White fills (ultra-low opacity — UI element backgrounds) ────────────────
+  // Merged: whiteOverlay8 (0.08, 1×) → whiteOverlay10  (progress bar track)
+  //         whiteOverlay6 (0.06, 1×) → whiteOverlay10  (PostComposer tab strip)
+  whiteOverlay10: 'rgba(255,255,255,0.1)',   // very subtle tint — tab strips, tracks  (8×)
+  whiteOverlay4:  'rgba(255,255,255,0.04)',  // ghost tint — input field bg    (4×)
 
-  // ── Borders (gold-based) ────────────────────────────────────────────────────
-  // Dividers, card outlines, and focus rings keyed to the gold palette.
-  border:         'rgba(201,168,76,0.22)',   // main border — cards, inputs    (62×)
-  borderFaint8:   'rgba(201,168,76,0.08)',   // barely-there divider           ( 8×)
-  borderFaint12:  'rgba(201,168,76,0.12)',   // subtle divider                 (11×)
-  borderFaint18:  'rgba(201,168,76,0.18)',   // light border                   ( 2×)
-  borderMedium:   'rgba(201,168,76,0.3)',    // medium border                  ( 8×)
-  borderMedium35: 'rgba(201,168,76,0.35)',   // medium+ border                 ( 6×)
-  borderStrong:   'rgba(201,168,76,0.4)',    // strong border                  ( 4×)
-  borderStrong45: 'rgba(201,168,76,0.45)',   // stronger border                ( 2×)
-  borderStrong50: 'rgba(201,168,76,0.5)',    // half-opacity border            ( 2×)
-  borderStrong60: 'rgba(201,168,76,0.6)',    // prominent border               ( 1×)
+  // ── Gold borders ────────────────────────────────────────────────────────────
+  // 10 Batch-80 gold-border variants (rgba 201,168,76 and 197,164,84) → 3 levels.
+  // Also absorbs all rgba(197,164,84,X) borders (goldAlt base → gold base).
+  // Merge notes:
+  //   borderFaint8  (0.08, 8×)  → borderSubtle  (0.04 away)
+  //   borderFaint18 (0.18, 2×)  → border        (0.04 away)
+  //   borderAlt12   rgba197 12% → borderSubtle
+  //   borderAlt22/25 rgba197    → border
+  //   borderAlt40   rgba197 40% → borderStrong
+  //   borderMedium  (0.3, 8×)   → borderStrong  (per batch spec; will be slightly more prominent)
+  //   borderMedium35 (0.35, 6×) → borderStrong  (per batch spec)
+  //   borderStrong45/50/60      → borderStrong
+  borderSubtle:   'rgba(201,168,76,0.12)',  // faint dividers, ghost borders   (19× incl. 0.08)
+  border:         'rgba(201,168,76,0.22)',  // main border — cards, inputs     (62×)
+  borderStrong:   'rgba(201,168,76,0.4)',   // strong border — focus, active   (22× incl. 0.3/0.35)
 
-  // ── Borders (goldAlt-based — rgba of #c5a454) ───────────────────────────────
-  borderAlt12:    'rgba(197,164,84,0.12)',   // alternate gold, faint          ( 1×)
-  borderAlt22:    'rgba(197,164,84,0.22)',   // alternate gold border          ( 1×)
-  borderAlt25:    'rgba(197,164,84,0.25)',   // alternate gold border          ( 1×)
-  borderAlt40:    'rgba(197,164,84,0.4)',    // alternate gold, strong         ( 2×)
-
-  // ── Overlays (background-based — rgba of background or pure black) ──────────
-  overlay:        'rgba(10,9,0,0.5)',        // scrim over content             ( 5×)
-  overlayLight:   'rgba(10,9,0,0.45)',       // lighter scrim                  ( 1×)
-  overlayBlack50: 'rgba(0,0,0,0.5)',         // pure-black overlay             ( 2×)
-  overlayBlack52: 'rgba(0,0,0,0.52)',        // pure-black overlay variant     ( 1×)
-  overlayBlack55: 'rgba(0,0,0,0.55)',        // dark overlay                   ( 3×)
-  overlayBlack60: 'rgba(0,0,0,0.6)',         // darker overlay                 ( 1×)
+  // ── Scrim / overlay ─────────────────────────────────────────────────────────
+  // Merged: overlay rgba(10,9,0,X) and rgba(0,0,0,X) variants all → one overlay token.
+  // All opacity variants (0.45–0.6) unified to 0.55 — perceptibly indistinguishable in a scrim.
+  overlay:        'rgba(0,0,0,0.55)',       // dark scrim over images/content  (13× combined)
 
   // ── State ───────────────────────────────────────────────────────────────────
-  error:          '#ef4444',  // red — validation errors, destructive actions (17×)
-  errorSoft:      '#e05c5c',  // softer red — mild error states               ( 2×)
-  success:        '#10b981',  // emerald — success, completed states           ( 6×)
-  successAlt:     '#16a34a',  // darker green — alternate success              ( 2×)
-  successSoft:    '#5fa564',  // muted green — soft success                   ( 1×)
-  warning:        '#f59e0b',  // amber — warnings, pending states              ( 5×)
-  accent:         '#6366f1',  // indigo — accent, special highlights           ( 2×)
-  info:           '#1d4ed8',  // blue — informational                          ( 1×)
+  // Merged: errorSoft (#e05c5c, 2×) → error. Form error text in sign-in/sign-up
+  //         gets the standard error red; the soft variant was not intentional design.
+  //         successSoft (#5fa564, 1×) → success. TrackCard % text; muted vs saturated
+  //         green is a subtle distinction that isn't worth a separate token here.
+  error:          '#ef4444',  // red — errors, destructive actions            (17×)
+  success:        '#10b981',  // emerald — success, completed states           (6×)
+  warning:        '#f59e0b',  // amber — warnings, pending states              (5×)
 
-  // ── State tint backgrounds (rgba of state colors) ───────────────────────────
-  successBg12:    'rgba(16,185,129,0.12)',   // success tinted background      ( 1×)
-  successBg15:    'rgba(16,185,129,0.15)',   // success tinted background      ( 2×)
-  warningBg15:    'rgba(245,158,11,0.15)',   // warning tinted background      ( 2×)
-  accentBg15:     'rgba(99,102,241,0.15)',   // accent tinted background       ( 1×)
+  // State tinted backgrounds
+  successBg:      'rgba(16,185,129,0.15)',  // success chip / card tint        (3×)
+  warningBg:      'rgba(245,158,11,0.15)', // warning chip / card tint         (2×)
 
-  // ── Misc ────────────────────────────────────────────────────────────────────
-  cream:          '#e8e0cc',  // warm cream — special decorative elements      ( 2×)
-  successLight:   '#dcfce7',  // light green — badge/chip backgrounds          ( 1×)
-  blueLight:      '#dbeafe',  // light blue — badge/chip backgrounds           ( 1×)
+  // ── Off-palette — owner review required ─────────────────────────────────────
+  // These colors fall outside the core gold/black palette.
+  // Each has a specific documented use. DO NOT consolidate without owner sign-off.
+  //
+  // EventCard badge system (online vs in-person events) — intentional paired design:
+  successAlt:     '#16a34a',  // in-person event badge text                   (2×)
+  successLight:   '#dcfce7',  // in-person event badge bg                     (1×)
+  info:           '#1d4ed8',  // online event badge text                      (1×)
+  blueLight:      '#dbeafe',  // online event badge bg                        (1×)
+  //
+  // Accent (indigo) — education section UI:
+  accent:         '#6366f1',  // education section icon + saved.tsx topic label (2×)
+  //
+  // Education heading text — warm cream instead of white (deliberate design):
+  cream:          '#e8e0cc',  // education content heading text               (3×)
 
 } as const;
 
