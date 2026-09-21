@@ -1,11 +1,12 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { Fonts } from '../../../../constants/fonts';
+import { Colors } from '../../../../constants/colors';
 
-const GOLD = '#c9a84c';
-const BG = '#0a0900';
+const GOLD = Colors.gold;
+const BG = Colors.background;
 const GREEN = '#4caf50';
 
 export default function QuizResultScreen() {
@@ -56,7 +57,7 @@ export default function QuizResultScreen() {
           borderRadius: 44,
           backgroundColor: didPass ? 'rgba(76,175,80,0.12)' : '#1a1600',
           borderWidth: 1.5,
-          borderColor: didPass ? 'rgba(76,175,80,0.4)' : 'rgba(201,168,76,0.25)',
+          borderColor: didPass ? 'rgba(76,175,80,0.4)' : Colors.border,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 28,
@@ -65,7 +66,7 @@ export default function QuizResultScreen() {
         <Ionicons
           name={didPass ? 'trophy' : 'ribbon-outline'}
           size={42}
-          color={didPass ? GREEN : 'rgba(201,168,76,0.6)'}
+          color={didPass ? GREEN : Colors.borderStrong}
         />
       </View>
 
@@ -87,7 +88,7 @@ export default function QuizResultScreen() {
         style={{
           fontFamily: Fonts.bodySemiBold,
           fontSize: 16,
-          color: 'rgba(255,255,255,0.6)',
+          color: Colors.textSecondary,
           textAlign: 'center',
           marginBottom: 48,
         }}

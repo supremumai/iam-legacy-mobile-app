@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -18,9 +18,10 @@ import {
   EduQuizQuestion,
 } from '../../../../lib/education';
 import { Fonts } from '../../../../constants/fonts';
+import { Colors } from '../../../../constants/colors';
 
-const GOLD = '#c9a84c';
-const BG = '#0a0900';
+const GOLD = Colors.gold;
+const BG = Colors.background;
 const GREEN = '#4caf50';
 const RED = '#e53935';
 
@@ -155,13 +156,13 @@ export default function QuizScreen() {
               borderRadius: 36,
               backgroundColor: '#1a1600',
               borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.25)',
+              borderColor: Colors.border,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 24,
             }}
           >
-            <Ionicons name="hourglass-outline" size={34} color="rgba(201,168,76,0.5)" />
+            <Ionicons name="hourglass-outline" size={34} color={Colors.borderStrong} />
           </View>
 
           <Text
@@ -180,7 +181,7 @@ export default function QuizScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 15,
-              color: 'rgba(255,255,255,0.5)',
+              color: Colors.textMuted,
               textAlign: 'center',
               lineHeight: 22,
               marginBottom: 36,
@@ -225,7 +226,7 @@ export default function QuizScreen() {
           style={{
             fontFamily: Fonts.bodySemiBold,
             fontSize: 13,
-            color: 'rgba(255,255,255,0.45)',
+            color: Colors.textTertiary,
             marginBottom: 8,
             textAlign: 'center',
           }}
@@ -241,7 +242,7 @@ export default function QuizScreen() {
           style={{
             fontFamily: Fonts.heading,
             fontSize: 20,
-            color: '#FFFFFF',
+            color: Colors.textPrimary,
             lineHeight: 28,
             marginBottom: 28,
           }}
@@ -253,24 +254,24 @@ export default function QuizScreen() {
         {OPTIONS.map((opt) => {
           const isSelected = selected === opt;
           const correctOpt = currentQuestion!.correct_option;
-          let bg = '#1a1600';
-          let borderColor = 'rgba(201,168,76,0.2)';
-          let textColor = 'rgba(255,255,255,0.85)';
+          let bg: string = '#1a1600';
+          let borderColor: string = Colors.border;
+          let textColor: string = 'rgba(255,255,255,0.85)';
 
           if (answered) {
             if (opt === correctOpt) {
               bg = 'rgba(76,175,80,0.18)';
               borderColor = GREEN;
-              textColor = '#FFFFFF';
+              textColor = Colors.textPrimary;
             } else if (isSelected) {
               bg = 'rgba(229,57,53,0.18)';
               borderColor = RED;
-              textColor = '#FFFFFF';
+              textColor = Colors.textPrimary;
             }
           } else if (isSelected) {
-            bg = 'rgba(201,168,76,0.18)';
+            bg = Colors.border;
             borderColor = GOLD;
-            textColor = '#FFFFFF';
+            textColor = Colors.textPrimary;
           }
 
           return (
@@ -324,7 +325,7 @@ export default function QuizScreen() {
             style={{
               backgroundColor: '#151000',
               borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.2)',
+              borderColor: Colors.border,
               borderRadius: 10,
               padding: 14,
               marginTop: 4,
@@ -334,7 +335,7 @@ export default function QuizScreen() {
             <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: GOLD, marginBottom: 4 }}>
               {isCorrect ? t('education.correct') : t('education.incorrect')}
             </Text>
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.65)', lineHeight: 20 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20 }}>
               {currentQuestion!.explanation}
             </Text>
           </View>

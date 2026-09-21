@@ -1,6 +1,7 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
+import { Colors } from '../../constants/colors';
 import { useLanguage } from '../../contexts/LanguageContext';
 import type { ContinueLearningResult } from '../../lib/education';
 
@@ -15,8 +16,8 @@ export default function ContinueLearningCard({ item, onPress }: Props) {
   const iconName: React.ComponentProps<typeof Ionicons>['name'] = isQuiz
     ? 'ribbon-outline'
     : 'play-circle-outline';
-  const iconColor = isQuiz ? '#10B981' : '#c9a84c';
-  const iconBg = isQuiz ? 'rgba(16,185,129,0.12)' : 'rgba(201,168,76,0.12)';
+  const iconColor = isQuiz ? Colors.success : Colors.gold;
+  const iconBg = isQuiz ? Colors.successBg : Colors.borderSubtle;
   const subtitle = t('education.continue_subtitle', {
     course: item.courseTitle,
     n: item.moduleOrderIndex + 1,
@@ -32,8 +33,8 @@ export default function ContinueLearningCard({ item, onPress }: Props) {
         borderRadius: 14,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.18)',
-        backgroundColor: '#110f09',
+        borderColor: Colors.border,
+        backgroundColor: Colors.surfaceAlt,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
@@ -59,7 +60,7 @@ export default function ContinueLearningCard({ item, onPress }: Props) {
           style={{
             fontFamily: Fonts.bodySemiBold,
             fontSize: 14,
-            color: '#FFFFFF',
+            color: Colors.textPrimary,
             marginBottom: 2,
           }}
           numberOfLines={1}
@@ -70,7 +71,7 @@ export default function ContinueLearningCard({ item, onPress }: Props) {
           style={{
             fontFamily: Fonts.body,
             fontSize: 12,
-            color: 'rgba(255,255,255,0.45)',
+            color: Colors.textTertiary,
           }}
           numberOfLines={1}
         >
@@ -78,7 +79,7 @@ export default function ContinueLearningCard({ item, onPress }: Props) {
         </Text>
       </View>
 
-      <Ionicons name="chevron-forward" size={18} color="rgba(201,168,76,0.5)" />
+      <Ionicons name="chevron-forward" size={18} color={Colors.borderStrong} />
     </TouchableOpacity>
   );
 }

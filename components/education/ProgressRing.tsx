@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+﻿import { Text, View } from 'react-native';
 import { Fonts } from '../../constants/fonts';
+import { Colors } from '../../constants/colors';
 
-const GOLD = '#c9a84c';
-const TRACK = 'rgba(201,168,76,0.18)';
-const BG = '#0a0900';
+const GOLD = Colors.gold;
+const TRACK = Colors.border;
+const BG = Colors.background;
 
 // Progress ring implemented with View+borderRadius (no react-native-svg required).
 // Arc effect uses the two-half clip+rotate technique; SVG can replace this in a

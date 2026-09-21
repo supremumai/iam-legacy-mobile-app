@@ -1,6 +1,7 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
+import { Colors } from '../../constants/colors';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getTrackIcon } from '../../lib/education';
 import type { EduTrack } from '../../lib/education';
@@ -28,8 +29,8 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         marginBottom: 16,
         borderRadius: 12,
         borderWidth: 0.5,
-        borderColor: 'rgba(197,164,84,0.25)',
-        backgroundColor: '#1c1a14',
+        borderColor: Colors.border,
+        backgroundColor: Colors.surface,
         padding: 16,
       }}
     >
@@ -47,12 +48,12 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             width: 44,
             height: 44,
             borderRadius: 10,
-            backgroundColor: 'rgba(197,164,84,0.12)',
+            backgroundColor: Colors.borderSubtle,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name={icon as any} size={22} color="#c5a454" />
+          <Ionicons name={icon as any} size={22} color={Colors.gold} />
         </View>
         {progress > 0 && (
           <Text
@@ -72,7 +73,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         style={{
           fontFamily: Fonts.heading,
           fontSize: 17,
-          color: '#FFFFFF',
+          color: Colors.textPrimary,
           marginBottom: 4,
         }}
         numberOfLines={2}
@@ -86,7 +87,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
           style={{
             fontFamily: Fonts.body,
             fontSize: 12,
-            color: 'rgba(255,255,255,0.45)',
+            color: Colors.textTertiary,
             marginBottom: 12,
           }}
           numberOfLines={1}
@@ -100,7 +101,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         style={{
           height: 5,
           borderRadius: 3,
-          backgroundColor: 'rgba(255,255,255,0.08)',
+          backgroundColor: Colors.whiteOverlay10,
           marginBottom: 10,
           overflow: 'hidden',
         }}
@@ -111,7 +112,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
               height: '100%',
               width: barWidth,
               borderRadius: 3,
-              backgroundColor: '#c5a454',
+              backgroundColor: Colors.gold,
             }}
           />
         )}
@@ -129,7 +130,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
           style={{
             fontFamily: Fonts.body,
             fontSize: 12,
-            color: 'rgba(255,255,255,0.4)',
+            color: Colors.textTertiary,
           }}
         >
           {t('education.track_modules_label', { count: totalModules })}
@@ -139,7 +140,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 12,
-              color: '#c5a454',
+              color: Colors.gold,
             }}
           >
             {t('education.track_modules_done', { done, total: totalModules })}
@@ -149,7 +150,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: 'rgba(255,255,255,0.35)',
+              color: Colors.textFaint,
             }}
           >
             {t('education.track_not_started')}

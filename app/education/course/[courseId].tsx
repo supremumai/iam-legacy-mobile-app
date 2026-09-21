@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ import {
   EduModule,
 } from '../../../lib/education';
 import { Fonts } from '../../../constants/fonts';
+import { Colors } from '../../../constants/colors';
 import ModuleRow from '../../../components/education/ModuleRow';
 import type { ModuleStatus } from '../../../components/education/ModuleRow';
 
@@ -82,28 +83,28 @@ export default function CourseDetailScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900', alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color="#c9a84c" size="large" />
+      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Colors.gold} size="large" />
       </View>
     );
   }
 
   if (error || !result?.course) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.7}
           style={{ paddingHorizontal: 20, paddingTop: 56, paddingBottom: 16 }}
         >
-          <Ionicons name="arrow-back" size={24} color="#c9a84c" />
+          <Ionicons name="arrow-back" size={24} color={Colors.gold} />
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -112,9 +113,9 @@ export default function CourseDetailScreen() {
           </Text>
           <Pressable
             onPress={() => { setLoading(true); load(); }}
-            style={{ backgroundColor: '#c9a84c', borderRadius: 8, paddingHorizontal: 24, paddingVertical: 10 }}
+            style={{ backgroundColor: Colors.gold, borderRadius: 8, paddingHorizontal: 24, paddingVertical: 10 }}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               {t('events.retry')}
             </Text>
           </Pressable>
@@ -131,7 +132,7 @@ export default function CourseDetailScreen() {
   const trackIcon = getTrackIcon(trackTitle ?? '');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Back button */}
         <TouchableOpacity
@@ -139,7 +140,7 @@ export default function CourseDetailScreen() {
           activeOpacity={0.7}
           style={{ paddingHorizontal: 20, paddingTop: 56, paddingBottom: 8 }}
         >
-          <Ionicons name="arrow-back" size={24} color="#c9a84c" />
+          <Ionicons name="arrow-back" size={24} color={Colors.gold} />
         </TouchableOpacity>
 
         {/* Hero card */}
@@ -149,8 +150,8 @@ export default function CourseDetailScreen() {
             marginBottom: 24,
             borderRadius: 16,
             borderWidth: 0.5,
-            borderColor: 'rgba(197,164,84,0.25)',
-            backgroundColor: '#1c1a14',
+            borderColor: Colors.border,
+            backgroundColor: Colors.surface,
             padding: 20,
           }}
         >
@@ -161,13 +162,13 @@ export default function CourseDetailScreen() {
                 width: 48,
                 height: 48,
                 borderRadius: 12,
-                backgroundColor: 'rgba(197,164,84,0.12)',
+                backgroundColor: Colors.borderSubtle,
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
               }}
             >
-              <Ionicons name={trackIcon as any} size={24} color="#c5a454" />
+              <Ionicons name={trackIcon as any} size={24} color={Colors.gold} />
             </View>
 
             <View style={{ flex: 1 }}>
@@ -175,14 +176,14 @@ export default function CourseDetailScreen() {
                 <View
                   style={{
                     alignSelf: 'flex-start',
-                    backgroundColor: 'rgba(201,168,76,0.12)',
+                    backgroundColor: Colors.borderSubtle,
                     borderRadius: 99,
                     paddingHorizontal: 10,
                     paddingVertical: 3,
                     marginBottom: 6,
                   }}
                 >
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: '#c9a84c' }}>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.gold }}>
                     {difficultyLabel(course.difficulty, t)}
                   </Text>
                 </View>
@@ -191,7 +192,7 @@ export default function CourseDetailScreen() {
                 style={{
                   fontFamily: Fonts.heading,
                   fontSize: 20,
-                  color: '#FFFFFF',
+                  color: Colors.textPrimary,
                   lineHeight: 26,
                 }}
                 numberOfLines={3}
@@ -207,7 +208,7 @@ export default function CourseDetailScreen() {
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 14,
-                color: 'rgba(255,255,255,0.55)',
+                color: Colors.textMuted,
                 lineHeight: 20,
                 marginBottom: 16,
               }}
@@ -221,7 +222,7 @@ export default function CourseDetailScreen() {
             style={{
               height: 5,
               borderRadius: 3,
-              backgroundColor: 'rgba(255,255,255,0.08)',
+              backgroundColor: Colors.whiteOverlay10,
               marginBottom: 8,
               overflow: 'hidden',
             }}
@@ -232,7 +233,7 @@ export default function CourseDetailScreen() {
                   height: '100%',
                   width: barWidth,
                   borderRadius: 3,
-                  backgroundColor: '#c5a454',
+                  backgroundColor: Colors.gold,
                 }}
               />
             )}
@@ -243,7 +244,7 @@ export default function CourseDetailScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: 'rgba(255,255,255,0.45)',
+              color: Colors.textTertiary,
               marginBottom: 16,
             }}
           >
@@ -255,13 +256,13 @@ export default function CourseDetailScreen() {
             onPress={handleStartOrContinue}
             activeOpacity={0.8}
             style={{
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 10,
               paddingVertical: 14,
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.background }}>
               {hasStarted ? t('education.continue_course') : t('education.start_course')}
             </Text>
           </TouchableOpacity>

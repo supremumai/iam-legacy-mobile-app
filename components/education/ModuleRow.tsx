@@ -1,12 +1,13 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
+import { Colors } from '../../constants/colors';
 import type { EduModule } from '../../lib/education';
 
 export type ModuleStatus = 'completed' | 'unlocked' | 'locked';
 
 const CIRCLE = 18;
-const LINE_COLOR = 'rgba(197,164,84,0.22)';
+const LINE_COLOR = Colors.border;
 
 function formatDuration(seconds: number | null): string {
   if (!seconds) return '';
@@ -30,7 +31,7 @@ export default function ModuleRow({ module, status, index, total, onPress }: Mod
   const duration = formatDuration(module.video_duration_seconds);
 
   const iconName = isCompleted ? 'checkmark' : isLocked ? 'lock-closed' : 'play';
-  const iconColor = isCompleted ? '#0a0900' : isLocked ? 'rgba(255,255,255,0.35)' : '#c5a454';
+  const iconColor = isCompleted ? Colors.background : isLocked ? Colors.textFaint : Colors.gold;
 
   const circleStyle = {
     width: CIRCLE,
@@ -38,13 +39,13 @@ export default function ModuleRow({ module, status, index, total, onPress }: Mod
     borderRadius: CIRCLE / 2,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    backgroundColor: isCompleted ? '#c5a454' : 'transparent',
+    backgroundColor: isCompleted ? Colors.gold : 'transparent',
     borderWidth: isCompleted ? 0 : 1.5,
     borderColor: isCompleted
       ? undefined
       : isLocked
-        ? 'rgba(255,255,255,0.2)'
-        : '#c5a454',
+        ? Colors.textFaint
+        : Colors.gold,
   };
 
   const rowContent = (
@@ -88,7 +89,7 @@ export default function ModuleRow({ module, status, index, total, onPress }: Mod
           style={{
             fontFamily: Fonts.bodySemiBold,
             fontSize: 15,
-            color: '#FFFFFF',
+            color: Colors.textPrimary,
             marginBottom: duration ? 3 : 0,
           }}
           numberOfLines={2}
@@ -100,7 +101,7 @@ export default function ModuleRow({ module, status, index, total, onPress }: Mod
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: 'rgba(255,255,255,0.45)',
+              color: Colors.textTertiary,
             }}
           >
             {duration}
