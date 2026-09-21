@@ -30,7 +30,7 @@ import { Colors } from '../../../constants/colors';
 
 const GOLD = Colors.gold;
 const BG = Colors.background;
-const RED = '#e53935';
+const RED = Colors.error;
 
 const DIRECT_VIDEO_EXTS = ['.mp4', '.mov', '.m4v', '.webm'];
 
@@ -345,7 +345,7 @@ export default function ModuleVideoScreen() {
               style={{
                 width: '100%',
                 aspectRatio: 16 / 9,
-                backgroundColor: '#1a1600',
+                backgroundColor: Colors.surfacePanel,
                 borderBottomWidth: 1,
                 borderBottomColor: Colors.borderSubtle,
                 alignItems: 'center',
@@ -404,7 +404,7 @@ export default function ModuleVideoScreen() {
                     paddingVertical: 4,
                   }}
                 >
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: 'rgba(201,168,76,0.85)' }}>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.goldStrong }}>
                     {term}
                   </Text>
                 </View>
@@ -475,7 +475,7 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 8,
-                    backgroundColor: '#1a1600',
+                    backgroundColor: Colors.surfacePanel,
                     borderWidth: 1,
                     borderColor: Colors.borderStrong,
                     borderRadius: 8,
@@ -509,12 +509,12 @@ export default function ModuleVideoScreen() {
                   value={adminUrlInput}
                   onChangeText={(text) => { setAdminUrlInput(text); setAdminUrlError(null); }}
                   placeholder={t('education.admin_url_placeholder')}
-                  placeholderTextColor="rgba(255,255,255,0.22)"
+                  placeholderTextColor={Colors.textPlaceholder}
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="url"
                   style={{
-                    backgroundColor: '#1a1600',
+                    backgroundColor: Colors.surfacePanel,
                     borderWidth: 1,
                     borderColor: adminUrlError ? RED : Colors.border,
                     borderRadius: 8,
@@ -562,7 +562,7 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    backgroundColor: '#1a1600',
+                    backgroundColor: Colors.surfacePanel,
                     borderWidth: 1,
                     borderColor: Colors.borderStrong,
                     borderRadius: 8,
@@ -589,9 +589,9 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    backgroundColor: '#1a0000',
+                    backgroundColor: Colors.errorSurface,
                     borderWidth: 1,
-                    borderColor: 'rgba(229,57,53,0.35)',
+                    borderColor: Colors.errorBorder,
                     borderRadius: 8,
                     paddingVertical: 11,
                   }}
@@ -639,7 +639,7 @@ export default function ModuleVideoScreen() {
                       onChangeText={(v) => updateQuizEdit(idx, { question: v, error: null })}
                       multiline
                       placeholder={t('education.admin_question')}
-                      placeholderTextColor="rgba(255,255,255,0.22)"
+                      placeholderTextColor={Colors.textPlaceholder}
                       style={{
                         backgroundColor: BG,
                         borderWidth: 1,
@@ -665,7 +665,7 @@ export default function ModuleVideoScreen() {
                           value={edit[key]}
                           onChangeText={(v) => updateQuizEdit(idx, { [key]: v, error: null } as Partial<QuizQEdit>)}
                           placeholder={`${t('education.admin_option')} ${label}`}
-                          placeholderTextColor="rgba(255,255,255,0.22)"
+                          placeholderTextColor={Colors.textPlaceholder}
                           style={{
                             flex: 1,
                             backgroundColor: BG,

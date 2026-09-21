@@ -7,7 +7,7 @@ import { Colors } from '../../../../constants/colors';
 
 const GOLD = Colors.gold;
 const BG = Colors.background;
-const GREEN = '#4caf50';
+const GREEN = Colors.success;
 
 export default function QuizResultScreen() {
   const { moduleId, score, total, passed, nextModuleId, courseId } =
@@ -55,9 +55,9 @@ export default function QuizResultScreen() {
           width: 88,
           height: 88,
           borderRadius: 44,
-          backgroundColor: didPass ? 'rgba(76,175,80,0.12)' : '#1a1600',
+          backgroundColor: didPass ? Colors.successBg : Colors.surfacePanel,
           borderWidth: 1.5,
-          borderColor: didPass ? 'rgba(76,175,80,0.4)' : Colors.border,
+          borderColor: didPass ? Colors.successBorder : Colors.border,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 28,

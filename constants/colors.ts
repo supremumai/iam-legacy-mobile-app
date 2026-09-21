@@ -11,6 +11,10 @@ export const Colors = {
   background:     '#0a0900',  // deepest black — main screen bg              (99×)
   surface:        '#1c1a14',  // charcoal — cards, sheets, modals            (54×)
   surfaceAlt:     '#111008',  // mid-dark — alternate card bg                 (9×)
+  // Batch 86: Education-specific tinted surfaces (warm-dark, used in quiz options / video placeholder / admin destructive)
+  surfacePanel:   '#1a1600',  // slightly warm dark — quiz option resting bg, video placeholder, upload area
+  surfaceDeep:    '#151000',  // deeper warm dark — quiz explanation box bg
+  errorSurface:   '#1a0000',  // red-tinted dark — destructive action button bg (admin remove video)
 
   // ── Brand gold ──────────────────────────────────────────────────────────────
   // Merged: goldAlt (#c5a454, 6×) → gold (minor hue drift, not design intent).
@@ -19,6 +23,8 @@ export const Colors = {
   //         TROPHY_COLORS tuple in leaderboard.tsx — left inline there intentionally.
   //         goldLight (#f5d070) had 0 actual screen uses — dropped.
   gold:           '#c9a84c',  // primary gold — icons, CTAs, highlights      (157×)
+  // Batch 86: high-opacity gold for key-term labels in the module screen
+  goldStrong:     'rgba(201,168,76,0.85)',  // intense gold — key term text in moduleId admin
 
   // ── Text whites ─────────────────────────────────────────────────────────────
   // 12 Batch-80 variants consolidated to a 5-level scale.
@@ -40,6 +46,8 @@ export const Colors = {
   textMuted:      'rgba(255,255,255,0.55)',  // muted body text — most common  (64×)
   textTertiary:   'rgba(255,255,255,0.4)',   // tertiary / placeholder         (28× incl. 0.45)
   textFaint:      'rgba(255,255,255,0.3)',   // faint — disabled, timestamps   (26× incl. 0.35, 0.2, 0.15)
+  // Batch 86: placeholder text for TextInput fields in admin panels
+  textPlaceholder: 'rgba(255,255,255,0.22)', // placeholder text — admin form inputs (moduleId admin)
 
   // ── White fills (ultra-low opacity — UI element backgrounds) ────────────────
   // Merged: whiteOverlay8 (0.08, 1×) → whiteOverlay10  (progress bar track)
@@ -80,6 +88,10 @@ export const Colors = {
   // State tinted backgrounds
   successBg:      'rgba(16,185,129,0.15)',  // success chip / card tint        (3×)
   warningBg:      'rgba(245,158,11,0.15)', // warning chip / card tint         (2×)
+  // Batch 86: error-family transparent variants (parallel to successBg/successBorder)
+  errorBg:        'rgba(239,68,68,0.15)',  // wrong-answer bg / error tint — quiz.tsx
+  successBorder:  'rgba(16,185,129,0.4)', // pass-state icon border — result.tsx
+  errorBorder:    'rgba(239,68,68,0.35)', // destructive action border — moduleId admin
 
   // (off-palette tokens removed in Batch 82 — see commit for decisions)
 

@@ -22,8 +22,8 @@ import { Colors } from '../../../../constants/colors';
 
 const GOLD = Colors.gold;
 const BG = Colors.background;
-const GREEN = '#4caf50';
-const RED = '#e53935';
+const GREEN = Colors.success;
+const RED = Colors.error;
 
 type Option = 'a' | 'b' | 'c' | 'd';
 const OPTIONS: Option[] = ['a', 'b', 'c', 'd'];
@@ -154,7 +154,7 @@ export default function QuizScreen() {
               width: 72,
               height: 72,
               borderRadius: 36,
-              backgroundColor: '#1a1600',
+              backgroundColor: Colors.surfacePanel,
               borderWidth: 1,
               borderColor: Colors.border,
               alignItems: 'center',
@@ -254,17 +254,17 @@ export default function QuizScreen() {
         {OPTIONS.map((opt) => {
           const isSelected = selected === opt;
           const correctOpt = currentQuestion!.correct_option;
-          let bg: string = '#1a1600';
+          let bg: string = Colors.surfacePanel;
           let borderColor: string = Colors.border;
-          let textColor: string = 'rgba(255,255,255,0.85)';
+          let textColor: string = Colors.textPrimary;
 
           if (answered) {
             if (opt === correctOpt) {
-              bg = 'rgba(76,175,80,0.18)';
+              bg = Colors.successBg;
               borderColor = GREEN;
               textColor = Colors.textPrimary;
             } else if (isSelected) {
-              bg = 'rgba(229,57,53,0.18)';
+              bg = Colors.errorBg;
               borderColor = RED;
               textColor = Colors.textPrimary;
             }
@@ -323,7 +323,7 @@ export default function QuizScreen() {
         {answered && !!currentQuestion!.explanation && (
           <View
             style={{
-              backgroundColor: '#151000',
+              backgroundColor: Colors.surfaceDeep,
               borderWidth: 1,
               borderColor: Colors.border,
               borderRadius: 10,
