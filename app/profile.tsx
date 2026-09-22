@@ -10,7 +10,7 @@ import { getInitials } from '../lib/avatar';
 import { fetchProfileWithTopics } from '../lib/profiles';
 import { ProfileWithTopics } from '../types/database';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import LevelBadge from '../components/LevelBadge';
 
 function formatCount(n: number): string {
@@ -32,6 +32,7 @@ export default function ProfileScreen() {
   const isOwnProfile = !id || id === user?.id;
 
   const { t } = useLanguage();
+  const colors = useColors();
 
   // ── Other-user state ──────────────────────────────────────────────────────
   const [viewedProfile, setViewedProfile] = useState<ProfileWithTopics | null>(null);
@@ -121,8 +122,8 @@ export default function ProfileScreen() {
   const isLoading = isOwnProfile ? authLoading : loadingViewed;
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color={Colors.gold} size="large" />
+      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={colors.gold} size="large" />
       </View>
     );
   }
@@ -134,20 +135,20 @@ export default function ProfileScreen() {
 
   if (!activeProfile || hasError) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
           {t('profile.could_not_load')}
         </Text>
         <Pressable
           onPress={handleRetry}
           style={{
-            backgroundColor: Colors.gold,
+            backgroundColor: colors.gold,
             borderRadius: 8,
             paddingHorizontal: 24,
             paddingVertical: 10,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>{t('events.retry')}</Text>
+          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.background }}>{t('events.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -161,7 +162,7 @@ export default function ProfileScreen() {
     : (activeProfile.full_name ?? (activeProfile.username ? `@${activeProfile.username}` : t('profile.legacy_member_fallback')));
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -174,14 +175,14 @@ export default function ProfileScreen() {
             hitSlop={8}
             style={{ alignSelf: 'flex-start' }}
           >
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
         </View>
 
         {/* Hero zone */}
         <View
           style={{
-            backgroundColor: Colors.surfaceAlt,
+            backgroundColor: colors.surfaceAlt,
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
             alignItems: 'center',
@@ -212,9 +213,9 @@ export default function ProfileScreen() {
               width: 88,
               height: 88,
               borderRadius: 44,
-              backgroundColor: Colors.surface,
+              backgroundColor: colors.surface,
               borderWidth: 2,
-              borderColor: Colors.border,
+              borderColor: colors.border,
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
@@ -223,7 +224,7 @@ export default function ProfileScreen() {
             {activeProfile.avatar_url ? (
               <Image source={{ uri: activeProfile.avatar_url }} style={{ width: 88, height: 88 }} />
             ) : (
-              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 30, color: Colors.textPrimary }}>
+              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 30, color: colors.textPrimary }}>
                 {initials}
               </Text>
             )}
@@ -234,7 +235,7 @@ export default function ProfileScreen() {
             style={{
               fontFamily: Fonts.heading,
               fontSize: 22,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginTop: 12,
               textAlign: 'center',
             }}
@@ -244,18 +245,18 @@ export default function ProfileScreen() {
 
           {/* Username */}
           {activeProfile.username ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textMuted, marginTop: 2 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted, marginTop: 2 }}>
               @{activeProfile.username}
             </Text>
           ) : null}
 
           {/* Role */}
           {activeProfile.role ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: Colors.textMuted }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: colors.textMuted }}>
               {activeProfile.role}
             </Text>
           ) : isOwnProfile ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: Colors.textFaint }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: colors.textFaint }}>
               {t('profile.add_your_role')}
             </Text>
           ) : null}
@@ -263,8 +264,8 @@ export default function ProfileScreen() {
           {/* Location */}
           {activeProfile.location ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <Ionicons name="location-outline" size={13} color={Colors.gold} />
-              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textMuted }}>
+              <Ionicons name="location-outline" size={13} color={colors.gold} />
+              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted }}>
                 {activeProfile.location}
               </Text>
             </View>
@@ -283,10 +284,10 @@ export default function ProfileScreen() {
               { id: 'resources', value: loadingResources ? '—' : formatCount(resourcesCount), label: t('profile.stat_resources') },
             ].map((stat) => (
               <View key={stat.id} style={{ alignItems: 'center' }}>
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 20, color: Colors.gold }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 20, color: colors.gold }}>
                   {stat.value}
                 </Text>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: Colors.textMuted, marginTop: 2 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
                   {stat.label}
                 </Text>
               </View>
@@ -310,20 +311,20 @@ export default function ProfileScreen() {
                 activeOpacity={0.7}
                 style={{
                   flex: 1,
-                  backgroundColor: Colors.surface,
+                  backgroundColor: colors.surface,
                   borderRadius: 10,
                   borderWidth: 1,
-                  borderColor: Colors.borderStrong,
+                  borderColor: colors.borderStrong,
                   alignItems: 'center',
                   paddingVertical: 12,
                 }}
               >
-                <Ionicons name={icon} size={20} color={Colors.gold} />
+                <Ionicons name={icon} size={20} color={colors.gold} />
                 <Text
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 11,
-                    color: Colors.textSecondary,
+                    color: colors.textSecondary,
                     marginTop: 5,
                   }}
                 >
@@ -336,30 +337,30 @@ export default function ProfileScreen() {
 
         {/* About section */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: Colors.gold }}>{t('profile.about_section')}</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: colors.gold }}>{t('profile.about_section')}</Text>
           <View
             style={{
               marginTop: 10,
-              backgroundColor: Colors.surface,
+              backgroundColor: colors.surface,
               borderRadius: 12,
               borderWidth: 1,
-              borderColor: Colors.border,
+              borderColor: colors.border,
               padding: 16,
             }}
           >
             {activeProfile.bio ? (
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textPrimary, lineHeight: 22 }}>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textPrimary, lineHeight: 22 }}>
                 {activeProfile.bio}
               </Text>
             ) : (
               <View>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textFaint, lineHeight: 22 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textFaint, lineHeight: 22 }}>
                   {t('profile.bio_empty')}
                 </Text>
                 {/* "Add bio" link only appears on own profile */}
                 {isOwnProfile && (
                   <Pressable onPress={() => router.push('/edit-profile' as any)}>
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold, marginTop: 8 }}>
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold, marginTop: 8 }}>
                       {t('profile.add_bio')}
                     </Text>
                   </Pressable>
@@ -374,15 +375,15 @@ export default function ProfileScreen() {
                   <View
                     key={topic.id}
                     style={{
-                      backgroundColor: Colors.surfaceAlt,
+                      backgroundColor: colors.surfaceAlt,
                       borderRadius: 999,
                       borderWidth: 1,
-                      borderColor: Colors.border,
+                      borderColor: colors.border,
                       paddingHorizontal: 12,
                       paddingVertical: 4,
                     }}
                   >
-                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.gold }}>
+                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.gold }}>
                       #{topic.name.replace(/\s+/g, '')}
                     </Text>
                   </View>
