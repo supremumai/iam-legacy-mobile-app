@@ -1,105 +1,93 @@
 // ─── Color Tokens ─────────────────────────────────────────────────────────────
 // Semantic role names — change a value here to repaint the whole app.
-// Current palette values noted in comments.
-// Batch 81: consolidated from 65 → 26 tokens. Merge decisions documented inline.
-// ──────────────────────────────────────────────────────────────────────────────
+// Batch 91: applied new brand palette (Legacy Black / Deep Charcoal / Legacy Gold /
+//           Rich Gold / Warm Champagne / Soft Ivory). Only RGB base changed per token;
+//           every rgba opacity channel is preserved exactly as-was.
+// ────────────────────────────────────────────────────────────────────────────────
 
 export const Colors = {
 
-  // ── Surfaces ────────────────────────────────────────────────────────────────
+  // ── Surfaces ──────────────────────────────────────────────────────────────────
   // Merged: surfaceDeep (#181510, 1×) → surface. surfaceDark (#110f09, 1×) → surfaceAlt.
-  background:     '#0a0900',  // deepest black — main screen bg              (99×)
-  surface:        '#1c1a14',  // charcoal — cards, sheets, modals            (54×)
-  surfaceAlt:     '#111008',  // mid-dark — alternate card bg                 (9×)
+  background:     '#0A0A0A',  // Legacy Black — deepest black, main screen bg              (99×)
+  surface:        '#1E1E1E',  // Deep Charcoal — cards, sheets, modals                     (54×)
+  surfaceAlt:     '#141414',  // Deep Charcoal darker — alternate card bg (neutral darker)  (9×)
   // Batch 86: Education-specific tinted surfaces (warm-dark, used in quiz options / video placeholder / admin destructive)
-  surfacePanel:   '#1a1600',  // slightly warm dark — quiz option resting bg, video placeholder, upload area
-  surfaceDeep:    '#151000',  // deeper warm dark — quiz explanation box bg
-  errorSurface:   '#1a0000',  // red-tinted dark — destructive action button bg (admin remove video)
+  // Batch 91: offsets vs #1E1E1E chosen to preserve original directional warmth tint
+  surfacePanel:   '#1C180A',  // Deep Charcoal + warm tint — quiz option resting bg, video placeholder, upload area
+  surfaceDeep:    '#171206',  // Deep Charcoal + deeper warm — quiz explanation box bg
+  errorSurface:   '#1C0000',  // Deep Charcoal + red tint — destructive action button bg (admin remove video)
 
-  // ── Brand gold ──────────────────────────────────────────────────────────────
+  // ── Brand gold ────────────────────────────────────────────────────────────────
   // Merged: goldAlt (#c5a454, 6×) → gold (minor hue drift, not design intent).
   //         goldWarm (#c98a4c, 1×) → gold.
   //         goldBright (#e8c060) and goldWarm (#c98a4c) appear ONLY in the
   //         TROPHY_COLORS tuple in leaderboard.tsx — left inline there intentionally.
   //         goldLight (#f5d070) had 0 actual screen uses — dropped.
-  gold:           '#c9a84c',  // primary gold — icons, CTAs, highlights      (157×)
+  gold:           '#C8A96B',  // Legacy Gold — icons, CTAs, highlights                    (157×)
   // Batch 86: high-opacity gold for key-term labels in the module screen
-  goldStrong:     'rgba(201,168,76,0.85)',  // intense gold — key term text in moduleId admin
+  // Batch 91: Rich Gold #B68B3A at opacity 0.85 (only RGB base changed)
+  goldStrong:     'rgba(182,139,58,0.85)',  // Rich Gold — key term text in moduleId admin
   // Batch 90: mid-opacity gold for secondary CTA text (quiz result.tsx)
-  goldMid:        'rgba(201,168,76,0.7)',   // secondary CTA text — result.tsx
+  // Batch 91: Rich Gold #B68B3A at opacity 0.7 (only RGB base changed)
+  goldMid:        'rgba(182,139,58,0.7)',   // Rich Gold — secondary CTA text, result.tsx
 
-  // ── Text whites ─────────────────────────────────────────────────────────────
+  // ── Text ──────────────────────────────────────────────────────────────────────
   // 12 Batch-80 variants consolidated to a 5-level scale.
-  // Merge notes:
-  //   textFaint65 (0.65, 2×) → textSecondary  (drawer nav icons, 0.05 away)
-  //   textFaint70 (0.7, 1×)  → textSecondary  (Switch thumb off, 0.1 away)
-  //   textFaint80 (0.8, 1×)  → textPrimary    (PostComposer toggle label, near-white)
-  //   textFaint90 (0.9, 1×)  → textPrimary    (YouTubePreview play icon)
-  //   textFaint75 (0.75, 1×) → stays INLINE in TROPHY_COLORS (silver trophy icon)
-  //   textFaint85 (0.85, 1×) → textPrimary    (quiz option text, near-white)
-  //   textHalf    (0.5, 7×)  → textMuted      (0.05 closer to muted than tertiary)
-  //   textTertiary45 (0.45, 12×) → textTertiary (0.05 closer to tertiary than muted)
-  //   textSubtle  (0.35, 12×) → textFaint     (0.05 away; 12× uses noted — inspect if visually harsh)
-  //   textFaint25 (0.25, 1×) → textFaint
-  //   textFaint20 (0.2, 2×)  → textFaint      (locked module border + drag handle)
-  //   textFaint15 (0.15, 2×) → textFaint      (Switch track + quiz progress bar)
-  textPrimary:    '#ffffff',                 // white — headings, main labels (114×)
-  textSecondary:  'rgba(255,255,255,0.6)',   // secondary labels, nav icons   (10×)
-  textMuted:      'rgba(255,255,255,0.55)',  // muted body text — most common  (64×)
-  textTertiary:   'rgba(255,255,255,0.4)',   // tertiary / placeholder         (28× incl. 0.45)
-  textFaint:      'rgba(255,255,255,0.3)',   // faint — disabled, timestamps   (26× incl. 0.35, 0.2, 0.15)
+  // Batch 91: base changed from white (255,255,255) to Warm Champagne (230,211,163);
+  //           every opacity is preserved exactly. textPrimary → Soft Ivory #F5F1E8 (solid).
+  textPrimary:    '#F5F1E8',                    // Soft Ivory — headings, main labels       (114×)
+  textSecondary:  'rgba(230,211,163,0.6)',       // Warm Champagne — secondary labels, nav icons (10×)
+  textMuted:      'rgba(230,211,163,0.55)',      // Warm Champagne — muted body text          (64×)
+  textTertiary:   'rgba(230,211,163,0.4)',       // Warm Champagne — tertiary / placeholder   (28×)
+  textFaint:      'rgba(230,211,163,0.3)',       // Warm Champagne — disabled, timestamps     (26×)
   // Batch 86: placeholder text for TextInput fields in admin panels
-  textPlaceholder: 'rgba(255,255,255,0.22)', // placeholder text — admin form inputs (moduleId admin)
+  // Batch 91: Warm Champagne at 0.22 (only RGB base changed)
+  textPlaceholder: 'rgba(230,211,163,0.22)',     // Warm Champagne — admin form input placeholder
 
-  // ── White fills (ultra-low opacity — UI element backgrounds) ────────────────
+  // ── White fills (ultra-low opacity — UI element backgrounds) ─────────────────
   // Merged: whiteOverlay8 (0.08, 1×) → whiteOverlay10  (progress bar track)
   //         whiteOverlay6 (0.06, 1×) → whiteOverlay10  (PostComposer tab strip)
   // Batch 90: grab handle / clear button bg in CommentsSheet
+  // Batch 91: white utility overlays — SIN CAMBIO (neutral, not brand)
   whiteOverlay20: 'rgba(255,255,255,0.2)',   // grab handle bg — CommentsSheet
-  whiteOverlay10: 'rgba(255,255,255,0.1)',   // very subtle tint — tab strips, tracks  (8×)
-  whiteOverlay4:  'rgba(255,255,255,0.04)',  // ghost tint — input field bg    (4×)
+  whiteOverlay10: 'rgba(255,255,255,0.1)',   // very subtle tint — tab strips, tracks       (8×)
+  whiteOverlay4:  'rgba(255,255,255,0.04)',  // ghost tint — input field bg                 (4×)
   // Batch 90: play icon over video thumbnail (YouTubePreview.tsx)
+  // Batch 91: SIN CAMBIO
   playIconColor:  'rgba(255,255,255,0.9)',   // play button icon — YouTubePreview.tsx
 
-  // ── Gold borders ────────────────────────────────────────────────────────────
-  // 10 Batch-80 gold-border variants (rgba 201,168,76 and 197,164,84) → 3 levels.
-  // Also absorbs all rgba(197,164,84,X) borders (goldAlt base → gold base).
-  // Merge notes:
-  //   borderFaint8  (0.08, 8×)  → borderSubtle  (0.04 away)
-  //   borderFaint18 (0.18, 2×)  → border        (0.04 away)
-  //   borderAlt12   rgba197 12% → borderSubtle
-  //   borderAlt22/25 rgba197    → border
-  //   borderAlt40   rgba197 40% → borderStrong
-  //   borderMedium  (0.3, 8×)   → borderStrong  (per batch spec; will be slightly more prominent)
-  //   borderMedium35 (0.35, 6×) → borderStrong  (per batch spec)
-  //   borderStrong45/50/60      → borderStrong
-  borderSubtle:   'rgba(201,168,76,0.12)',  // faint dividers, ghost borders   (19× incl. 0.08)
-  border:         'rgba(201,168,76,0.22)',  // main border — cards, inputs     (62×)
-  borderStrong:   'rgba(201,168,76,0.4)',   // strong border — focus, active   (22× incl. 0.3/0.35)
+  // ── Gold borders ──────────────────────────────────────────────────────────────
+  // 10 Batch-80 gold-border variants → 3 levels.
+  // Batch 91: base changed to Legacy Gold (200,169,107) for borderSubtle/border;
+  //           borderStrong uses Rich Gold (182,139,58); opacities unchanged.
+  borderSubtle:   'rgba(200,169,107,0.12)',  // Legacy Gold — faint dividers, ghost borders (19×)
+  border:         'rgba(200,169,107,0.22)',  // Legacy Gold — main border, cards/inputs     (62×)
+  borderStrong:   'rgba(182,139,58,0.4)',    // Rich Gold — focus/active border             (22×)
 
-  // ── Scrim / overlay ─────────────────────────────────────────────────────────
-  // Merged: overlay rgba(10,9,0,X) and rgba(0,0,0,X) variants all → one overlay token.
-  // All opacity variants (0.45–0.6) unified to 0.55 — perceptibly indistinguishable in a scrim.
-  overlay:        'rgba(0,0,0,0.55)',       // dark scrim over images/content  (13× combined)
-  // Batch 90: semi-transparent bg-hue color for disabled CTA icon/text (edit-post.tsx save button)
+  // ── Scrim / overlay ───────────────────────────────────────────────────────────
+  // Batch 91: SIN CAMBIO (neutral utility, not brand)
+  overlay:        'rgba(0,0,0,0.55)',        // dark scrim over images/content              (13×)
+  // Batch 90: semi-transparent bg-hue color for disabled CTA icon/text (edit-post.tsx)
+  // Batch 91: SIN CAMBIO
   bgDisabled:     'rgba(10,9,0,0.5)',        // disabled CTA text/icon — edit-post.tsx
 
-  // ── State ───────────────────────────────────────────────────────────────────
-  // Merged: errorSoft (#e05c5c, 2×) → error. Form error text in sign-in/sign-up
-  //         gets the standard error red; the soft variant was not intentional design.
-  //         successSoft (#5fa564, 1×) → success. TrackCard % text; muted vs saturated
-  //         green is a subtle distinction that isn't worth a separate token here.
-  error:          '#ef4444',  // red — errors, destructive actions            (17×)
-  success:        '#10b981',  // emerald — success, completed states           (6×)
-  warning:        '#f59e0b',  // amber — warnings, pending states              (5×)
+  // ── State ─────────────────────────────────────────────────────────────────────
+  // Batch 91: error/success/warning solid + bg tokens — SIN CAMBIO (universal semaphores)
+  error:          '#ef4444',  // red — errors, destructive actions                         (17×)
+  success:        '#10b981',  // emerald — success, completed states                        (6×)
+  warning:        '#f59e0b',  // amber — warnings, pending states                           (5×)
 
-  // State tinted backgrounds
-  successBg:      'rgba(16,185,129,0.15)',  // success chip / card tint        (3×)
-  warningBg:      'rgba(245,158,11,0.15)', // warning chip / card tint         (2×)
-  // Batch 86: error-family transparent variants (parallel to successBg/successBorder)
-  errorBg:        'rgba(239,68,68,0.15)',  // wrong-answer bg / error tint — quiz.tsx
-  successBorder:  'rgba(16,185,129,0.4)', // pass-state icon border — result.tsx
-  errorBorder:    'rgba(239,68,68,0.35)', // destructive action border — moduleId admin
+  // State tinted backgrounds — SIN CAMBIO
+  successBg:      'rgba(16,185,129,0.15)',  // success chip / card tint                    (3×)
+  warningBg:      'rgba(245,158,11,0.15)',  // warning chip / card tint                    (2×)
+  // Batch 86: error-family transparent variants
+  errorBg:        'rgba(239,68,68,0.15)',   // wrong-answer bg / error tint — quiz.tsx
+
+  // Batch 91: successBorder and errorBorder migrated to Legacy Gold base (owner spec);
+  //           opacities preserved exactly.
+  successBorder:  'rgba(200,169,107,0.4)',  // Legacy Gold — pass-state icon border, result.tsx
+  errorBorder:    'rgba(200,169,107,0.35)', // Legacy Gold — destructive action border, moduleId admin
 
   // (off-palette tokens removed in Batch 82 — see commit for decisions)
 
