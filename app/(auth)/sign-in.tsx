@@ -1,4 +1,4 @@
-import {
+﻿import {
   View,
   Text,
   TextInput,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { Colors } from '../../constants/colors';
 import { supabase } from '../../lib/supabase';
 
 type FocusedField = 'email' | 'password' | null;
@@ -28,7 +29,7 @@ export default function SignInScreen() {
   const [error, setError] = useState('');
 
   const fieldBorder = (field: FocusedField) =>
-    focused === field ? '#c9a84c' : 'rgba(201,168,76,0.22)';
+    focused === field ? Colors.gold : Colors.border;
 
   async function handleSignIn() {
     setError('');
@@ -84,7 +85,7 @@ export default function SignInScreen() {
             <TextInput
               style={[styles.input, { borderColor: fieldBorder('email') }]}
               placeholder="Email Address"
-              placeholderTextColor="rgba(255,255,255,0.3)"
+              placeholderTextColor={Colors.textFaint}
               value={email}
               onChangeText={setEmail}
               onFocus={() => setFocused('email')}
@@ -100,7 +101,7 @@ export default function SignInScreen() {
             <TextInput
               style={[styles.input, { borderColor: fieldBorder('password') }]}
               placeholder="Password"
-              placeholderTextColor="rgba(255,255,255,0.3)"
+              placeholderTextColor={Colors.textFaint}
               value={password}
               onChangeText={setPassword}
               onFocus={() => setFocused('password')}
@@ -129,7 +130,7 @@ export default function SignInScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#0a0900" />
+                <ActivityIndicator color={Colors.background} />
               ) : (
                 <Text style={styles.submitButtonText}>Sign In</Text>
               )}
@@ -155,7 +156,7 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0a0900',
+    backgroundColor: Colors.background,
   },
   flex: {
     flex: 1,
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: 'white',
+    color: Colors.textPrimary,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -176,13 +177,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'PlayfairDisplay_700Bold',
     fontSize: 28,
-    color: '#c9a84c',
+    color: Colors.gold,
     marginTop: 8,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
+    color: Colors.textSecondary,
     marginTop: 4,
     marginBottom: 32,
   },
@@ -192,16 +193,16 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.textMuted,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#1c1a14',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    color: 'white',
+    color: Colors.textPrimary,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
     marginBottom: 20,
@@ -214,16 +215,16 @@ const styles = StyleSheet.create({
   forgotText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.textMuted,
   },
   errorText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: '#e05c5c',
+    color: Colors.error,
     marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: '#c9a84c',
+    backgroundColor: Colors.gold,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: '#0a0900',
+    color: Colors.background,
   },
   footerLink: {
     marginTop: 24,
@@ -242,10 +243,10 @@ const styles = StyleSheet.create({
   footerText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.textMuted,
   },
   footerLinkText: {
     fontFamily: 'Inter_600SemiBold',
-    color: '#c9a84c',
+    color: Colors.gold,
   },
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -17,6 +17,7 @@ import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { NotificationWithActor, PostAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 function normalizeActor(raw: any): PostAuthor | null {
   const profiles = raw['profiles'];
@@ -120,18 +121,18 @@ export default function NotificationsScreen() {
   // ── Error state ────────────────────────────────────────────────────────────
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: '#FFFFFF', marginBottom: 16, textAlign: 'center' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
             Could not load notifications
           </Text>
           <Pressable
@@ -140,14 +141,14 @@ export default function NotificationsScreen() {
               setLoading(true);
             }}
             style={({ pressed }) => ({
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>Retry</Text>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>Retry</Text>
           </Pressable>
         </View>
       </View>
@@ -155,7 +156,7 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -163,13 +164,13 @@ export default function NotificationsScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
         </Pressable>
       </View>
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>
           Notifications
         </Text>
       </View>
@@ -177,7 +178,7 @@ export default function NotificationsScreen() {
       {/* List */}
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       ) : (
         <FlatList<NotificationWithActor>
@@ -192,14 +193,14 @@ export default function NotificationsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 40, paddingHorizontal: 20 }}>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
                 No notifications yet
               </Text>
               <Text
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 13,
-                  color: 'rgba(255,255,255,0.55)',
+                  color: Colors.textMuted,
                   marginTop: 4,
                   textAlign: 'center',
                 }}
@@ -232,7 +233,7 @@ export default function NotificationsScreen() {
                   alignItems: 'center',
                   paddingVertical: 12,
                   borderBottomWidth: 1,
-                  borderBottomColor: 'rgba(201,168,76,0.08)',
+                  borderBottomColor: Colors.borderSubtle,
                   opacity: pressed ? 0.7 : 1,
                 })}
               >
@@ -243,9 +244,9 @@ export default function NotificationsScreen() {
                       width: 40,
                       height: 40,
                       borderRadius: 20,
-                      backgroundColor: '#1c1a14',
+                      backgroundColor: Colors.surface,
                       borderWidth: 1,
-                      borderColor: 'rgba(201,168,76,0.22)',
+                      borderColor: Colors.border,
                       alignItems: 'center',
                       justifyContent: 'center',
                       overflow: 'hidden',
@@ -257,7 +258,7 @@ export default function NotificationsScreen() {
                         style={{ width: 40, height: 40 }}
                       />
                     ) : (
-                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#FFFFFF' }}>
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.textPrimary }}>
                         {initials}
                       </Text>
                     )}
@@ -271,9 +272,9 @@ export default function NotificationsScreen() {
                       width: 16,
                       height: 16,
                       borderRadius: 8,
-                      backgroundColor: '#0a0900',
+                      backgroundColor: Colors.background,
                       borderWidth: 1,
-                      borderColor: '#1c1a14',
+                      borderColor: Colors.surface,
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -287,14 +288,14 @@ export default function NotificationsScreen() {
                             : 'arrow-undo'
                       }
                       size={10}
-                      color="#c9a84c"
+                      color={Colors.gold}
                     />
                   </View>
                 </View>
 
                 {/* Text */}
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: '#FFFFFF', lineHeight: 20 }}>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textPrimary, lineHeight: 20 }}>
                     <Text style={{ fontFamily: Fonts.bodySemiBold }}>{actorName}</Text>
                     {actionPhrase}
                   </Text>
@@ -302,7 +303,7 @@ export default function NotificationsScreen() {
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.55)',
+                      color: Colors.textMuted,
                       marginTop: 2,
                     }}
                   >
@@ -317,7 +318,7 @@ export default function NotificationsScreen() {
                       width: 6,
                       height: 6,
                       borderRadius: 3,
-                      backgroundColor: '#c9a84c',
+                      backgroundColor: Colors.gold,
                       marginLeft: 10,
                       flexShrink: 0,
                     }}

@@ -1,4 +1,4 @@
-import {
+﻿import {
   View,
   Text,
   Image,
@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Colors } from '../../constants/colors';
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0a0900',
+    backgroundColor: Colors.background,
   },
   container: {
     flex: 1,
@@ -80,14 +81,14 @@ const styles = StyleSheet.create({
   tagline: {
     fontFamily: 'PlayfairDisplay_900Black',
     fontSize: 36,
-    color: 'white',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginTop: 24,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: 'rgba(255,255,255,0.5)',
+    color: Colors.textMuted,
     textAlign: 'center',
     marginTop: 12,
     paddingHorizontal: 32,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   primaryButton: {
-    backgroundColor: '#c9a84c',
+    backgroundColor: Colors.gold,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: '#0a0900',
+    color: Colors.background,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
@@ -116,12 +117,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.22)',
+    borderColor: Colors.border,
     marginTop: 12,
   },
   secondaryButtonText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: 'white',
+    color: Colors.textPrimary,
   },
 });

@@ -1,9 +1,10 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
@@ -11,7 +12,7 @@ export default function SupportScreen() {
   const { t } = useLanguage();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900', paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background, paddingTop: insets.top }}>
       {/* ── Header ──────────────────────────────────────────────────── */}
       <View
         style={{
@@ -20,7 +21,7 @@ export default function SupportScreen() {
           paddingHorizontal: 20,
           paddingVertical: 16,
           borderBottomWidth: 1,
-          borderBottomColor: 'rgba(201,168,76,0.22)',
+          borderBottomColor: Colors.border,
         }}
       >
         <TouchableOpacity
@@ -28,13 +29,13 @@ export default function SupportScreen() {
           activeOpacity={0.7}
           hitSlop={10}
         >
-          <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 20,
-            color: '#c9a84c',
+            color: Colors.gold,
             marginLeft: 12,
           }}
         >
@@ -51,12 +52,12 @@ export default function SupportScreen() {
           paddingHorizontal: 32,
         }}
       >
-        <Ionicons name="help-circle-outline" size={56} color="rgba(201,168,76,0.4)" />
+        <Ionicons name="help-circle-outline" size={56} color={Colors.borderStrong} />
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 26,
-            color: '#c9a84c',
+            color: Colors.gold,
             marginTop: 20,
             marginBottom: 12,
             textAlign: 'center',
@@ -68,7 +69,7 @@ export default function SupportScreen() {
           style={{
             fontFamily: Fonts.body,
             fontSize: 15,
-            color: 'rgba(255,255,255,0.55)',
+            color: Colors.textMuted,
             textAlign: 'center',
             lineHeight: 23,
           }}
@@ -80,15 +81,15 @@ export default function SupportScreen() {
           activeOpacity={0.7}
           style={{
             marginTop: 36,
-            backgroundColor: '#1c1a14',
+            backgroundColor: Colors.surface,
             borderWidth: 1,
-            borderColor: 'rgba(201,168,76,0.3)',
+            borderColor: Colors.borderStrong,
             borderRadius: 8,
             paddingHorizontal: 32,
             paddingVertical: 13,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold }}>
             {t('common.back')}
           </Text>
         </TouchableOpacity>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -14,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Topic } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 function formatCount(n: number): string {
   if (n >= 1000) {
@@ -197,14 +198,14 @@ export default function TopicsScreen() {
 
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
@@ -212,7 +213,7 @@ export default function TopicsScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -222,14 +223,14 @@ export default function TopicsScreen() {
           <Pressable
             onPress={fetchData}
             style={({ pressed }) => ({
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>Retry</Text>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>Retry</Text>
           </Pressable>
         </View>
       </View>
@@ -237,7 +238,7 @@ export default function TopicsScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -245,18 +246,18 @@ export default function TopicsScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
         </Pressable>
       </View>
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, marginTop: 2 }}>
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>Topics</Text>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>Topics</Text>
         <Text
           style={{
             fontFamily: Fonts.body,
             fontSize: 14,
-            color: 'rgba(255,255,255,0.55)',
+            color: Colors.textMuted,
             marginTop: 4,
           }}
         >
@@ -266,7 +267,7 @@ export default function TopicsScreen() {
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       ) : (
         <FlatList<Topic>
@@ -280,7 +281,7 @@ export default function TopicsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
                 No topics yet
               </Text>
             </View>
@@ -296,9 +297,9 @@ export default function TopicsScreen() {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  backgroundColor: '#1c1a14',
+                  backgroundColor: Colors.surface,
                   borderWidth: 1,
-                  borderColor: 'rgba(201,168,76,0.22)',
+                  borderColor: Colors.border,
                   borderRadius: 12,
                   padding: 16,
                   marginBottom: 12,
@@ -310,9 +311,9 @@ export default function TopicsScreen() {
                     width: 44,
                     height: 44,
                     borderRadius: 22,
-                    backgroundColor: '#111008',
+                    backgroundColor: Colors.surfaceAlt,
                     borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.22)',
+                    borderColor: Colors.border,
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
@@ -321,7 +322,7 @@ export default function TopicsScreen() {
                   <Ionicons
                     name={(topic.icon ?? 'ellipse-outline') as any}
                     size={20}
-                    color="#c9a84c"
+                    color={Colors.gold}
                   />
                 </View>
 
@@ -331,7 +332,7 @@ export default function TopicsScreen() {
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 15,
-                      color: '#FFFFFF',
+                      color: Colors.textPrimary,
                     }}
                   >
                     {topic.name}
@@ -342,7 +343,7 @@ export default function TopicsScreen() {
                       style={{
                         fontFamily: Fonts.body,
                         fontSize: 13,
-                        color: 'rgba(255,255,255,0.55)',
+                        color: Colors.textMuted,
                         marginTop: 2,
                       }}
                     >
@@ -353,7 +354,7 @@ export default function TopicsScreen() {
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.45)',
+                      color: Colors.textTertiary,
                       marginTop: 4,
                     }}
                   >
@@ -368,9 +369,9 @@ export default function TopicsScreen() {
                   style={
                     isJoined
                       ? {
-                          backgroundColor: '#1c1a14',
+                          backgroundColor: Colors.surface,
                           borderWidth: 1,
-                          borderColor: 'rgba(201,168,76,0.22)',
+                          borderColor: Colors.border,
                           borderRadius: 999,
                           paddingHorizontal: 16,
                           paddingVertical: 8,
@@ -378,7 +379,7 @@ export default function TopicsScreen() {
                           marginLeft: 12,
                         }
                       : {
-                          backgroundColor: '#c9a84c',
+                          backgroundColor: Colors.gold,
                           borderRadius: 999,
                           paddingHorizontal: 16,
                           paddingVertical: 8,
@@ -390,8 +391,8 @@ export default function TopicsScreen() {
                   <Text
                     style={
                       isJoined
-                        ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: '#FFFFFF' }
-                        : { fontFamily: Fonts.bodyBold, fontSize: 13, color: '#0a0900' }
+                        ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.textPrimary }
+                        : { fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.background }
                     }
                   >
                     {isJoined ? 'Joined' : 'Join'}
