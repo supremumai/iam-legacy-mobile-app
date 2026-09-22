@@ -2,7 +2,10 @@
   "settings": {
     "language": "Language",
     "language_english": "English",
-    "language_spanish": "Spanish"
+    "language_spanish": "Spanish",
+    "theme": "Theme",
+    "theme_dark": "Dark",
+    "theme_light": "Light"
   },
   "common": {
     "cancel": "Cancel",
