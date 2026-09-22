@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { pickAndUploadImage } from '../lib/upload';
+import { pickAndUploadImage, deleteEventImageIfOwned } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -58,6 +58,9 @@ export default function CreateEventScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  // Captures the image_url at load time in edit mode; never mutated by user actions.
+  // Used to detect whether the admin changed the image so the old file can be deleted.
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
 
   const [registrationUrl, setRegistrationUrl] = useState('');
@@ -98,6 +101,7 @@ export default function CreateEventScreen() {
           setOriginalEventDate(d);
         }
         setImageUrl(data.image_url ?? null);
+        setOriginalImageUrl(data.image_url ?? null);
         setRegistrationUrl(data.registration_url ?? '');
       } catch (e) {
         if (!cancelled) {
@@ -273,6 +277,11 @@ export default function CreateEventScreen() {
           })
           .eq('id', id);
         if (error) throw error;
+        // UPDATE succeeded — clean up the old image if the admin replaced or removed it.
+        // Fire-and-forget: cleanup failure must never block or revert the successful save.
+        if (originalImageUrl !== imageUrl) {
+          void deleteEventImageIfOwned(originalImageUrl);
+        }
         Alert.alert(t('create_event.event_updated'), undefined, [{ text: t('common.ok'), onPress: () => router.back() }]);
       } else {
         // Create mode — INSERT new event
