@@ -19,6 +19,7 @@ import { fetchPostById, fetchPollMeta } from '../lib/posts';
 import { fetchSavedIds, toggleSave } from '../lib/saves';
 import { PollWithMeta, PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import PostCard from '../components/PostCard';
 import PollCard from '../components/PollCard';
 import CommentThread from '../components/CommentThread';
@@ -40,18 +41,18 @@ export default function PostScreen() {
   // ─── Missing id param guard ──────────────────────────────────────────────
   if (!id) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900', paddingTop: insets.top }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background, paddingTop: insets.top }}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
             Post not found.
           </Text>
         </View>
@@ -248,7 +249,7 @@ export default function PostScreen() {
         hitSlop={8}
         style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
       >
-        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+        <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
       </Pressable>
 
       {post ? (
@@ -257,7 +258,7 @@ export default function PostScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
         >
-          <Ionicons name="share-social-outline" size={22} color="#c9a84c" />
+          <Ionicons name="share-social-outline" size={22} color={Colors.gold} />
         </Pressable>
       ) : (
         <View style={{ width: 22 }} />
@@ -268,10 +269,10 @@ export default function PostScreen() {
   // ─── Loading state ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       </View>
     );
@@ -280,14 +281,14 @@ export default function PostScreen() {
   // ─── Not-found state ─────────────────────────────────────────────────────
   if (fetchError === 'not_found') {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 15,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               textAlign: 'center',
             }}
           >
@@ -297,14 +298,14 @@ export default function PostScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => ({
               marginTop: 20,
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               Go back
             </Text>
           </Pressable>
@@ -316,14 +317,14 @@ export default function PostScreen() {
   // ─── Fetch error state (network / query failure) ─────────────────────────
   if (fetchError) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 15,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               textAlign: 'center',
               marginBottom: 20,
             }}
@@ -336,14 +337,14 @@ export default function PostScreen() {
               setLoading(true);
             }}
             style={({ pressed }) => ({
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               Retry
             </Text>
           </Pressable>
@@ -354,7 +355,7 @@ export default function PostScreen() {
 
   // ─── Success state ───────────────────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {topBar}
       <KeyboardAvoidingView
         style={{ flex: 1 }}

@@ -43,7 +43,7 @@ function SegmentBar({ total, answered }: { total: number; answered: number }) {
             flex: 1,
             height: 4,
             borderRadius: 2,
-            backgroundColor: i < answered ? GOLD : 'rgba(255,255,255,0.15)',
+            backgroundColor: i < answered ? GOLD : Colors.textFaint,
           }}
         />
       ))}

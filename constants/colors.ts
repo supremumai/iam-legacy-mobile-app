@@ -25,6 +25,8 @@ export const Colors = {
   gold:           '#c9a84c',  // primary gold — icons, CTAs, highlights      (157×)
   // Batch 86: high-opacity gold for key-term labels in the module screen
   goldStrong:     'rgba(201,168,76,0.85)',  // intense gold — key term text in moduleId admin
+  // Batch 90: mid-opacity gold for secondary CTA text (quiz result.tsx)
+  goldMid:        'rgba(201,168,76,0.7)',   // secondary CTA text — result.tsx
 
   // ── Text whites ─────────────────────────────────────────────────────────────
   // 12 Batch-80 variants consolidated to a 5-level scale.
@@ -52,8 +54,12 @@ export const Colors = {
   // ── White fills (ultra-low opacity — UI element backgrounds) ────────────────
   // Merged: whiteOverlay8 (0.08, 1×) → whiteOverlay10  (progress bar track)
   //         whiteOverlay6 (0.06, 1×) → whiteOverlay10  (PostComposer tab strip)
+  // Batch 90: grab handle / clear button bg in CommentsSheet
+  whiteOverlay20: 'rgba(255,255,255,0.2)',   // grab handle bg — CommentsSheet
   whiteOverlay10: 'rgba(255,255,255,0.1)',   // very subtle tint — tab strips, tracks  (8×)
   whiteOverlay4:  'rgba(255,255,255,0.04)',  // ghost tint — input field bg    (4×)
+  // Batch 90: play icon over video thumbnail (YouTubePreview.tsx)
+  playIconColor:  'rgba(255,255,255,0.9)',   // play button icon — YouTubePreview.tsx
 
   // ── Gold borders ────────────────────────────────────────────────────────────
   // 10 Batch-80 gold-border variants (rgba 201,168,76 and 197,164,84) → 3 levels.
@@ -75,6 +81,8 @@ export const Colors = {
   // Merged: overlay rgba(10,9,0,X) and rgba(0,0,0,X) variants all → one overlay token.
   // All opacity variants (0.45–0.6) unified to 0.55 — perceptibly indistinguishable in a scrim.
   overlay:        'rgba(0,0,0,0.55)',       // dark scrim over images/content  (13× combined)
+  // Batch 90: semi-transparent bg-hue color for disabled CTA icon/text (edit-post.tsx save button)
+  bgDisabled:     'rgba(10,9,0,0.5)',        // disabled CTA text/icon — edit-post.tsx
 
   // ── State ───────────────────────────────────────────────────────────────────
   // Merged: errorSoft (#e05c5c, 2×) → error. Form error text in sign-in/sign-up

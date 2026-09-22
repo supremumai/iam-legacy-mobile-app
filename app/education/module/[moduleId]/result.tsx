@@ -125,7 +125,7 @@ export default function QuizResultScreen() {
         activeOpacity={0.7}
         style={{ paddingVertical: 12, alignSelf: 'stretch', alignItems: 'center' }}
       >
-        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: 'rgba(201,168,76,0.7)' }}>
+        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.goldMid }}>
           {didPass ? t('education.back_to_course') : t('education.rewatch_video')}
         </Text>
       </TouchableOpacity>

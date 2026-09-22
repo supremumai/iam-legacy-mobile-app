@@ -2,6 +2,7 @@ import { Alert, Image, Linking, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 interface YouTubePreviewProps {
   videoId: string;
@@ -29,7 +30,7 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
         borderRadius: 10,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
       }}
     >
       {({ pressed }) => (
@@ -57,7 +58,7 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="play-circle" size={iconSize} color="rgba(255,255,255,0.9)" />
+            <Ionicons name="play-circle" size={iconSize} color={Colors.playIconColor} />
           </View>
 
           {/* YouTube label chip — top-left corner */}
@@ -66,13 +67,13 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
               position: 'absolute',
               top: 8,
               left: 8,
-              backgroundColor: 'rgba(0,0,0,0.55)',
+              backgroundColor: Colors.overlay,
               paddingHorizontal: 6,
               paddingVertical: 2,
               borderRadius: 4,
             }}
           >
-            <Text style={{ fontFamily: Fonts.body, fontSize: 10, color: '#FFFFFF' }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 10, color: Colors.textPrimary }}>
               YouTube
             </Text>
           </View>

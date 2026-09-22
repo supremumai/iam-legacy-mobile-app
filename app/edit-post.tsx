@@ -21,6 +21,7 @@ import { pickAndUploadImage } from '../lib/upload';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { PostWithAuthor, Topic } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import YouTubePreview from '../components/YouTubePreview';
 
 export default function EditPostScreen() {
@@ -186,7 +187,7 @@ export default function EditPostScreen() {
         hitSlop={8}
         style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
       >
-        <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+        <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
       </Pressable>
     </View>
   );
@@ -194,10 +195,10 @@ export default function EditPostScreen() {
   // ─── Loading state ───────────────────────────────────────────────────────
   if (loadingPost) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       </View>
     );
@@ -206,14 +207,14 @@ export default function EditPostScreen() {
   // ─── Load error state ────────────────────────────────────────────────────
   if (loadError) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 15,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               textAlign: 'center',
             }}
           >
@@ -223,14 +224,14 @@ export default function EditPostScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => ({
               marginTop: 20,
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               Go back
             </Text>
           </Pressable>
@@ -242,14 +243,14 @@ export default function EditPostScreen() {
   // ─── Unauthorized state ──────────────────────────────────────────────────
   if (unauthorized) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {topBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 15,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               textAlign: 'center',
             }}
           >
@@ -259,14 +260,14 @@ export default function EditPostScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => ({
               marginTop: 20,
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               Go back
             </Text>
           </Pressable>
@@ -277,7 +278,7 @@ export default function EditPostScreen() {
 
   // ─── Edit form ───────────────────────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {topBar}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -294,7 +295,7 @@ export default function EditPostScreen() {
             style={{
               fontFamily: Fonts.heading,
               fontSize: 24,
-              color: '#c9a84c',
+              color: Colors.gold,
               marginBottom: 24,
             }}
           >
@@ -306,7 +307,7 @@ export default function EditPostScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 13,
-              color: 'rgba(255,255,255,0.55)',
+              color: Colors.textMuted,
               marginBottom: 8,
             }}
           >
@@ -314,9 +315,9 @@ export default function EditPostScreen() {
           </Text>
           <View
             style={{
-              backgroundColor: '#1c1a14',
+              backgroundColor: Colors.surface,
               borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.22)',
+              borderColor: Colors.border,
               borderRadius: 8,
               paddingHorizontal: 16,
               paddingVertical: 12,
@@ -326,14 +327,14 @@ export default function EditPostScreen() {
               value={content}
               onChangeText={setContent}
               placeholder="What's on your mind?"
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               multiline
               maxLength={2000}
               textAlignVertical="top"
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 15,
-                color: '#FFFFFF',
+                color: Colors.textPrimary,
                 minHeight: 120,
               }}
             />
@@ -343,7 +344,7 @@ export default function EditPostScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: content.length > 1900 ? '#EF4444' : 'rgba(255,255,255,0.4)',
+              color: content.length > 1900 ? Colors.error : Colors.textTertiary,
               textAlign: 'right',
               marginTop: 4,
             }}
@@ -369,9 +370,9 @@ export default function EditPostScreen() {
               <Pressable
                 onPress={() => setSelectedTopicId(null)}
                 style={{
-                  backgroundColor: selectedTopicId === null ? '#c9a84c' : '#1c1a14',
+                  backgroundColor: selectedTopicId === null ? Colors.gold : Colors.surface,
                   borderWidth: 1,
-                  borderColor: selectedTopicId === null ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+                  borderColor: selectedTopicId === null ? Colors.gold : Colors.border,
                   borderRadius: 100,
                   paddingHorizontal: 12,
                   paddingVertical: 6,
@@ -383,7 +384,7 @@ export default function EditPostScreen() {
                       style={{
                         fontFamily: Fonts.bodySemiBold,
                         fontSize: 12,
-                        color: selectedTopicId === null ? '#0a0900' : '#FFFFFF',
+                        color: selectedTopicId === null ? Colors.background : Colors.textPrimary,
                       }}
                     >
                       No Topic
@@ -399,9 +400,9 @@ export default function EditPostScreen() {
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: selectedTopicId === t.id ? '#c9a84c' : '#1c1a14',
+                    backgroundColor: selectedTopicId === t.id ? Colors.gold : Colors.surface,
                     borderWidth: 1,
-                    borderColor: selectedTopicId === t.id ? '#c9a84c' : 'rgba(201,168,76,0.22)',
+                    borderColor: selectedTopicId === t.id ? Colors.gold : Colors.border,
                     borderRadius: 100,
                     paddingHorizontal: 12,
                     paddingVertical: 6,
@@ -421,14 +422,14 @@ export default function EditPostScreen() {
                         <Ionicons
                           name={t.icon as any}
                           size={12}
-                          color={selectedTopicId === t.id ? '#0a0900' : '#c9a84c'}
+                          color={selectedTopicId === t.id ? Colors.background : Colors.gold}
                         />
                       ) : null}
                       <Text
                         style={{
                           fontFamily: Fonts.bodySemiBold,
                           fontSize: 12,
-                          color: selectedTopicId === t.id ? '#0a0900' : '#FFFFFF',
+                          color: selectedTopicId === t.id ? Colors.background : Colors.textPrimary,
                         }}
                       >
                         {t.name}
@@ -445,7 +446,7 @@ export default function EditPostScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 13,
-              color: 'rgba(255,255,255,0.55)',
+              color: Colors.textMuted,
               marginTop: 20,
               marginBottom: 8,
             }}
@@ -473,11 +474,11 @@ export default function EditPostScreen() {
                       bottom: 0,
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.5)',
+                      backgroundColor: Colors.overlay,
                       borderRadius: 8,
                     }}
                   >
-                    <ActivityIndicator color="#c9a84c" size="large" />
+                    <ActivityIndicator color={Colors.gold} size="large" />
                   </View>
                 )}
               </View>
@@ -492,7 +493,7 @@ export default function EditPostScreen() {
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 13,
-                      color: '#c9a84c',
+                      color: Colors.gold,
                     }}
                   >
                     Change Photo
@@ -508,7 +509,7 @@ export default function EditPostScreen() {
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 13,
-                      color: '#EF4444',
+                      color: Colors.error,
                     }}
                   >
                     Remove Photo
@@ -521,7 +522,7 @@ export default function EditPostScreen() {
             <View>
               {uploadingImage ? (
                 <View style={{ alignItems: 'flex-start' }}>
-                  <ActivityIndicator color="#c9a84c" size="small" />
+                  <ActivityIndicator color={Colors.gold} size="small" />
                 </View>
               ) : (
                 <Pressable
@@ -534,12 +535,12 @@ export default function EditPostScreen() {
                     opacity: pressed ? 0.6 : 1,
                   })}
                 >
-                  <Ionicons name="image-outline" size={20} color="#c9a84c" />
+                  <Ionicons name="image-outline" size={20} color={Colors.gold} />
                   <Text
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 13,
-                      color: '#c9a84c',
+                      color: Colors.gold,
                     }}
                   >
                     Add Photo
@@ -556,7 +557,7 @@ export default function EditPostScreen() {
             style={{
               marginTop: 24,
               marginBottom: 8,
-              backgroundColor: canSave ? '#c9a84c' : 'rgba(201,168,76,0.3)',
+              backgroundColor: canSave ? Colors.gold : Colors.borderStrong,
               borderRadius: 8,
               paddingVertical: 14,
               alignItems: 'center',
@@ -564,20 +565,20 @@ export default function EditPostScreen() {
           >
             {({ pressed }) =>
               submitting ? (
-                <ActivityIndicator color="#0a0900" size="small" />
+                <ActivityIndicator color={Colors.background} size="small" />
               ) : (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Ionicons
                     name="checkmark"
                     size={18}
-                    color={canSave ? '#0a0900' : 'rgba(10,9,0,0.5)'}
+                    color={canSave ? Colors.background : Colors.bgDisabled}
                     style={{ marginRight: 6, opacity: pressed && canSave ? 0.85 : 1 }}
                   />
                   <Text
                     style={{
                       fontFamily: Fonts.bodyBold,
                       fontSize: 15,
-                      color: canSave ? '#0a0900' : 'rgba(10,9,0,0.5)',
+                      color: canSave ? Colors.background : Colors.bgDisabled,
                       opacity: pressed && canSave ? 0.85 : 1,
                     }}
                   >

@@ -3,6 +3,7 @@ import { Pressable, Text, Alert } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -106,12 +107,12 @@ export default function FollowButton({ targetUserId, onFollowChange }: FollowBut
       onPress={handlePress}
       disabled={checking || submitting}
       style={{
-        backgroundColor: following ? '#1c1a14' : '#c9a84c',
+        backgroundColor: following ? Colors.surface : Colors.gold,
         borderRadius: 999,
         paddingHorizontal: 20,
         paddingVertical: 8,
         borderWidth: following ? 1 : 0,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         opacity: submitting ? 0.6 : 1,
       }}
     >
@@ -119,7 +120,7 @@ export default function FollowButton({ targetUserId, onFollowChange }: FollowBut
         style={{
           fontFamily: following ? Fonts.bodySemiBold : Fonts.bodyBold,
           fontSize: 13,
-          color: following ? '#FFFFFF' : '#0a0900',
+          color: following ? Colors.textPrimary : Colors.background,
         }}
       >
         {following ? 'Following' : 'Follow'}
