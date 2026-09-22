@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { MemberListItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 export default function MembersScreen() {
   const insets = useSafeAreaInsets();
@@ -169,7 +170,7 @@ export default function MembersScreen() {
   // ── Error state ──────────────────────────────────────────────────────────────
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -177,7 +178,7 @@ export default function MembersScreen() {
             activeOpacity={0.6}
             style={{ alignSelf: 'flex-start' }}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
         <View
@@ -192,7 +193,7 @@ export default function MembersScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -203,13 +204,13 @@ export default function MembersScreen() {
             onPress={fetchMembers}
             activeOpacity={0.8}
             style={{
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
             }}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
               {t('events.retry')}
             </Text>
           </TouchableOpacity>
@@ -220,7 +221,7 @@ export default function MembersScreen() {
 
   // ── Main render ──────────────────────────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {/* Back button */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <TouchableOpacity
@@ -229,20 +230,20 @@ export default function MembersScreen() {
           activeOpacity={0.6}
           style={{ alignSelf: 'flex-start' }}
         >
-          <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
       {/* Title */}
       <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: '#c9a84c' }}>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>
           {t('members.title')}
         </Text>
         <Text
           style={{
             fontFamily: Fonts.body,
             fontSize: 14,
-            color: 'rgba(255,255,255,0.55)',
+            color: Colors.textMuted,
             marginTop: 4,
           }}
         >
@@ -257,25 +258,25 @@ export default function MembersScreen() {
           marginTop: 16,
           flexDirection: 'row',
           alignItems: 'center',
-          backgroundColor: '#1c1a14',
+          backgroundColor: Colors.surface,
           borderWidth: 1,
-          borderColor: 'rgba(201,168,76,0.22)',
+          borderColor: Colors.border,
           borderRadius: 12,
           paddingHorizontal: 16,
           paddingVertical: 12,
         }}
       >
-        <Ionicons name="search-outline" size={18} color="#c9a84c" />
+        <Ionicons name="search-outline" size={18} color={Colors.gold} />
         <TextInput
           style={{
             flex: 1,
             marginLeft: 12,
             fontFamily: Fonts.body,
             fontSize: 15,
-            color: '#FFFFFF',
+            color: Colors.textPrimary,
           }}
           placeholder={t('members.search_placeholder')}
-          placeholderTextColor="rgba(255,255,255,0.4)"
+          placeholderTextColor={Colors.textTertiary}
           value={searchText}
           onChangeText={setSearchText}
           autoCapitalize="none"
@@ -283,7 +284,7 @@ export default function MembersScreen() {
         />
         {searchText.length > 0 && (
           <Pressable onPress={() => setSearchText('')} hitSlop={8}>
-            <Ionicons name="close-circle" size={18} color="rgba(255,255,255,0.4)" />
+            <Ionicons name="close-circle" size={18} color={Colors.textTertiary} />
           </Pressable>
         )}
       </View>
@@ -291,7 +292,7 @@ export default function MembersScreen() {
       {/* Member list */}
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       ) : (
         <FlatList<MemberListItem>
@@ -305,14 +306,14 @@ export default function MembersScreen() {
             <View style={{ alignItems: 'center', paddingVertical: 32 }}>
               {members.length === 0 ? (
                 <Text
-                  style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}
+                  style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}
                 >
                   {t('members.no_members_yet')}
                 </Text>
               ) : (
                 <>
                   <Text
-                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#FFFFFF' }}
+                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}
                   >
                     {t('members.no_members_found')}
                   </Text>
@@ -320,7 +321,7 @@ export default function MembersScreen() {
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 13,
-                      color: 'rgba(255,255,255,0.55)',
+                      color: Colors.textMuted,
                       marginTop: 4,
                     }}
                   >
@@ -351,7 +352,7 @@ export default function MembersScreen() {
                   alignItems: 'center',
                   paddingVertical: 12,
                   borderBottomWidth: 1,
-                  borderBottomColor: 'rgba(201,168,76,0.08)',
+                  borderBottomColor: Colors.borderSubtle,
                 }}
               >
                 {({ pressed }) => (
@@ -362,9 +363,9 @@ export default function MembersScreen() {
                         width: 44,
                         height: 44,
                         borderRadius: 22,
-                        backgroundColor: '#1c1a14',
+                        backgroundColor: Colors.surface,
                         borderWidth: 1,
-                        borderColor: 'rgba(201,168,76,0.22)',
+                        borderColor: Colors.border,
                         alignItems: 'center',
                         justifyContent: 'center',
                         overflow: 'hidden',
@@ -379,7 +380,7 @@ export default function MembersScreen() {
                         />
                       ) : (
                         <Text
-                          style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#FFFFFF' }}
+                          style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.textPrimary }}
                         >
                           {initials}
                         </Text>
@@ -389,7 +390,7 @@ export default function MembersScreen() {
                     {/* Name + subtitle */}
                     <View style={{ flex: 1, marginLeft: 12, opacity: pressed ? 0.7 : 1 }}>
                       <Text
-                        style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#FFFFFF' }}
+                        style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}
                       >
                         {displayName}
                       </Text>
@@ -398,7 +399,7 @@ export default function MembersScreen() {
                           style={{
                             fontFamily: Fonts.body,
                             fontSize: 13,
-                            color: 'rgba(255,255,255,0.55)',
+                            color: Colors.textMuted,
                             marginTop: 2,
                           }}
                           numberOfLines={1}
@@ -414,18 +415,18 @@ export default function MembersScreen() {
                         value={toggleValue}
                         onValueChange={(newValue) => handleToggleAdmin(member, newValue)}
                         trackColor={{
-                          false: 'rgba(255,255,255,0.1)',
-                          true: 'rgba(201,168,76,0.5)',
+                          false: Colors.whiteOverlay10,
+                          true: Colors.borderStrong,
                         }}
-                        thumbColor={toggleValue ? '#c9a84c' : 'rgba(255,255,255,0.6)'}
-                        ios_backgroundColor="rgba(255,255,255,0.1)"
+                        thumbColor={toggleValue ? Colors.gold : Colors.textSecondary}
+                        ios_backgroundColor={Colors.whiteOverlay10}
                         style={{ marginLeft: 8 }}
                       />
                     ) : (
                       <Ionicons
                         name="chevron-forward-outline"
                         size={18}
-                        color={pressed ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.55)'}
+                        color={pressed ? Colors.textFaint : Colors.textMuted}
                       />
                     )}
                   </>

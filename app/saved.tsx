@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -23,6 +23,7 @@ import { HomeEventCard, HomePostCard, HomeResourceCard } from '../lib/home';
 import { formatMonthDayLabel } from '../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 // ─── Display-name helper (mirrors private fn in lib/home.ts) ─────────────────
 
@@ -44,7 +45,7 @@ function SectionTitle({ children }: { children: string }) {
       style={{
         fontFamily: Fonts.heading,
         fontSize: 18,
-        color: '#c9a84c',
+        color: Colors.gold,
         paddingHorizontal: 20,
         marginTop: 28,
         marginBottom: 12,
@@ -86,9 +87,9 @@ function SavedEventCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -109,12 +110,12 @@ function SavedEventCard({
                   style={{
                     width: '100%',
                     height: 110,
-                    backgroundColor: 'rgba(245,158,11,0.15)',
+                    backgroundColor: Colors.warningBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="calendar-outline" size={28} color="#F59E0B" />
+                  <Ionicons name="calendar-outline" size={28} color={Colors.warning} />
                 </View>
               )}
             </View>
@@ -126,7 +127,7 @@ function SavedEventCard({
                   style={{
                     fontFamily: Fonts.bodyBold,
                     fontSize: 11,
-                    color: '#F59E0B',
+                    color: Colors.warning,
                     textTransform: 'uppercase',
                     letterSpacing: 0.6,
                   }}
@@ -138,7 +139,7 @@ function SavedEventCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 14,
-                  color: '#FFFFFF',
+                  color: Colors.textPrimary,
                   marginTop: 4,
                 }}
                 numberOfLines={2}
@@ -150,7 +151,7 @@ function SavedEventCard({
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 12,
-                    color: 'rgba(255,255,255,0.45)',
+                    color: Colors.textTertiary,
                     marginTop: 3,
                   }}
                   numberOfLines={1}
@@ -166,7 +167,7 @@ function SavedEventCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color="#c9a84c" />
+          <Ionicons name="bookmark" size={16} color={Colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -195,9 +196,9 @@ function SavedPostCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -218,12 +219,12 @@ function SavedPostCard({
                   style={{
                     width: '100%',
                     height: 110,
-                    backgroundColor: 'rgba(16,185,129,0.15)',
+                    backgroundColor: Colors.successBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="chatbubble-outline" size={28} color="#10B981" />
+                  <Ionicons name="chatbubble-outline" size={28} color={Colors.success} />
                 </View>
               )}
             </View>
@@ -234,7 +235,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 10,
-                  color: '#10B981',
+                  color: Colors.success,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -245,7 +246,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 13,
-                  color: '#FFFFFF',
+                  color: Colors.textPrimary,
                   marginTop: 3,
                 }}
                 numberOfLines={1}
@@ -256,7 +257,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: 'rgba(255,255,255,0.45)',
+                  color: Colors.textTertiary,
                   marginTop: 3,
                 }}
                 numberOfLines={2}
@@ -271,7 +272,7 @@ function SavedPostCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color="#c9a84c" />
+          <Ionicons name="bookmark" size={16} color={Colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -295,9 +296,9 @@ function SavedResourceCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: '#1c1a14',
+        backgroundColor: Colors.surface,
         borderWidth: 1,
-        borderColor: 'rgba(201,168,76,0.22)',
+        borderColor: Colors.border,
         overflow: 'hidden',
       }}
     >
@@ -328,12 +329,12 @@ function SavedResourceCard({
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: 'rgba(0,0,0,0.52)',
+                    backgroundColor: Colors.overlay,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="play" size={16} color="#FFFFFF" />
+                  <Ionicons name="play" size={16} color={Colors.textPrimary} />
                 </View>
               </View>
             </View>
@@ -344,7 +345,7 @@ function SavedResourceCard({
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 10,
-                  color: '#c9a84c',
+                  color: Colors.gold,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -355,7 +356,7 @@ function SavedResourceCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 13,
-                  color: '#FFFFFF',
+                  color: Colors.textPrimary,
                   marginTop: 3,
                 }}
                 numberOfLines={2}
@@ -370,7 +371,7 @@ function SavedResourceCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color="#c9a84c" />
+          <Ionicons name="bookmark" size={16} color={Colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -520,7 +521,7 @@ export default function SavedScreen() {
       <Pressable onPress={() => router.back()} hitSlop={8} style={{ padding: 4 }}>
         {({ pressed }) => (
           <View style={{ opacity: pressed ? 0.6 : 1 }}>
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </View>
         )}
       </Pressable>
@@ -528,7 +529,7 @@ export default function SavedScreen() {
         style={{
           fontFamily: Fonts.heading,
           fontSize: 20,
-          color: '#c9a84c',
+          color: Colors.gold,
           marginLeft: 6,
         }}
       >
@@ -540,10 +541,10 @@ export default function SavedScreen() {
   // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {headerBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color="#c9a84c" size="large" />
+          <ActivityIndicator color={Colors.gold} size="large" />
         </View>
       </View>
     );
@@ -552,7 +553,7 @@ export default function SavedScreen() {
   // ── Empty state ───────────────────────────────────────────────────────────
   if (!hasAnySaved) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background }}>
         {headerBar}
         <View
           style={{
@@ -562,12 +563,12 @@ export default function SavedScreen() {
             paddingHorizontal: 32,
           }}
         >
-          <Ionicons name="bookmark-outline" size={52} color="rgba(201,168,76,0.35)" />
+          <Ionicons name="bookmark-outline" size={52} color={Colors.borderStrong} />
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 17,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginTop: 18,
               textAlign: 'center',
             }}
@@ -578,7 +579,7 @@ export default function SavedScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 14,
-              color: 'rgba(255,255,255,0.55)',
+              color: Colors.textMuted,
               marginTop: 8,
               textAlign: 'center',
               lineHeight: 21,
@@ -593,7 +594,7 @@ export default function SavedScreen() {
 
   // ── Main: 3 conditional carousels ─────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {headerBar}
       <ScrollView
         style={{ flex: 1 }}
@@ -603,8 +604,8 @@ export default function SavedScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor="#c9a84c"
-            colors={['#c9a84c']}
+            tintColor={Colors.gold}
+            colors={[Colors.gold]}
           />
         }
       >

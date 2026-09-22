@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View, Text, Image, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import { getInitials } from '../lib/avatar';
 import { fetchProfileWithTopics } from '../lib/profiles';
 import { ProfileWithTopics } from '../types/database';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 import LevelBadge from '../components/LevelBadge';
 
 function formatCount(n: number): string {
@@ -120,8 +121,8 @@ export default function ProfileScreen() {
   const isLoading = isOwnProfile ? authLoading : loadingViewed;
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900', alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color="#c9a84c" size="large" />
+      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Colors.gold} size="large" />
       </View>
     );
   }
@@ -133,20 +134,20 @@ export default function ProfileScreen() {
 
   if (!activeProfile || hasError) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0a0900', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: '#FFFFFF', marginBottom: 16, textAlign: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
           {t('profile.could_not_load')}
         </Text>
         <Pressable
           onPress={handleRetry}
           style={{
-            backgroundColor: '#c9a84c',
+            backgroundColor: Colors.gold,
             borderRadius: 8,
             paddingHorizontal: 24,
             paddingVertical: 10,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: '#0a0900' }}>{t('events.retry')}</Text>
+          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>{t('events.retry')}</Text>
         </Pressable>
       </View>
     );
@@ -160,7 +161,7 @@ export default function ProfileScreen() {
     : (activeProfile.full_name ?? (activeProfile.username ? `@${activeProfile.username}` : t('profile.legacy_member_fallback')));
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -173,14 +174,14 @@ export default function ProfileScreen() {
             hitSlop={8}
             style={{ alignSelf: 'flex-start' }}
           >
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
           </Pressable>
         </View>
 
         {/* Hero zone */}
         <View
           style={{
-            backgroundColor: '#111008',
+            backgroundColor: Colors.surfaceAlt,
             borderBottomLeftRadius: 24,
             borderBottomRightRadius: 24,
             alignItems: 'center',
@@ -211,9 +212,9 @@ export default function ProfileScreen() {
               width: 88,
               height: 88,
               borderRadius: 44,
-              backgroundColor: '#1c1a14',
+              backgroundColor: Colors.surface,
               borderWidth: 2,
-              borderColor: 'rgba(201,168,76,0.22)',
+              borderColor: Colors.border,
               alignItems: 'center',
               justifyContent: 'center',
               overflow: 'hidden',
@@ -222,7 +223,7 @@ export default function ProfileScreen() {
             {activeProfile.avatar_url ? (
               <Image source={{ uri: activeProfile.avatar_url }} style={{ width: 88, height: 88 }} />
             ) : (
-              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 30, color: '#FFFFFF' }}>
+              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 30, color: Colors.textPrimary }}>
                 {initials}
               </Text>
             )}
@@ -233,7 +234,7 @@ export default function ProfileScreen() {
             style={{
               fontFamily: Fonts.heading,
               fontSize: 22,
-              color: '#FFFFFF',
+              color: Colors.textPrimary,
               marginTop: 12,
               textAlign: 'center',
             }}
@@ -243,18 +244,18 @@ export default function ProfileScreen() {
 
           {/* Username */}
           {activeProfile.username ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textMuted, marginTop: 2 }}>
               @{activeProfile.username}
             </Text>
           ) : null}
 
           {/* Role */}
           {activeProfile.role ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: 'rgba(255,255,255,0.55)' }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: Colors.textMuted }}>
               {activeProfile.role}
             </Text>
           ) : isOwnProfile ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: 'rgba(255,255,255,0.35)' }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, marginTop: 4, color: Colors.textFaint }}>
               {t('profile.add_your_role')}
             </Text>
           ) : null}
@@ -262,8 +263,8 @@ export default function ProfileScreen() {
           {/* Location */}
           {activeProfile.location ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <Ionicons name="location-outline" size={13} color="#c9a84c" />
-              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+              <Ionicons name="location-outline" size={13} color={Colors.gold} />
+              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textMuted }}>
                 {activeProfile.location}
               </Text>
             </View>
@@ -282,10 +283,10 @@ export default function ProfileScreen() {
               { id: 'resources', value: loadingResources ? '—' : formatCount(resourcesCount), label: t('profile.stat_resources') },
             ].map((stat) => (
               <View key={stat.id} style={{ alignItems: 'center' }}>
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 20, color: '#c9a84c' }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 20, color: Colors.gold }}>
                   {stat.value}
                 </Text>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: Colors.textMuted, marginTop: 2 }}>
                   {stat.label}
                 </Text>
               </View>
@@ -309,20 +310,20 @@ export default function ProfileScreen() {
                 activeOpacity={0.7}
                 style={{
                   flex: 1,
-                  backgroundColor: '#1c1a14',
+                  backgroundColor: Colors.surface,
                   borderRadius: 10,
                   borderWidth: 1,
-                  borderColor: 'rgba(201,168,76,0.3)',
+                  borderColor: Colors.borderStrong,
                   alignItems: 'center',
                   paddingVertical: 12,
                 }}
               >
-                <Ionicons name={icon} size={20} color="#c9a84c" />
+                <Ionicons name={icon} size={20} color={Colors.gold} />
                 <Text
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 11,
-                    color: 'rgba(255,255,255,0.6)',
+                    color: Colors.textSecondary,
                     marginTop: 5,
                   }}
                 >
@@ -335,30 +336,30 @@ export default function ProfileScreen() {
 
         {/* About section */}
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: '#c9a84c' }}>{t('profile.about_section')}</Text>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: Colors.gold }}>{t('profile.about_section')}</Text>
           <View
             style={{
               marginTop: 10,
-              backgroundColor: '#1c1a14',
+              backgroundColor: Colors.surface,
               borderRadius: 12,
               borderWidth: 1,
-              borderColor: 'rgba(201,168,76,0.22)',
+              borderColor: Colors.border,
               padding: 16,
             }}
           >
             {activeProfile.bio ? (
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: '#FFFFFF', lineHeight: 22 }}>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textPrimary, lineHeight: 22 }}>
                 {activeProfile.bio}
               </Text>
             ) : (
               <View>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.35)', lineHeight: 22 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textFaint, lineHeight: 22 }}>
                   {t('profile.bio_empty')}
                 </Text>
                 {/* "Add bio" link only appears on own profile */}
                 {isOwnProfile && (
                   <Pressable onPress={() => router.push('/edit-profile' as any)}>
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: '#c9a84c', marginTop: 8 }}>
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold, marginTop: 8 }}>
                       {t('profile.add_bio')}
                     </Text>
                   </Pressable>
@@ -373,15 +374,15 @@ export default function ProfileScreen() {
                   <View
                     key={topic.id}
                     style={{
-                      backgroundColor: '#111008',
+                      backgroundColor: Colors.surfaceAlt,
                       borderRadius: 999,
                       borderWidth: 1,
-                      borderColor: 'rgba(201,168,76,0.22)',
+                      borderColor: Colors.border,
                       paddingHorizontal: 12,
                       paddingVertical: 4,
                     }}
                   >
-                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: '#c9a84c' }}>
+                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.gold }}>
                       #{topic.name.replace(/\s+/g, '')}
                     </Text>
                   </View>

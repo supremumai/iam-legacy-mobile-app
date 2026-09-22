@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +19,7 @@ import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { pickAndUploadImage } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
+import { Colors } from '../constants/colors';
 
 const USERNAME_REGEX = /^[a-z0-9_-]{3,30}$/;
 
@@ -180,34 +181,34 @@ export default function EditProfileScreen() {
 
   // ── Username feedback text / color ───────────────────────────────────────────
   let usernameHint: string | null = null;
-  let usernameHintColor = 'rgba(255,255,255,0.55)';
+  let usernameHintColor: string = Colors.textMuted;
 
   if (username.length > 0) {
     if (usernameStatus === 'invalid') {
       usernameHint = '3-30 characters: letters, numbers, _ or -';
-      usernameHintColor = '#EF4444';
+      usernameHintColor = Colors.error;
     } else if (usernameStatus === 'checking') {
       usernameHint = 'Checking availability...';
-      usernameHintColor = 'rgba(255,255,255,0.55)';
+      usernameHintColor = Colors.textMuted;
     } else if (usernameStatus === 'taken') {
       usernameHint = 'Username already taken';
-      usernameHintColor = '#EF4444';
+      usernameHintColor = Colors.error;
     } else if (usernameStatus === 'available') {
       usernameHint = 'Username available';
-      usernameHintColor = '#10B981';
+      usernameHintColor = Colors.success;
     }
     // 'idle' with content means either unchanged or check-error passthrough — no hint
   }
 
   // ── Input style ──────────────────────────────────────────────────────────────
   const inputStyle = {
-    backgroundColor: '#1c1a14',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.22)',
+    borderColor: Colors.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontFamily: Fonts.body,
     fontSize: 14,
   } as const;
@@ -215,20 +216,20 @@ export default function EditProfileScreen() {
   const labelStyle = {
     fontFamily: Fonts.bodySemiBold,
     fontSize: 13,
-    color: 'rgba(255,255,255,0.55)',
+    color: Colors.textMuted,
     marginBottom: 8,
   } as const;
 
   const errorStyle = {
     fontFamily: Fonts.body,
     fontSize: 12,
-    color: '#EF4444',
+    color: Colors.error,
     marginTop: 4,
   } as const;
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: '#0a0900' }}>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -236,7 +237,7 @@ export default function EditProfileScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
+          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
         </Pressable>
       </View>
 
@@ -255,7 +256,7 @@ export default function EditProfileScreen() {
             style={{
               fontFamily: Fonts.heading,
               fontSize: 24,
-              color: '#c9a84c',
+              color: Colors.gold,
               marginTop: 8,
               marginBottom: 20,
             }}
@@ -288,11 +289,11 @@ export default function EditProfileScreen() {
               }}
               style={({ pressed }) => ({
                 height: 140,
-                backgroundColor: '#1c1a14',
+                backgroundColor: Colors.surface,
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderBottomWidth: 1,
-                borderBottomColor: 'rgba(201,168,76,0.12)',
+                borderBottomColor: Colors.borderSubtle,
                 overflow: 'hidden',
                 opacity: pressed ? 0.85 : 1,
               })}
@@ -319,7 +320,7 @@ export default function EditProfileScreen() {
                     justifyContent: 'center',
                   }}
                 >
-                  <ActivityIndicator color="#c9a84c" size="large" />
+                  <ActivityIndicator color={Colors.gold} size="large" />
                 </View>
               )}
 
@@ -333,14 +334,14 @@ export default function EditProfileScreen() {
                     width: 26,
                     height: 26,
                     borderRadius: 13,
-                    backgroundColor: '#0a0900',
+                    backgroundColor: Colors.background,
                     borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.35)',
+                    borderColor: Colors.borderStrong,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="pencil" size={12} color="#c9a84c" />
+                  <Ionicons name="pencil" size={12} color={Colors.gold} />
                 </View>
               )}
             </Pressable>
@@ -380,9 +381,9 @@ export default function EditProfileScreen() {
                   width: 88,
                   height: 88,
                   borderRadius: 44,
-                  backgroundColor: '#1c1a14',
+                  backgroundColor: Colors.surface,
                   borderWidth: 2,
-                  borderColor: '#0a0900',
+                  borderColor: Colors.background,
                   alignItems: 'center',
                   justifyContent: 'center',
                   overflow: 'hidden',
@@ -394,7 +395,7 @@ export default function EditProfileScreen() {
                     style={{ width: 88, height: 88 }}
                   />
                 ) : (
-                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 28, color: '#FFFFFF' }}>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 28, color: Colors.textPrimary }}>
                     {getInitials(profile?.full_name, profile?.username)}
                   </Text>
                 )}
@@ -405,12 +406,12 @@ export default function EditProfileScreen() {
                     style={{
                       position: 'absolute',
                       top: 0, left: 0, right: 0, bottom: 0,
-                      backgroundColor: 'rgba(0,0,0,0.55)',
+                      backgroundColor: Colors.overlay,
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <ActivityIndicator color="#c9a84c" size="small" />
+                    <ActivityIndicator color={Colors.gold} size="small" />
                   </View>
                 )}
               </View>
@@ -425,14 +426,14 @@ export default function EditProfileScreen() {
                     width: 22,
                     height: 22,
                     borderRadius: 11,
-                    backgroundColor: '#0a0900',
+                    backgroundColor: Colors.background,
                     borderWidth: 1,
-                    borderColor: 'rgba(201,168,76,0.35)',
+                    borderColor: Colors.borderStrong,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="pencil" size={10} color="#c9a84c" />
+                  <Ionicons name="pencil" size={10} color={Colors.gold} />
                 </View>
               )}
             </Pressable>
@@ -446,7 +447,7 @@ export default function EditProfileScreen() {
               onChangeText={setFullName}
               onBlur={() => setFullNameTouched(true)}
               placeholder="Your full name"
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               maxLength={100}
               style={inputStyle}
             />
@@ -460,7 +461,7 @@ export default function EditProfileScreen() {
               value={username}
               onChangeText={handleUsernameChange}
               placeholder="your_handle"
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               autoCapitalize="none"
               autoCorrect={false}
               maxLength={30}
@@ -480,7 +481,7 @@ export default function EditProfileScreen() {
               value={role}
               onChangeText={setRole}
               placeholder="e.g. Entrepreneur, Investor, Mentor"
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               maxLength={60}
               style={inputStyle}
             />
@@ -493,7 +494,7 @@ export default function EditProfileScreen() {
               value={location}
               onChangeText={setLocation}
               placeholder="e.g. Miami, FL"
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               maxLength={100}
               style={inputStyle}
             />
@@ -506,7 +507,7 @@ export default function EditProfileScreen() {
               value={bio}
               onChangeText={setBio}
               placeholder="Tell the community who you are..."
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor={Colors.textTertiary}
               multiline
               maxLength={300}
               style={[inputStyle, { minHeight: 90, textAlignVertical: 'top' }]}
@@ -516,7 +517,7 @@ export default function EditProfileScreen() {
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 12,
-                color: bio.length > 280 ? '#EF4444' : 'rgba(255,255,255,0.55)',
+                color: bio.length > 280 ? Colors.error : Colors.textMuted,
                 marginTop: 4,
                 textAlign: 'right',
               }}
@@ -530,7 +531,7 @@ export default function EditProfileScreen() {
             onPress={handleSave}
             disabled={!canSave}
             style={{
-              backgroundColor: '#c9a84c',
+              backgroundColor: Colors.gold,
               borderRadius: 8,
               paddingVertical: 14,
               alignItems: 'center',
@@ -540,9 +541,9 @@ export default function EditProfileScreen() {
             }}
           >
             {submitting ? (
-              <ActivityIndicator color="#0a0900" size="small" />
+              <ActivityIndicator color={Colors.background} size="small" />
             ) : (
-              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: '#0a0900' }}>
+              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.background }}>
                 Save
               </Text>
             )}
