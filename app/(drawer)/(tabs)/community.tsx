@@ -18,7 +18,7 @@ import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { Poll, PollOption, PollWithMeta, PostWithAuthor, Topic } from '../../../types/database';
 import { normalizePostRow } from '../../../lib/posts';
 import { Fonts } from '../../../constants/fonts';
-import { Colors } from '../../../constants/colors';
+import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
 import PostComposer from '../../../components/PostComposer';
 import PostCard from '../../../components/PostCard';
@@ -30,6 +30,7 @@ export default function CommunityScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { t } = useLanguage();
+  const colors = useColors();
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -333,7 +334,7 @@ export default function CommunityScreen() {
           style={{
             fontFamily: Fonts.heading,
             fontSize: 24,
-            color: Colors.gold,
+            color: colors.gold,
           }}
         >
           {t('community.title')}
@@ -350,13 +351,13 @@ export default function CommunityScreen() {
               height: 40,
               borderRadius: 20,
               borderWidth: 0.5,
-              borderColor: Colors.borderStrong,
+              borderColor: colors.borderStrong,
               backgroundColor: 'transparent',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="people-outline" size={19} color={Colors.gold} />
+            <Ionicons name="people-outline" size={19} color={colors.gold} />
           </TouchableOpacity>
 
           {/* Leaderboard */}
@@ -368,13 +369,13 @@ export default function CommunityScreen() {
               height: 40,
               borderRadius: 20,
               borderWidth: 0.5,
-              borderColor: Colors.borderStrong,
+              borderColor: colors.borderStrong,
               backgroundColor: 'transparent',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="trophy-outline" size={19} color={Colors.gold} />
+            <Ionicons name="trophy-outline" size={19} color={colors.gold} />
           </TouchableOpacity>
         </View>
       </View>
@@ -385,7 +386,7 @@ export default function CommunityScreen() {
       <View
         style={{
           height: 1,
-          backgroundColor: Colors.border,
+          backgroundColor: colors.border,
           marginHorizontal: 20,
           marginVertical: 12,
         }}
@@ -404,9 +405,9 @@ export default function CommunityScreen() {
           <Pressable
             onPress={() => setActiveTopicId(null)}
             style={{
-              backgroundColor: activeTopicId === null ? Colors.gold : Colors.surface,
+              backgroundColor: activeTopicId === null ? colors.gold : colors.surface,
               borderWidth: 1,
-              borderColor: activeTopicId === null ? Colors.gold : Colors.border,
+              borderColor: activeTopicId === null ? colors.gold : colors.border,
               borderRadius: 100,
               paddingHorizontal: 14,
               paddingVertical: 6,
@@ -418,7 +419,7 @@ export default function CommunityScreen() {
                   style={{
                     fontFamily: Fonts.bodySemiBold,
                     fontSize: 12,
-                    color: activeTopicId === null ? Colors.background : Colors.textPrimary,
+                    color: activeTopicId === null ? colors.background : colors.textPrimary,
                   }}
                 >
                   {t('community.filter_all')}
@@ -434,9 +435,9 @@ export default function CommunityScreen() {
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                backgroundColor: activeTopicId === topic.id ? Colors.gold : Colors.surface,
+                backgroundColor: activeTopicId === topic.id ? colors.gold : colors.surface,
                 borderWidth: 1,
-                borderColor: activeTopicId === topic.id ? Colors.gold : Colors.border,
+                borderColor: activeTopicId === topic.id ? colors.gold : colors.border,
                 borderRadius: 100,
                 paddingHorizontal: 14,
                 paddingVertical: 6,
@@ -456,14 +457,14 @@ export default function CommunityScreen() {
                     <Ionicons
                       name={topic.icon as any}
                       size={12}
-                      color={activeTopicId === topic.id ? Colors.background : Colors.gold}
+                      color={activeTopicId === topic.id ? colors.background : colors.gold}
                     />
                   ) : null}
                   <Text
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 12,
-                      color: activeTopicId === topic.id ? Colors.background : Colors.textPrimary,
+                      color: activeTopicId === topic.id ? colors.background : colors.textPrimary,
                     }}
                   >
                     {topic.name}
@@ -489,18 +490,18 @@ export default function CommunityScreen() {
 
   const listEmpty = loading ? (
     <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-      <ActivityIndicator color={Colors.gold} size="large" />
+      <ActivityIndicator color={colors.gold} size="large" />
     </View>
   ) : isTopicFilteredEmpty ? (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
-      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
         {t('community.no_posts_in_topic', { topic: activeTopicName })}
       </Text>
       <Text
         style={{
           fontFamily: Fonts.body,
           fontSize: 13,
-          color: Colors.textMuted,
+          color: colors.textMuted,
           marginTop: 4,
           textAlign: 'center',
         }}
@@ -510,14 +511,14 @@ export default function CommunityScreen() {
     </View>
   ) : (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
-      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
         {t('community.no_posts_yet')}
       </Text>
       <Text
         style={{
           fontFamily: Fonts.body,
           fontSize: 13,
-          color: Colors.textMuted,
+          color: colors.textMuted,
           marginTop: 4,
           textAlign: 'center',
         }}
@@ -528,7 +529,7 @@ export default function CommunityScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <FlatList<PostWithAuthor>
         data={filteredPosts}
         keyExtractor={(item) => item.id}
@@ -564,8 +565,8 @@ export default function CommunityScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor={Colors.gold}
-            colors={[Colors.gold]}
+            tintColor={colors.gold}
+            colors={[colors.gold]}
           />
         }
         ListHeaderComponent={listHeader}

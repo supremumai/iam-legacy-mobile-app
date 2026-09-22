@@ -1,9 +1,10 @@
-﻿import { Drawer } from 'expo-router/drawer';
+import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DrawerContent from '../../components/DrawerContent';
-import { Colors } from '../../constants/colors';
+import { useColors } from '../../contexts/ThemeContext';
 
 export default function DrawerLayout() {
+  const colors = useColors();
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
@@ -14,7 +15,7 @@ export default function DrawerLayout() {
           drawerType: 'front',
           swipeEnabled: true,
           drawerStyle: {
-            backgroundColor: Colors.background,
+            backgroundColor: colors.background,
             width: 300,
           },
         }}
