@@ -3,7 +3,7 @@ import { Pressable, Text, Alert } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -15,6 +15,7 @@ export default function FollowButton({ targetUserId, onFollowChange }: FollowBut
   const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const colors = useColors();
 
   // Guard: never render for own profile
   if (user?.id && targetUserId === user.id) return null;
@@ -107,12 +108,12 @@ export default function FollowButton({ targetUserId, onFollowChange }: FollowBut
       onPress={handlePress}
       disabled={checking || submitting}
       style={{
-        backgroundColor: following ? Colors.surface : Colors.gold,
+        backgroundColor: following ? colors.surface : colors.gold,
         borderRadius: 999,
         paddingHorizontal: 20,
         paddingVertical: 8,
         borderWidth: following ? 1 : 0,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         opacity: submitting ? 0.6 : 1,
       }}
     >
@@ -120,7 +121,7 @@ export default function FollowButton({ targetUserId, onFollowChange }: FollowBut
         style={{
           fontFamily: following ? Fonts.bodySemiBold : Fonts.bodyBold,
           fontSize: 13,
-          color: following ? Colors.textPrimary : Colors.background,
+          color: following ? colors.textPrimary : colors.background,
         }}
       >
         {following ? 'Following' : 'Follow'}

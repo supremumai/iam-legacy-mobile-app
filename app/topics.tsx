@@ -14,7 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Topic } from '../types/database';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 function formatCount(n: number): string {
   if (n >= 1000) {
@@ -28,6 +28,7 @@ export default function TopicsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, profile, refreshProfile } = useAuth();
+  const colors = useColors();
 
   const [topics, setTopics] = useState<Topic[]>([]);
   // Map of topic_id -> member count (all profiles, not just current user)
@@ -198,14 +199,14 @@ export default function TopicsScreen() {
 
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
@@ -213,7 +214,7 @@ export default function TopicsScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -223,14 +224,14 @@ export default function TopicsScreen() {
           <Pressable
             onPress={fetchData}
             style={({ pressed }) => ({
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>Retry</Text>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.background }}>Retry</Text>
           </Pressable>
         </View>
       </View>
@@ -238,7 +239,7 @@ export default function TopicsScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -246,18 +247,18 @@ export default function TopicsScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+          <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </Pressable>
       </View>
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, marginTop: 2 }}>
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>Topics</Text>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>Topics</Text>
         <Text
           style={{
             fontFamily: Fonts.body,
             fontSize: 14,
-            color: Colors.textMuted,
+            color: colors.textMuted,
             marginTop: 4,
           }}
         >
@@ -267,7 +268,7 @@ export default function TopicsScreen() {
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={colors.gold} size="large" />
         </View>
       ) : (
         <FlatList<Topic>
@@ -281,7 +282,7 @@ export default function TopicsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
                 No topics yet
               </Text>
             </View>
@@ -297,9 +298,9 @@ export default function TopicsScreen() {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  backgroundColor: Colors.surface,
+                  backgroundColor: colors.surface,
                   borderWidth: 1,
-                  borderColor: Colors.border,
+                  borderColor: colors.border,
                   borderRadius: 12,
                   padding: 16,
                   marginBottom: 12,
@@ -311,9 +312,9 @@ export default function TopicsScreen() {
                     width: 44,
                     height: 44,
                     borderRadius: 22,
-                    backgroundColor: Colors.surfaceAlt,
+                    backgroundColor: colors.surfaceAlt,
                     borderWidth: 1,
-                    borderColor: Colors.border,
+                    borderColor: colors.border,
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
@@ -322,7 +323,7 @@ export default function TopicsScreen() {
                   <Ionicons
                     name={(topic.icon ?? 'ellipse-outline') as any}
                     size={20}
-                    color={Colors.gold}
+                    color={colors.gold}
                   />
                 </View>
 
@@ -332,7 +333,7 @@ export default function TopicsScreen() {
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 15,
-                      color: Colors.textPrimary,
+                      color: colors.textPrimary,
                     }}
                   >
                     {topic.name}
@@ -343,7 +344,7 @@ export default function TopicsScreen() {
                       style={{
                         fontFamily: Fonts.body,
                         fontSize: 13,
-                        color: Colors.textMuted,
+                        color: colors.textMuted,
                         marginTop: 2,
                       }}
                     >
@@ -354,7 +355,7 @@ export default function TopicsScreen() {
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 12,
-                      color: Colors.textTertiary,
+                      color: colors.textTertiary,
                       marginTop: 4,
                     }}
                   >
@@ -369,9 +370,9 @@ export default function TopicsScreen() {
                   style={
                     isJoined
                       ? {
-                          backgroundColor: Colors.surface,
+                          backgroundColor: colors.surface,
                           borderWidth: 1,
-                          borderColor: Colors.border,
+                          borderColor: colors.border,
                           borderRadius: 999,
                           paddingHorizontal: 16,
                           paddingVertical: 8,
@@ -379,7 +380,7 @@ export default function TopicsScreen() {
                           marginLeft: 12,
                         }
                       : {
-                          backgroundColor: Colors.gold,
+                          backgroundColor: colors.gold,
                           borderRadius: 999,
                           paddingHorizontal: 16,
                           paddingVertical: 8,
@@ -391,8 +392,8 @@ export default function TopicsScreen() {
                   <Text
                     style={
                       isJoined
-                        ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: Colors.textPrimary }
-                        : { fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.background }
+                        ? { fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.textPrimary }
+                        : { fontFamily: Fonts.bodyBold, fontSize: 13, color: colors.background }
                     }
                   >
                     {isJoined ? 'Joined' : 'Join'}

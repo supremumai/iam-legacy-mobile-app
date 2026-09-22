@@ -9,10 +9,12 @@
   StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../constants/colors';
+import { useColors } from '../../contexts/ThemeContext';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const colors = useColors();
+  const styles = createStyles(colors);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -59,10 +61,11 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -81,14 +84,14 @@ const styles = StyleSheet.create({
   tagline: {
     fontFamily: 'PlayfairDisplay_900Black',
     fontSize: 36,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     textAlign: 'center',
     marginTop: 24,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 16,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 12,
     paddingHorizontal: 32,
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   primaryButton: {
-    backgroundColor: Colors.gold,
+    backgroundColor: colors.gold,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.background,
+    color: colors.background,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
@@ -117,12 +120,13 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     marginTop: 12,
   },
   secondaryButtonText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
-});
+  });
+}

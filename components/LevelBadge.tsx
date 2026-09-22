@@ -2,7 +2,7 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getLevelInfo } from '../lib/points';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 interface LevelBadgeProps {
   points: number;
@@ -18,6 +18,7 @@ function formatCount(n: number): string {
 }
 
 export default function LevelBadge({ points, size = 'medium' }: LevelBadgeProps) {
+  const colors = useColors();
   const { level } = getLevelInfo(points);
   const isSmall = size === 'small';
 
@@ -27,21 +28,21 @@ export default function LevelBadge({ points, size = 'medium' }: LevelBadgeProps)
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'center',
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         borderRadius: 999,
         paddingHorizontal: isSmall ? 10 : 12,
         paddingVertical: isSmall ? 4 : 6,
         gap: 4,
       }}
     >
-      <Ionicons name="star" size={isSmall ? 12 : 14} color={Colors.gold} />
+      <Ionicons name="star" size={isSmall ? 12 : 14} color={colors.gold} />
       <Text
         style={{
           fontFamily: Fonts.bodySemiBold,
           fontSize: isSmall ? 11 : 12,
-          color: Colors.gold,
+          color: colors.gold,
         }}
       >
         {`Level ${level} · ${formatCount(points)} pts`}

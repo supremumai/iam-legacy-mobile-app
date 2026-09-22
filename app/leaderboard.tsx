@@ -14,7 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import LevelBadge from '../components/LevelBadge';
 
 interface LeaderboardRow {
@@ -39,6 +39,7 @@ export default function LeaderboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
+  const colors = useColors();
 
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,31 +84,31 @@ export default function LeaderboardScreen() {
 
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
             Could not load the leaderboard
           </Text>
           <Pressable
             onPress={fetchLeaderboard}
             style={({ pressed }) => ({
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>Retry</Text>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.background }}>Retry</Text>
           </Pressable>
         </View>
       </View>
@@ -115,7 +116,7 @@ export default function LeaderboardScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -123,23 +124,23 @@ export default function LeaderboardScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+          <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </Pressable>
       </View>
 
       {/* Header */}
       <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>
           Leaderboard
         </Text>
-        <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textMuted, marginTop: 4 }}>
+        <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted, marginTop: 4 }}>
           All-time community ranking
         </Text>
       </View>
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={colors.gold} size="large" />
         </View>
       ) : (
         <FlatList<LeaderboardRow>
@@ -150,7 +151,7 @@ export default function LeaderboardScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
                 No rankings yet
               </Text>
             </View>
@@ -162,7 +163,7 @@ export default function LeaderboardScreen() {
             const trophyColor = isTopThree ? TROPHY_COLORS[rank - 1] : undefined;
             const avatarBorderColor = isTopThree
               ? trophyColor!
-              : Colors.border;
+              : colors.border;
             const avatarBorderWidth = isTopThree ? 2 : 1;
             const initials = getInitials(row.full_name, row.username);
             const displayName =
@@ -178,8 +179,8 @@ export default function LeaderboardScreen() {
                   paddingVertical: 12,
                   paddingHorizontal: isCurrentUser ? 10 : 0,
                   borderBottomWidth: 1,
-                  borderBottomColor: Colors.borderSubtle,
-                  backgroundColor: isCurrentUser ? Colors.borderSubtle : 'transparent',
+                  borderBottomColor: colors.borderSubtle,
+                  backgroundColor: isCurrentUser ? colors.borderSubtle : 'transparent',
                   borderRadius: isCurrentUser ? 12 : 0,
                   opacity: pressed ? 0.8 : 1,
                   marginHorizontal: isCurrentUser ? -10 : 0,
@@ -190,7 +191,7 @@ export default function LeaderboardScreen() {
                   {isTopThree ? (
                     <Ionicons name="trophy" size={20} color={trophyColor} />
                   ) : (
-                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.textMuted, textAlign: 'center' }}>
+                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.textMuted, textAlign: 'center' }}>
                       {rank}
                     </Text>
                   )}
@@ -202,7 +203,7 @@ export default function LeaderboardScreen() {
                     width: 44,
                     height: 44,
                     borderRadius: 22,
-                    backgroundColor: Colors.surface,
+                    backgroundColor: colors.surface,
                     borderWidth: avatarBorderWidth,
                     borderColor: avatarBorderColor,
                     alignItems: 'center',
@@ -215,7 +216,7 @@ export default function LeaderboardScreen() {
                   {row.avatar_url ? (
                     <Image source={{ uri: row.avatar_url }} style={{ width: 44, height: 44 }} />
                   ) : (
-                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.textPrimary }}>
+                    <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.textPrimary }}>
                       {initials}
                     </Text>
                   )}
@@ -223,7 +224,7 @@ export default function LeaderboardScreen() {
 
                 {/* Name + badge */}
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }} numberOfLines={1}>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }} numberOfLines={1}>
                     {displayName}
                   </Text>
                   <View style={{ marginTop: 4, alignSelf: 'flex-start' }}>
@@ -233,10 +234,10 @@ export default function LeaderboardScreen() {
 
                 {/* Points */}
                 <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
-                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: Colors.gold }}>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: colors.gold }}>
                     {formatCount(row.points)}
                   </Text>
-                  <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: Colors.textMuted, marginTop: 1 }}>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textMuted, marginTop: 1 }}>
                     pts
                   </Text>
                 </View>
