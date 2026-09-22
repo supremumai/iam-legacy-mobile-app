@@ -9,10 +9,11 @@
   StyleSheet,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useColors } from '../../contexts/ThemeContext';
+import { useColors, useTheme } from '../../contexts/ThemeContext';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
   const colors = useColors();
   const styles = createStyles(colors);
 
@@ -25,7 +26,11 @@ export default function WelcomeScreen() {
         {/* Logo / Brand */}
         <View style={styles.brandArea}>
           <Image
-            source={require('../../assets/legacy-logo.png')}
+            source={
+              theme === 'dark'
+                ? require('../../assets/legacy-logo.png')
+                : require('../../assets/legacy-logo-dark.png')
+            }
             style={styles.logo}
             resizeMode="contain"
           />
