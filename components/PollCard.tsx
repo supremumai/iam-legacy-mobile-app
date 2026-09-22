@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,7 +7,7 @@ import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { Poll, PollOption, PollWithMeta, PostWithAuthor } from '../types/database';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface PollCardProps {
@@ -39,6 +39,7 @@ export default function PollCard({
 }: PollCardProps) {
   const router = useRouter();
   const { t, locale } = useLanguage();
+  const colors = useColors();
   const [localMeta, setLocalMeta] = useState<PollWithMeta>(pollMeta);
   const [voting, setVoting] = useState(false);
 
@@ -145,9 +146,9 @@ export default function PollCard({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
@@ -157,7 +158,7 @@ export default function PollCard({
       {author?.avatar_url ? (
         <Image source={{ uri: author.avatar_url }} style={{ width: 40, height: 40 }} />
       ) : (
-        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.textPrimary }}>
+        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.textPrimary }}>
           {initials}
         </Text>
       )}
@@ -166,14 +167,14 @@ export default function PollCard({
 
   const nameBlock = (
     <View style={{ flex: 1, marginLeft: 12 }}>
-      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}>
+      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary }}>
         {displayName}
       </Text>
       <Text
         style={{
           fontFamily: Fonts.body,
           fontSize: 12,
-          color: Colors.textMuted,
+          color: colors.textMuted,
           marginTop: 1,
         }}
       >
@@ -185,9 +186,9 @@ export default function PollCard({
   return (
     <View
       style={{
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         borderRadius: 12,
         padding: 16,
         marginHorizontal: 20,
@@ -225,16 +226,16 @@ export default function PollCard({
         {/* Poll badge */}
         <View
           style={{
-            backgroundColor: Colors.borderSubtle,
+            backgroundColor: colors.borderSubtle,
             borderWidth: 1,
-            borderColor: Colors.borderStrong,
+            borderColor: colors.borderStrong,
             borderRadius: 100,
             paddingHorizontal: 8,
             paddingVertical: 3,
             marginLeft: 8,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 10, color: Colors.gold }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 10, color: colors.gold }}>
             {t('community.poll_badge')}
           </Text>
         </View>
@@ -245,7 +246,7 @@ export default function PollCard({
         style={{
           fontFamily: Fonts.bodySemiBold,
           fontSize: 15,
-          color: Colors.textPrimary,
+          color: colors.textPrimary,
           lineHeight: 22,
           marginTop: 12,
           marginBottom: 10,
@@ -267,9 +268,9 @@ export default function PollCard({
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10,
-                backgroundColor: Colors.whiteOverlay4,
+                backgroundColor: colors.whiteOverlay4,
                 borderWidth: 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 10,
@@ -282,11 +283,11 @@ export default function PollCard({
                   height: 18,
                   borderRadius: poll.allow_multiple ? 4 : 9,
                   borderWidth: 1.5,
-                  borderColor: Colors.borderStrong,
+                  borderColor: colors.borderStrong,
                   flexShrink: 0,
                 }}
               />
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textPrimary, flex: 1 }}>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textPrimary, flex: 1 }}>
                 {option.label}
               </Text>
             </TouchableOpacity>
@@ -315,7 +316,7 @@ export default function PollCard({
                     style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 6 }}
                   >
                     {isVoted ? (
-                      <Ionicons name="checkmark-circle" size={15} color={Colors.gold} />
+                      <Ionicons name="checkmark-circle" size={15} color={colors.gold} />
                     ) : (
                       <View style={{ width: 15, height: 15 }} />
                     )}
@@ -323,7 +324,7 @@ export default function PollCard({
                       style={{
                         fontFamily: Fonts.body,
                         fontSize: 13,
-                        color: Colors.textPrimary,
+                        color: colors.textPrimary,
                         flex: 1,
                       }}
                     >
@@ -334,7 +335,7 @@ export default function PollCard({
                     style={{
                       fontFamily: Fonts.bodySemiBold,
                       fontSize: 12,
-                      color: Colors.textSecondary,
+                      color: colors.textSecondary,
                       marginLeft: 8,
                     }}
                   >
@@ -345,7 +346,7 @@ export default function PollCard({
                 <View
                   style={{
                     height: 6,
-                    backgroundColor: Colors.whiteOverlay10,
+                    backgroundColor: colors.whiteOverlay10,
                     borderRadius: 3,
                     overflow: 'hidden',
                   }}
@@ -354,7 +355,7 @@ export default function PollCard({
                     style={{
                       width: `${pct}%`,
                       height: 6,
-                      backgroundColor: isVoted ? Colors.gold : Colors.borderStrong,
+                      backgroundColor: isVoted ? colors.gold : colors.borderStrong,
                       borderRadius: 3,
                     }}
                   />
@@ -385,7 +386,7 @@ export default function PollCard({
         style={{
           fontFamily: Fonts.body,
           fontSize: 12,
-          color: Colors.textTertiary,
+          color: colors.textTertiary,
           marginTop: 12,
         }}
       >

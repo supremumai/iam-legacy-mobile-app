@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 // Batch 45: Members and Leaderboard moved to Community title row. Only Notifications remains.
 const ITEMS = [
@@ -21,6 +21,7 @@ interface AccessBarProps {
 export default function AccessBar({ compact = false }: AccessBarProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const colors = useColors();
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
             >
               {({ pressed }) => (
                 <View style={{ opacity: pressed ? 0.6 : 1 }}>
-                  <Ionicons name={item.icon} size={24} color={Colors.gold} />
+                  <Ionicons name={item.icon} size={24} color={colors.gold} />
                 </View>
               )}
             </Pressable>
@@ -83,7 +84,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
                   minWidth: 16,
                   height: 16,
                   borderRadius: 8,
-                  backgroundColor: Colors.error,
+                  backgroundColor: colors.error,
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingHorizontal: unreadCount >= 10 ? 4 : 0,
@@ -93,7 +94,7 @@ export default function AccessBar({ compact = false }: AccessBarProps) {
                   style={{
                     fontFamily: Fonts.bodyBold,
                     fontSize: 10,
-                    color: Colors.textPrimary,
+                    color: colors.textPrimary,
                   }}
                 >
                   {badgeLabel}

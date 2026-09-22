@@ -1,13 +1,15 @@
-﻿import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Linking, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { EventItem } from '../types/database';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatIsoMonthUpper } from '../lib/dateFormat';
 
+// BADGE_COLORS are intentionally static — Online/In-Person badge colors are
+// fixed semantic colors (blue/green) that do not follow the app theme.
 const BADGE_COLORS = {
   online:   { bg: '#dbeafe', text: '#1d4ed8' },
   inPerson: { bg: '#dcfce7', text: '#16a34a' },
@@ -54,6 +56,7 @@ export default function EventCard({
   const router = useRouter();
   const isAdmin = useIsAdmin();
   const { t, locale } = useLanguage();
+  const colors = useColors();
   const dateParts = parseDateParts(event.event_date, locale);
   const attendees = event.attendees_count ?? 0;
   const goingLabel = attendees === 1
@@ -89,9 +92,9 @@ export default function EventCard({
   return (
     <View
       style={{
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         borderRadius: 12,
         marginBottom: 12,
         overflow: 'hidden',
@@ -110,12 +113,12 @@ export default function EventCard({
           style={{
             width: '100%',
             aspectRatio: 16 / 9,
-            backgroundColor: Colors.surfaceAlt,
+            backgroundColor: colors.surfaceAlt,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="calendar-outline" size={32} color={Colors.textFaint} />
+          <Ionicons name="calendar-outline" size={32} color={colors.textFaint} />
         </View>
       )}
 
@@ -127,9 +130,9 @@ export default function EventCard({
           <View
             style={{
               width: 52,
-              backgroundColor: Colors.surfaceAlt,
+              backgroundColor: colors.surfaceAlt,
               borderWidth: 1,
-              borderColor: Colors.border,
+              borderColor: colors.border,
               borderRadius: 8,
               alignItems: 'center',
               paddingVertical: 8,
@@ -139,7 +142,7 @@ export default function EventCard({
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 11,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 textTransform: 'uppercase',
                 letterSpacing: 0.5,
               }}
@@ -150,7 +153,7 @@ export default function EventCard({
               style={{
                 fontFamily: Fonts.bodyBold,
                 fontSize: 20,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 marginTop: 2,
               }}
             >
@@ -160,7 +163,7 @@ export default function EventCard({
 
           {/* Right group: badge + kebab (admin only) */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {/* Online / In-Person badge */}
+            {/* Online / In-Person badge — uses BADGE_COLORS (static, intentional) */}
             <View
               style={{
                 backgroundColor: isOnline ? BADGE_COLORS.online.bg : BADGE_COLORS.inPerson.bg,
@@ -191,7 +194,7 @@ export default function EventCard({
                 <Ionicons
                   name="ellipsis-horizontal"
                   size={20}
-                  color={Colors.textMuted}
+                  color={colors.textMuted}
                 />
               </TouchableOpacity>
             ) : null}
@@ -204,7 +207,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 17,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginTop: 12,
             }}
           >
@@ -215,12 +218,12 @@ export default function EventCard({
         {/* Location */}
         {event.location ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-            <Ionicons name="location-outline" size={14} color={Colors.textMuted} />
+            <Ionicons name="location-outline" size={14} color={colors.textMuted} />
             <Text
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginLeft: 4,
               }}
             >
@@ -236,7 +239,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.body,
               fontSize: 13,
-              color: Colors.textMuted,
+              color: colors.textMuted,
               marginTop: 8,
               lineHeight: 19,
             }}
@@ -258,7 +261,7 @@ export default function EventCard({
             style={{
               fontFamily: Fonts.body,
               fontSize: 13,
-              color: Colors.textMuted,
+              color: colors.textMuted,
             }}
           >
             {goingLabel}
@@ -275,7 +278,7 @@ export default function EventCard({
               <Ionicons
                 name={isSaved ? 'bookmark' : 'bookmark-outline'}
                 size={20}
-                color={isSaved ? Colors.gold : Colors.textMuted}
+                color={isSaved ? colors.gold : colors.textMuted}
               />
             </TouchableOpacity>
 
@@ -291,13 +294,13 @@ export default function EventCard({
                 }}
                 activeOpacity={0.7}
                 style={{
-                  backgroundColor: Colors.gold,
+                  backgroundColor: colors.gold,
                   borderRadius: 8,
                   paddingHorizontal: 16,
                   paddingVertical: 8,
                 }}
               >
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.background }}>
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: colors.background }}>
                   {t('events.register')}
                 </Text>
               </TouchableOpacity>

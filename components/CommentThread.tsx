@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,7 +19,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { CommentWithAuthor, PostAuthor, ThreadedComment } from '../types/database';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import YouTubePreview from './YouTubePreview';
 
 export interface CommentThreadProps {
@@ -70,6 +70,7 @@ interface AvatarProps {
 }
 
 function CommentAvatar({ author, size }: AvatarProps) {
+  const colors = useColors();
   const initials = getInitials(author?.full_name, author?.username);
   return (
     <View
@@ -77,9 +78,9 @@ function CommentAvatar({ author, size }: AvatarProps) {
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
@@ -93,7 +94,7 @@ function CommentAvatar({ author, size }: AvatarProps) {
           style={{
             fontFamily: Fonts.bodyBold,
             fontSize: size <= 22 ? 8 : 10,
-            color: Colors.textPrimary,
+            color: colors.textPrimary,
           }}
         >
           {initials}
@@ -115,6 +116,7 @@ interface CommentRowProps {
 
 function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: CommentRowProps) {
   const { locale } = useLanguage();
+  const colors = useColors();
   const isOwner = comment.user_id === currentUserId;
   const authorName = resolveDisplayName(comment.author);
   const avatarSize = isReply ? 22 : 28;
@@ -137,7 +139,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: isReply ? 12 : 13,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
             }}
           >
             {authorName}
@@ -145,7 +147,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
               style={{
                 fontFamily: Fonts.body,
                 fontSize: isReply ? 11 : 12,
-                color: Colors.textMuted,
+                color: colors.textMuted,
               }}
             >
               {' · '}
@@ -158,7 +160,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
               hitSlop={8}
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
             >
-              <Ionicons name="trash-outline" size={15} color={Colors.textMuted} />
+              <Ionicons name="trash-outline" size={15} color={colors.textMuted} />
             </Pressable>
           )}
         </View>
@@ -168,7 +170,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
           style={{
             fontFamily: Fonts.body,
             fontSize: isReply ? 13 : 14,
-            color: Colors.textPrimary,
+            color: colors.textPrimary,
             lineHeight: isReply ? 18 : 20,
             marginTop: 2,
           }}
@@ -192,7 +194,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 12,
-              color: Colors.gold,
+              color: colors.gold,
             }}
           >
             Reply
@@ -213,11 +215,12 @@ interface ThreadedItemProps {
 }
 
 function ThreadedItem({ thread, currentUserId, onReply, onDelete }: ThreadedItemProps) {
+  const colors = useColors();
   return (
     <View
       style={{
         borderBottomWidth: 1,
-        borderBottomColor: Colors.borderSubtle,
+        borderBottomColor: colors.borderSubtle,
       }}
     >
       {/* Top-level comment */}
@@ -235,7 +238,7 @@ function ThreadedItem({ thread, currentUserId, onReply, onDelete }: ThreadedItem
           style={{
             marginLeft: 36,
             borderLeftWidth: 1,
-            borderLeftColor: Colors.borderSubtle,
+            borderLeftColor: colors.borderSubtle,
             paddingLeft: 12,
             marginBottom: 8,
           }}
@@ -277,6 +280,7 @@ function ComposerSection({
   canSubmit,
   inputRef,
 }: ComposerProps) {
+  const colors = useColors();
   const inputVideoId = findFirstYouTubeVideoId(inputText);
 
   return (
@@ -290,16 +294,16 @@ function ComposerSection({
             justifyContent: 'space-between',
             paddingHorizontal: 20,
             paddingVertical: 8,
-            backgroundColor: Colors.surfaceAlt,
+            backgroundColor: colors.surfaceAlt,
             borderTopWidth: 1,
-            borderTopColor: Colors.borderSubtle,
+            borderTopColor: colors.borderSubtle,
           }}
         >
           <Text
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: Colors.textMuted,
+              color: colors.textMuted,
             }}
           >
             Replying to {resolveDisplayName(replyingTo.author)}
@@ -309,7 +313,7 @@ function ComposerSection({
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <Ionicons name="close" size={16} color={Colors.textMuted} />
+            <Ionicons name="close" size={16} color={colors.textMuted} />
           </Pressable>
         </View>
       ) : null}
@@ -329,7 +333,7 @@ function ComposerSection({
           paddingHorizontal: 20,
           paddingVertical: 12,
           borderTopWidth: 1,
-          borderTopColor: Colors.borderSubtle,
+          borderTopColor: colors.borderSubtle,
         }}
       >
         <TextInput
@@ -338,12 +342,12 @@ function ComposerSection({
             flex: 1,
             fontFamily: Fonts.body,
             fontSize: 14,
-            color: Colors.textPrimary,
+            color: colors.textPrimary,
             backgroundColor: 'transparent',
             maxHeight: 96,
           }}
           placeholder={replyingTo ? 'Write a reply...' : 'Add a comment...'}
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={inputText}
           onChangeText={onChangeText}
           multiline
@@ -359,7 +363,7 @@ function ComposerSection({
           <Ionicons
             name="arrow-up-circle"
             size={28}
-            color={canSubmit ? Colors.gold : Colors.borderStrong}
+            color={canSubmit ? colors.gold : colors.borderStrong}
           />
         </Pressable>
       </View>
@@ -376,6 +380,7 @@ export default function CommentThread({
   scrollable = true,
 }: CommentThreadProps) {
   const { user } = useAuth();
+  const colors = useColors();
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -553,7 +558,7 @@ export default function CommentThread({
       <View style={{ flex: 1 }}>
         {loading && comments.length === 0 ? (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <ActivityIndicator color={Colors.gold} size="large" />
+            <ActivityIndicator color={colors.gold} size="large" />
           </View>
         ) : (
           <FlatList<ThreadedComment>
@@ -570,7 +575,7 @@ export default function CommentThread({
             ListEmptyComponent={
               <View style={{ alignItems: 'center', paddingVertical: 32 }}>
                 <Text
-                  style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}
+                  style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary }}
                 >
                   No comments yet
                 </Text>
@@ -578,7 +583,7 @@ export default function CommentThread({
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 13,
-                    color: Colors.textMuted,
+                    color: colors.textMuted,
                     marginTop: 4,
                   }}
                 >
@@ -611,28 +616,28 @@ export default function CommentThread({
           paddingTop: 20,
           paddingBottom: 12,
           borderTopWidth: 1,
-          borderTopColor: Colors.borderSubtle,
+          borderTopColor: colors.borderSubtle,
         }}
       >
-        <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: Colors.gold }}>
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: colors.gold }}>
           Comments
         </Text>
       </View>
 
       {loading && comments.length === 0 ? (
         <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={colors.gold} size="large" />
         </View>
       ) : threads.length === 0 ? (
         <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 32 }}>
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.textPrimary }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary }}>
             No comments yet
           </Text>
           <Text
             style={{
               fontFamily: Fonts.body,
               fontSize: 13,
-              color: Colors.textMuted,
+              color: colors.textMuted,
               marginTop: 4,
             }}
           >
