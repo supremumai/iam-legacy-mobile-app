@@ -1,15 +1,24 @@
 {
   "expo": {
-    "name": "iam-legacy-mobile-app",
+    "name": "I Am Legacy",
     "slug": "iam-legacy-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0900"
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.legacyfusion.iamlegacy",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.legacyfusion.iamlegacy",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
