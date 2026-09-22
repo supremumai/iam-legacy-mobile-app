@@ -27,6 +27,7 @@ export default function SignInScreen() {
   const [focused, setFocused] = useState<FocusedField>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   const fieldBorder = (field: FocusedField) =>
     focused === field ? Colors.gold : Colors.border;
@@ -52,8 +53,22 @@ export default function SignInScreen() {
     // On success, onAuthStateChange in root layout handles redirect to /(tabs)/
   }
 
-  function handleForgotPassword() {
-    Alert.alert('Forgot Password', 'Password reset coming soon.');
+  async function handleForgotPassword() {
+    if (!email.trim()) {
+      setError('Enter your email address above, then tap Forgot Password.');
+      return;
+    }
+    setLoading(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email.trim(),
+      { redirectTo: 'iam-legacy-mobile-app://reset-password' }
+    );
+    setLoading(false);
+    if (resetError) {
+      setError(resetError.message);
+    } else {
+      setResetSent(true);
+    }
   }
 
   return (
@@ -118,6 +133,13 @@ export default function SignInScreen() {
             >
               <Text style={styles.forgotText}>Forgot Password?</Text>
             </TouchableOpacity>
+
+            {/* Reset sent confirmation */}
+            {resetSent && (
+              <Text style={styles.successText}>
+                Password reset email sent. Check your inbox.
+              </Text>
+            )}
 
             {/* Error */}
             {!!error && <Text style={styles.errorText}>{error}</Text>}
@@ -221,6 +243,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
     color: Colors.error,
+    marginBottom: 12,
+  },
+  successText: {
+    fontFamily: 'Inter_400Regular',
+    fontSize: 14,
+    color: Colors.gold,
     marginBottom: 12,
   },
   submitButton: {
