@@ -3,11 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { Fonts } from '../../../../constants/fonts';
-import { Colors } from '../../../../constants/colors';
-
-const GOLD = Colors.gold;
-const BG = Colors.background;
-const GREEN = Colors.success;
+import { useColors } from '../../../../contexts/ThemeContext';
 
 export default function QuizResultScreen() {
   const { moduleId, score, total, passed, nextModuleId, courseId } =
@@ -21,6 +17,10 @@ export default function QuizResultScreen() {
     }>();
   const { t } = useLanguage();
   const router = useRouter();
+  const colors = useColors();
+  const GOLD = colors.gold;
+  const BG = colors.background;
+  const GREEN = colors.success;
 
   const scoreNum = parseInt(score ?? '0', 10);
   const totalNum = parseInt(total ?? '0', 10);
@@ -55,9 +55,9 @@ export default function QuizResultScreen() {
           width: 88,
           height: 88,
           borderRadius: 44,
-          backgroundColor: didPass ? Colors.successBg : Colors.surfacePanel,
+          backgroundColor: didPass ? colors.successBg : colors.surfacePanel,
           borderWidth: 1.5,
-          borderColor: didPass ? Colors.successBorder : Colors.border,
+          borderColor: didPass ? colors.successBorder : colors.border,
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 28,
@@ -66,7 +66,7 @@ export default function QuizResultScreen() {
         <Ionicons
           name={didPass ? 'trophy' : 'ribbon-outline'}
           size={42}
-          color={didPass ? GREEN : Colors.borderStrong}
+          color={didPass ? GREEN : colors.borderStrong}
         />
       </View>
 
@@ -88,7 +88,7 @@ export default function QuizResultScreen() {
         style={{
           fontFamily: Fonts.bodySemiBold,
           fontSize: 16,
-          color: Colors.textSecondary,
+          color: colors.textSecondary,
           textAlign: 'center',
           marginBottom: 48,
         }}
@@ -125,7 +125,7 @@ export default function QuizResultScreen() {
         activeOpacity={0.7}
         style={{ paddingVertical: 12, alignSelf: 'stretch', alignItems: 'center' }}
       >
-        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.goldMid }}>
+        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.goldMid }}>
           {didPass ? t('education.back_to_course') : t('education.rewatch_video')}
         </Text>
       </TouchableOpacity>
