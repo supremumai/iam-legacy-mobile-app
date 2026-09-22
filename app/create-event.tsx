@@ -18,9 +18,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { pickAndUploadImage } from '../lib/upload';
+import { pickAndUploadImage, deleteEventImageIfOwned } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatDateFull, formatTime } from '../lib/dateFormat';
 
@@ -38,6 +38,7 @@ export default function CreateEventScreen() {
   const router = useRouter();
   const { user, profile } = useAuth();
   const { t, locale } = useLanguage();
+  const colors = useColors();
 
   // Optional `id` param — present in edit mode, absent in create mode.
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -57,6 +58,9 @@ export default function CreateEventScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  // Captures the image_url at load time in edit mode; never mutated by user actions.
+  // Used to detect whether the admin changed the image so the old file can be deleted.
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
 
   const [registrationUrl, setRegistrationUrl] = useState('');
@@ -97,6 +101,7 @@ export default function CreateEventScreen() {
           setOriginalEventDate(d);
         }
         setImageUrl(data.image_url ?? null);
+        setOriginalImageUrl(data.image_url ?? null);
         setRegistrationUrl(data.registration_url ?? '');
       } catch (e) {
         if (!cancelled) {
@@ -150,14 +155,14 @@ export default function CreateEventScreen() {
   // ── Non-admin guard ───────────────────────────────────────────────────────
   if (profile?.is_admin !== true) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
         </View>
         <View
@@ -172,7 +177,7 @@ export default function CreateEventScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 15,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               textAlign: 'center',
             }}
           >
@@ -186,18 +191,18 @@ export default function CreateEventScreen() {
   // ── Loading state (edit mode only, while fetching the existing event) ─────
   if (loadingEvent) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
           >
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={colors.gold} size="large" />
         </View>
       </View>
     );
@@ -272,6 +277,11 @@ export default function CreateEventScreen() {
           })
           .eq('id', id);
         if (error) throw error;
+        // UPDATE succeeded — clean up the old image if the admin replaced or removed it.
+        // Fire-and-forget: cleanup failure must never block or revert the successful save.
+        if (originalImageUrl !== imageUrl) {
+          void deleteEventImageIfOwned(originalImageUrl);
+        }
         Alert.alert(t('create_event.event_updated'), undefined, [{ text: t('common.ok'), onPress: () => router.back() }]);
       } else {
         // Create mode — INSERT new event
@@ -304,7 +314,7 @@ export default function CreateEventScreen() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Top bar */}
       <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
         <Pressable
@@ -312,7 +322,7 @@ export default function CreateEventScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, alignSelf: 'flex-start' })}
         >
-          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+          <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </Pressable>
       </View>
 
@@ -331,7 +341,7 @@ export default function CreateEventScreen() {
             style={{
               fontFamily: Fonts.heading,
               fontSize: 24,
-              color: Colors.gold,
+              color: colors.gold,
               marginTop: 8,
             }}
           >
@@ -344,7 +354,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -354,16 +364,16 @@ export default function CreateEventScreen() {
               value={eventTitle}
               onChangeText={setEventTitle}
               placeholder={t('create_event.placeholder_title')}
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               maxLength={200}
               style={{
-                backgroundColor: Colors.surface,
+                backgroundColor: colors.surface,
                 borderWidth: 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 8,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: Fonts.body,
                 fontSize: 14,
               }}
@@ -376,7 +386,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -386,17 +396,17 @@ export default function CreateEventScreen() {
               value={description}
               onChangeText={setDescription}
               placeholder={t('create_event.placeholder_description')}
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               multiline
               maxLength={2000}
               style={{
-                backgroundColor: Colors.surface,
+                backgroundColor: colors.surface,
                 borderWidth: 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 8,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: Fonts.body,
                 fontSize: 14,
                 minHeight: 88,
@@ -411,7 +421,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -421,15 +431,15 @@ export default function CreateEventScreen() {
               value={location}
               onChangeText={setLocation}
               placeholder={t('create_event.placeholder_location')}
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               style={{
-                backgroundColor: Colors.surface,
+                backgroundColor: colors.surface,
                 borderWidth: 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 8,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: Fonts.body,
                 fontSize: 14,
               }}
@@ -442,7 +452,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -457,9 +467,9 @@ export default function CreateEventScreen() {
                     key={type}
                     onPress={() => setEventType(type)}
                     style={{
-                      backgroundColor: active ? Colors.gold : Colors.surface,
+                      backgroundColor: active ? colors.gold : colors.surface,
                       borderWidth: active ? 0 : 1,
-                      borderColor: Colors.border,
+                      borderColor: colors.border,
                       borderRadius: 999,
                       paddingHorizontal: 20,
                       paddingVertical: 10,
@@ -469,7 +479,7 @@ export default function CreateEventScreen() {
                       style={{
                         fontFamily: active ? Fonts.bodyBold : Fonts.bodySemiBold,
                         fontSize: 14,
-                        color: active ? Colors.background : Colors.textPrimary,
+                        color: active ? colors.background : colors.textPrimary,
                       }}
                     >
                       {label}
@@ -486,7 +496,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -505,20 +515,20 @@ export default function CreateEventScreen() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
-                  backgroundColor: Colors.surface,
+                  backgroundColor: colors.surface,
                   borderWidth: 1,
-                  borderColor: dateError ? Colors.error : Colors.border,
+                  borderColor: dateError ? colors.error : colors.border,
                   borderRadius: 8,
                   paddingHorizontal: 12,
                   paddingVertical: 12,
                 }}
               >
-                <Ionicons name="calendar-outline" size={16} color={Colors.textMuted} />
+                <Ionicons name="calendar-outline" size={16} color={colors.textMuted} />
                 <Text
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 13,
-                    color: Colors.textPrimary,
+                    color: colors.textPrimary,
                     flexShrink: 1,
                   }}
                   numberOfLines={1}
@@ -538,16 +548,16 @@ export default function CreateEventScreen() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
-                  backgroundColor: Colors.surface,
+                  backgroundColor: colors.surface,
                   borderWidth: 1,
-                  borderColor: Colors.border,
+                  borderColor: colors.border,
                   borderRadius: 8,
                   paddingHorizontal: 12,
                   paddingVertical: 12,
                 }}
               >
-                <Ionicons name="time-outline" size={16} color={Colors.textMuted} />
-                <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textPrimary }}>
+                <Ionicons name="time-outline" size={16} color={colors.textMuted} />
+                <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textPrimary }}>
                   {formatTime(eventDate, locale)}
                 </Text>
               </TouchableOpacity>
@@ -558,7 +568,7 @@ export default function CreateEventScreen() {
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: Colors.error,
+                  color: colors.error,
                   marginTop: 4,
                 }}
               >
@@ -579,7 +589,7 @@ export default function CreateEventScreen() {
                   style={{ alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 4 }}
                 >
                   <Text
-                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold }}
+                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold }}
                   >
                     {t('create_event.done')}
                   </Text>
@@ -605,7 +615,7 @@ export default function CreateEventScreen() {
                   style={{ alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 4 }}
                 >
                   <Text
-                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold }}
+                    style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold }}
                   >
                     {t('create_event.done')}
                   </Text>
@@ -627,7 +637,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -640,9 +650,9 @@ export default function CreateEventScreen() {
               style={{
                 width: '100%',
                 aspectRatio: 16 / 9,
-                backgroundColor: Colors.surface,
+                backgroundColor: colors.surface,
                 borderWidth: 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 8,
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -650,7 +660,7 @@ export default function CreateEventScreen() {
               }}
             >
               {imageUploading ? (
-                <ActivityIndicator color={Colors.gold} size="large" />
+                <ActivityIndicator color={colors.gold} size="large" />
               ) : imageUrl ? (
                 <Image
                   source={{ uri: imageUrl }}
@@ -659,12 +669,12 @@ export default function CreateEventScreen() {
                 />
               ) : (
                 <View style={{ alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="image-outline" size={32} color={Colors.textFaint} />
+                  <Ionicons name="image-outline" size={32} color={colors.textFaint} />
                   <Text
                     style={{
                       fontFamily: Fonts.body,
                       fontSize: 13,
-                      color: Colors.textFaint,
+                      color: colors.textFaint,
                     }}
                   >
                     {t('create_event.add_image')}
@@ -682,7 +692,7 @@ export default function CreateEventScreen() {
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 12,
-                    color: Colors.textTertiary,
+                    color: colors.textTertiary,
                   }}
                 >
                   {t('create_event.remove_image')}
@@ -697,7 +707,7 @@ export default function CreateEventScreen() {
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textMuted,
+                color: colors.textMuted,
                 marginBottom: 8,
               }}
             >
@@ -707,19 +717,19 @@ export default function CreateEventScreen() {
               value={registrationUrl}
               onChangeText={setRegistrationUrl}
               placeholder="https://..."
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               autoCapitalize="none"
               keyboardType="url"
               style={{
-                backgroundColor: Colors.surface,
+                backgroundColor: colors.surface,
                 borderWidth: 1,
                 borderColor: registrationUrlError
-                  ? Colors.error
-                  : Colors.border,
+                  ? colors.error
+                  : colors.border,
                 borderRadius: 8,
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: Fonts.body,
                 fontSize: 14,
               }}
@@ -729,7 +739,7 @@ export default function CreateEventScreen() {
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: Colors.error,
+                  color: colors.error,
                   marginTop: 4,
                 }}
               >
@@ -743,7 +753,7 @@ export default function CreateEventScreen() {
             onPress={handleSubmit}
             disabled={!canSubmit}
             style={{
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
               borderRadius: 8,
               paddingVertical: 14,
               alignItems: 'center',
@@ -753,10 +763,10 @@ export default function CreateEventScreen() {
             }}
           >
             {submitting ? (
-              <ActivityIndicator color={Colors.background} size="small" />
+              <ActivityIndicator color={colors.background} size="small" />
             ) : (
               <Text
-                style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.background }}
+                style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.background }}
               >
                 {isEditing ? t('create_event.submit_save') : t('create_event.submit_create')}
               </Text>

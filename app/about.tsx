@@ -4,15 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useLanguage();
+  const colors = useColors();
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background, paddingTop: insets.top }}>
+    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: insets.top }}>
       {/* ── Header ──────────────────────────────────────────────────── */}
       <View
         style={{
@@ -21,7 +22,7 @@ export default function AboutScreen() {
           paddingHorizontal: 20,
           paddingVertical: 16,
           borderBottomWidth: 1,
-          borderBottomColor: Colors.border,
+          borderBottomColor: colors.border,
         }}
       >
         <TouchableOpacity
@@ -29,13 +30,13 @@ export default function AboutScreen() {
           activeOpacity={0.7}
           hitSlop={10}
         >
-          <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+          <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 20,
-            color: Colors.gold,
+            color: colors.gold,
             marginLeft: 12,
           }}
         >
@@ -52,12 +53,12 @@ export default function AboutScreen() {
           paddingHorizontal: 32,
         }}
       >
-        <Ionicons name="information-circle-outline" size={56} color={Colors.borderStrong} />
+        <Ionicons name="information-circle-outline" size={56} color={colors.borderStrong} />
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 26,
-            color: Colors.gold,
+            color: colors.gold,
             marginTop: 20,
             marginBottom: 12,
             textAlign: 'center',
@@ -69,7 +70,7 @@ export default function AboutScreen() {
           style={{
             fontFamily: Fonts.body,
             fontSize: 15,
-            color: Colors.textMuted,
+            color: colors.textMuted,
             textAlign: 'center',
             lineHeight: 23,
           }}
@@ -81,15 +82,15 @@ export default function AboutScreen() {
           activeOpacity={0.7}
           style={{
             marginTop: 36,
-            backgroundColor: Colors.surface,
+            backgroundColor: colors.surface,
             borderWidth: 1,
-            borderColor: Colors.borderStrong,
+            borderColor: colors.borderStrong,
             borderRadius: 8,
             paddingHorizontal: 32,
             paddingVertical: 13,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: Colors.gold }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold }}>
             {t('common.back')}
           </Text>
         </TouchableOpacity>

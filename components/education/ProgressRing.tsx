@@ -1,10 +1,6 @@
 ﻿import { Text, View } from 'react-native';
 import { Fonts } from '../../constants/fonts';
-import { Colors } from '../../constants/colors';
-
-const GOLD = Colors.gold;
-const TRACK = Colors.border;
-const BG = Colors.background;
+import { useColors } from '../../contexts/ThemeContext';
 
 // Progress ring implemented with View+borderRadius (no react-native-svg required).
 // Arc effect uses the two-half clip+rotate technique; SVG can replace this in a
@@ -18,6 +14,10 @@ export default function ProgressRing({
   size?: number;
   strokeWidth?: number;
 }) {
+  const colors = useColors();
+  const GOLD = colors.gold;
+  const TRACK = colors.border;
+  const BG = colors.background;
   const p = Math.min(100, Math.max(0, Math.round(percent)));
   const deg = (p / 100) * 360;
   const halfW = size / 2;

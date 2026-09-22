@@ -18,7 +18,7 @@ import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { deleteEventImageIfOwned } from '../../../lib/upload';
 import { EventItem } from '../../../types/database';
 import { Fonts } from '../../../constants/fonts';
-import { Colors } from '../../../constants/colors';
+import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
 import EventCard from '../../../components/EventCard';
 import { useLanguage } from '../../../contexts/LanguageContext';
@@ -70,6 +70,7 @@ export default function EventsScreen() {
   const router = useRouter();
   const { user, profile } = useAuth();
   const { t } = useLanguage();
+  const colors = useColors();
   const isAdmin = profile?.is_admin === true;
 
   const [allEvents, setAllEvents] = useState<EventItem[]>([]);
@@ -178,13 +179,13 @@ export default function EventsScreen() {
   // ── Error screen ──────────────────────────────────────────────────────────
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <GlobalHeader />
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 24,
-            color: Colors.gold,
+            color: colors.gold,
             paddingHorizontal: 20,
             marginTop: 16,
           }}
@@ -203,7 +204,7 @@ export default function EventsScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -216,14 +217,14 @@ export default function EventsScreen() {
               fetchData();
             }}
             style={({ pressed }) => ({
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.background }}>
               {t('events.retry')}
             </Text>
           </Pressable>
@@ -250,7 +251,7 @@ export default function EventsScreen() {
           style={{
             fontFamily: Fonts.heading,
             fontSize: 24,
-            color: Colors.gold,
+            color: colors.gold,
           }}
         >
           {t('events.title')}
@@ -265,12 +266,12 @@ export default function EventsScreen() {
               height: 40,
               borderRadius: 20,
               borderWidth: 1,
-              borderColor: Colors.borderStrong,
+              borderColor: colors.borderStrong,
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="add" size={22} color={Colors.gold} />
+            <Ionicons name="add" size={22} color={colors.gold} />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -288,9 +289,9 @@ export default function EventsScreen() {
               key={f}
               onPress={() => setActiveFilter(f)}
               style={{
-                backgroundColor: active ? Colors.gold : Colors.surface,
+                backgroundColor: active ? colors.gold : colors.surface,
                 borderWidth: active ? 0 : 1,
-                borderColor: Colors.border,
+                borderColor: colors.border,
                 borderRadius: 999,
                 paddingHorizontal: 16,
                 paddingVertical: 8,
@@ -300,7 +301,7 @@ export default function EventsScreen() {
                 style={{
                   fontFamily: active ? Fonts.bodyBold : Fonts.bodySemiBold,
                   fontSize: 14,
-                  color: active ? Colors.background : Colors.textPrimary,
+                  color: active ? colors.background : colors.textPrimary,
                 }}
               >
                 {getFilterLabel(f, t)}
@@ -318,7 +319,7 @@ export default function EventsScreen() {
           marginBottom: 8,
           fontFamily: Fonts.heading,
           fontSize: 18,
-          color: Colors.gold,
+          color: colors.gold,
         }}
       >
         {t('events.upcoming_section')}
@@ -338,7 +339,7 @@ export default function EventsScreen() {
               marginBottom: 8,
               fontFamily: Fonts.heading,
               fontSize: 18,
-              color: Colors.gold,
+              color: colors.gold,
             }}
           >
             {t('events.past_section')}
@@ -364,18 +365,18 @@ export default function EventsScreen() {
   // ── Empty state ───────────────────────────────────────────────────────────
   const listEmpty = loading ? (
     <View style={{ alignItems: 'center', paddingVertical: 48 }}>
-      <ActivityIndicator color={Colors.gold} size="large" />
+      <ActivityIndicator color={colors.gold} size="large" />
     </View>
   ) : activeFilter !== 'All' && upcoming.length > 0 ? (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
-      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
         {t('events.no_match_filter')}
       </Text>
       <Text
         style={{
           fontFamily: Fonts.body,
           fontSize: 13,
-          color: Colors.textMuted,
+          color: colors.textMuted,
           marginTop: 4,
           textAlign: 'center',
         }}
@@ -385,14 +386,14 @@ export default function EventsScreen() {
     </View>
   ) : (
     <View style={{ alignItems: 'center', paddingHorizontal: 20, paddingVertical: 40 }}>
-      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary }}>
+      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
         {t('events.no_events_yet')}
       </Text>
       <Text
         style={{
           fontFamily: Fonts.body,
           fontSize: 13,
-          color: Colors.textMuted,
+          color: colors.textMuted,
           marginTop: 4,
           textAlign: 'center',
         }}
@@ -403,7 +404,7 @@ export default function EventsScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <FlatList<EventItem>
         data={filteredUpcoming}
         keyExtractor={(item) => item.id}
@@ -422,8 +423,8 @@ export default function EventsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor={Colors.gold}
-            colors={[Colors.gold]}
+            tintColor={colors.gold}
+            colors={[colors.gold]}
           />
         }
         ListHeaderComponent={listHeader}

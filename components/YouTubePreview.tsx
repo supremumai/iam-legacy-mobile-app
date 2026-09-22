@@ -2,7 +2,7 @@ import { Alert, Image, Linking, Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 interface YouTubePreviewProps {
   videoId: string;
@@ -10,6 +10,7 @@ interface YouTubePreviewProps {
 }
 
 export default function YouTubePreview({ videoId, size = 'full' }: YouTubePreviewProps) {
+  const colors = useColors();
   const handlePress = async () => {
     try {
       await Linking.openURL(youTubeWatchUrl(videoId));
@@ -30,7 +31,7 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
         borderRadius: 10,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
       }}
     >
       {({ pressed }) => (
@@ -58,7 +59,7 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="play-circle" size={iconSize} color={Colors.playIconColor} />
+            <Ionicons name="play-circle" size={iconSize} color={colors.playIconColor} />
           </View>
 
           {/* YouTube label chip — top-left corner */}
@@ -67,13 +68,13 @@ export default function YouTubePreview({ videoId, size = 'full' }: YouTubePrevie
               position: 'absolute',
               top: 8,
               left: 8,
-              backgroundColor: Colors.overlay,
+              backgroundColor: colors.overlay,
               paddingHorizontal: 6,
               paddingVertical: 2,
               borderRadius: 4,
             }}
           >
-            <Text style={{ fontFamily: Fonts.body, fontSize: 10, color: Colors.textPrimary }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 10, color: colors.textPrimary }}>
               YouTube
             </Text>
           </View>

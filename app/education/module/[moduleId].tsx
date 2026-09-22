@@ -26,11 +26,7 @@ import {
 } from '../../../lib/education';
 import { uploadModuleVideo } from '../../../lib/upload';
 import { Fonts } from '../../../constants/fonts';
-import { Colors } from '../../../constants/colors';
-
-const GOLD = Colors.gold;
-const BG = Colors.background;
-const RED = Colors.error;
+import { useColors } from '../../../contexts/ThemeContext';
 
 const DIRECT_VIDEO_EXTS = ['.mp4', '.mov', '.m4v', '.webm'];
 
@@ -67,6 +63,10 @@ export default function ModuleVideoScreen() {
   const { t } = useLanguage();
   const router = useRouter();
   const isAdmin = useAdminInEducation();
+  const colors = useColors();
+  const GOLD = colors.gold;
+  const BG = colors.background;
+  const RED = colors.error;
 
   const [result, setResult] = useState<ModuleDetailResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -297,7 +297,7 @@ export default function ModuleVideoScreen() {
           <Ionicons name="arrow-back" size={24} color={GOLD} />
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: Colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary, marginBottom: 16, textAlign: 'center' }}>
             {t('education.could_not_load_course')}
           </Text>
           <Pressable
@@ -345,16 +345,16 @@ export default function ModuleVideoScreen() {
               style={{
                 width: '100%',
                 aspectRatio: 16 / 9,
-                backgroundColor: Colors.surfacePanel,
+                backgroundColor: colors.surfacePanel,
                 borderBottomWidth: 1,
-                borderBottomColor: Colors.borderSubtle,
+                borderBottomColor: colors.borderSubtle,
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
               }}
             >
-              <Ionicons name="videocam-outline" size={40} color={Colors.borderStrong} />
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textTertiary }}>
+              <Ionicons name="videocam-outline" size={40} color={colors.borderStrong} />
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textTertiary }}>
                 {t('education.video_coming_soon')}
               </Text>
             </View>
@@ -366,7 +366,7 @@ export default function ModuleVideoScreen() {
               position: 'absolute',
               top: 12,
               left: 12,
-              backgroundColor: Colors.overlay,
+              backgroundColor: colors.overlay,
               borderRadius: 8,
               paddingHorizontal: 10,
               paddingVertical: 5,
@@ -382,12 +382,12 @@ export default function ModuleVideoScreen() {
 
         {/* ── CONTEXT — title, description, key terms ── */}
         <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: Colors.textPrimary, lineHeight: 28, marginBottom: 8 }}>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.textPrimary, lineHeight: 28, marginBottom: 8 }}>
             {module.title}
           </Text>
 
           {!!module.summary && (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20, marginBottom: 12 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textSecondary, lineHeight: 20, marginBottom: 12 }}>
               {module.summary}
             </Text>
           )}
@@ -398,13 +398,13 @@ export default function ModuleVideoScreen() {
                 <View
                   key={term}
                   style={{
-                    backgroundColor: Colors.borderSubtle,
+                    backgroundColor: colors.borderSubtle,
                     borderRadius: 99,
                     paddingHorizontal: 10,
                     paddingVertical: 4,
                   }}
                 >
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: Colors.goldStrong }}>
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: colors.goldStrong }}>
                     {term}
                   </Text>
                 </View>
@@ -432,13 +432,13 @@ export default function ModuleVideoScreen() {
           </TouchableOpacity>
 
           {!hasVideo && (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textTertiary, textAlign: 'center', marginTop: 8 }}>
               {t('education.video_not_available')}
             </Text>
           )}
 
           {hasVideo && !canTakeQuiz && (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textTertiary, textAlign: 'center', marginTop: 8 }}>
               {t('education.watch_to_unlock')}
             </Text>
           )}
@@ -451,15 +451,15 @@ export default function ModuleVideoScreen() {
               marginHorizontal: 20,
               marginTop: 4,
               borderTopWidth: 1,
-              borderTopColor: Colors.border,
+              borderTopColor: colors.border,
               paddingTop: 16,
               paddingBottom: 48,
             }}
           >
             {/* ADMIN header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }}>
-              <Ionicons name="settings-outline" size={13} color={Colors.borderStrong} />
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.borderStrong, letterSpacing: 1, textTransform: 'uppercase' }}>
+              <Ionicons name="settings-outline" size={13} color={colors.borderStrong} />
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 1, textTransform: 'uppercase' }}>
                 {t('education.admin_panel')}
               </Text>
             </View>
@@ -475,9 +475,9 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 8,
-                    backgroundColor: Colors.surfacePanel,
+                    backgroundColor: colors.surfacePanel,
                     borderWidth: 1,
-                    borderColor: Colors.borderStrong,
+                    borderColor: colors.borderStrong,
                     borderRadius: 8,
                     paddingVertical: 12,
                     marginBottom: 12,
@@ -501,7 +501,7 @@ export default function ModuleVideoScreen() {
                   )}
                 </TouchableOpacity>
 
-                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: Colors.textFaint, textAlign: 'center', marginBottom: 12 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.textFaint, textAlign: 'center', marginBottom: 12 }}>
                   {t('education.admin_or')}
                 </Text>
 
@@ -509,20 +509,20 @@ export default function ModuleVideoScreen() {
                   value={adminUrlInput}
                   onChangeText={(text) => { setAdminUrlInput(text); setAdminUrlError(null); }}
                   placeholder={t('education.admin_url_placeholder')}
-                  placeholderTextColor={Colors.textPlaceholder}
+                  placeholderTextColor={colors.textPlaceholder}
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="url"
                   style={{
-                    backgroundColor: Colors.surfacePanel,
+                    backgroundColor: colors.surfacePanel,
                     borderWidth: 1,
-                    borderColor: adminUrlError ? RED : Colors.border,
+                    borderColor: adminUrlError ? RED : colors.border,
                     borderRadius: 8,
                     paddingHorizontal: 14,
                     paddingVertical: 10,
                     fontFamily: Fonts.body,
                     fontSize: 14,
-                    color: Colors.textPrimary,
+                    color: colors.textPrimary,
                     marginBottom: adminUrlError ? 6 : 8,
                   }}
                 />
@@ -537,9 +537,9 @@ export default function ModuleVideoScreen() {
                   onPress={adminUrlSaving ? undefined : handleSaveUrl}
                   activeOpacity={adminUrlSaving ? 1 : 0.8}
                   style={{
-                    backgroundColor: Colors.borderSubtle,
+                    backgroundColor: colors.borderSubtle,
                     borderWidth: 1,
-                    borderColor: Colors.borderStrong,
+                    borderColor: colors.borderStrong,
                     borderRadius: 8,
                     paddingVertical: 10,
                     alignItems: 'center',
@@ -562,9 +562,9 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    backgroundColor: Colors.surfacePanel,
+                    backgroundColor: colors.surfacePanel,
                     borderWidth: 1,
-                    borderColor: Colors.borderStrong,
+                    borderColor: colors.borderStrong,
                     borderRadius: 8,
                     paddingVertical: 11,
                     opacity: adminUploading ? 0.6 : 1,
@@ -589,9 +589,9 @@ export default function ModuleVideoScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 6,
-                    backgroundColor: Colors.errorSurface,
+                    backgroundColor: colors.errorSurface,
                     borderWidth: 1,
-                    borderColor: Colors.errorBorder,
+                    borderColor: colors.errorBorder,
                     borderRadius: 8,
                     paddingVertical: 11,
                   }}
@@ -607,14 +607,14 @@ export default function ModuleVideoScreen() {
             {/* Quiz questions sub-panel */}
             <View style={{ marginTop: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 16 }}>
-                <Ionicons name="help-circle-outline" size={13} color={Colors.borderStrong} />
-                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.borderStrong, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                <Ionicons name="help-circle-outline" size={13} color={colors.borderStrong} />
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.8, textTransform: 'uppercase' }}>
                   {t('education.admin_quiz_questions')}
                 </Text>
               </View>
 
               {quizEdits.length === 0 ? (
-                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textFaint, textAlign: 'center', paddingVertical: 12 }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textFaint, textAlign: 'center', paddingVertical: 12 }}>
                   {t('education.admin_no_questions')}
                 </Text>
               ) : (
@@ -622,15 +622,15 @@ export default function ModuleVideoScreen() {
                   <View
                     key={edit.id}
                     style={{
-                      backgroundColor: Colors.surfaceAlt,
+                      backgroundColor: colors.surfaceAlt,
                       borderWidth: 1,
-                      borderColor: Colors.borderSubtle,
+                      borderColor: colors.borderSubtle,
                       borderRadius: 10,
                       padding: 14,
                       marginBottom: 12,
                     }}
                   >
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.borderStrong, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
                       {t('education.admin_question')} {idx + 1}
                     </Text>
 
@@ -639,17 +639,17 @@ export default function ModuleVideoScreen() {
                       onChangeText={(v) => updateQuizEdit(idx, { question: v, error: null })}
                       multiline
                       placeholder={t('education.admin_question')}
-                      placeholderTextColor={Colors.textPlaceholder}
+                      placeholderTextColor={colors.textPlaceholder}
                       style={{
                         backgroundColor: BG,
                         borderWidth: 1,
-                        borderColor: Colors.border,
+                        borderColor: colors.border,
                         borderRadius: 8,
                         paddingHorizontal: 12,
                         paddingVertical: 8,
                         fontFamily: Fonts.body,
                         fontSize: 14,
-                        color: Colors.textPrimary,
+                        color: colors.textPrimary,
                         marginBottom: 10,
                         minHeight: 60,
                         textAlignVertical: 'top',
@@ -658,31 +658,31 @@ export default function ModuleVideoScreen() {
 
                     {QUIZ_OPT_KEYS.map(({ key, label }) => (
                       <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: Colors.borderStrong, width: 20, textAlign: 'center' }}>
+                        <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: colors.borderStrong, width: 20, textAlign: 'center' }}>
                           {label}
                         </Text>
                         <TextInput
                           value={edit[key]}
                           onChangeText={(v) => updateQuizEdit(idx, { [key]: v, error: null } as Partial<QuizQEdit>)}
                           placeholder={`${t('education.admin_option')} ${label}`}
-                          placeholderTextColor={Colors.textPlaceholder}
+                          placeholderTextColor={colors.textPlaceholder}
                           style={{
                             flex: 1,
                             backgroundColor: BG,
                             borderWidth: 1,
-                            borderColor: Colors.border,
+                            borderColor: colors.border,
                             borderRadius: 8,
                             paddingHorizontal: 12,
                             paddingVertical: 8,
                             fontFamily: Fonts.body,
                             fontSize: 14,
-                            color: Colors.textPrimary,
+                            color: colors.textPrimary,
                           }}
                         />
                       </View>
                     ))}
 
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: Colors.textTertiary, marginBottom: 8, marginTop: 2 }}>
+                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.textTertiary, marginBottom: 8, marginTop: 2 }}>
                       {t('education.admin_correct_answer')}
                     </Text>
                     <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
@@ -692,15 +692,15 @@ export default function ModuleVideoScreen() {
                           onPress={() => updateQuizEdit(idx, { correct_option: opt, error: null })}
                           activeOpacity={0.75}
                           style={{
-                            backgroundColor: edit.correct_option === opt ? Colors.border : BG,
+                            backgroundColor: edit.correct_option === opt ? colors.border : BG,
                             borderWidth: 1.5,
-                            borderColor: edit.correct_option === opt ? GOLD : Colors.border,
+                            borderColor: edit.correct_option === opt ? GOLD : colors.border,
                             borderRadius: 8,
                             paddingVertical: 8,
                             paddingHorizontal: 14,
                           }}
                         >
-                          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: edit.correct_option === opt ? GOLD : Colors.textTertiary }}>
+                          <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: edit.correct_option === opt ? GOLD : colors.textTertiary }}>
                             {opt}
                           </Text>
                         </TouchableOpacity>
@@ -717,9 +717,9 @@ export default function ModuleVideoScreen() {
                       onPress={edit.saving ? undefined : () => handleSaveQuestion(idx)}
                       activeOpacity={edit.saving ? 1 : 0.8}
                       style={{
-                        backgroundColor: Colors.borderSubtle,
+                        backgroundColor: colors.borderSubtle,
                         borderWidth: 1,
-                        borderColor: Colors.borderStrong,
+                        borderColor: colors.borderStrong,
                         borderRadius: 8,
                         paddingVertical: 10,
                         alignItems: 'center',

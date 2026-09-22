@@ -23,7 +23,7 @@ import { HomeEventCard, HomePostCard, HomeResourceCard } from '../lib/home';
 import { formatMonthDayLabel } from '../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl, youTubeWatchUrl } from '../lib/youtube';
 import { Fonts } from '../constants/fonts';
-import { Colors } from '../constants/colors';
+import { useColors } from '../contexts/ThemeContext';
 
 // ─── Display-name helper (mirrors private fn in lib/home.ts) ─────────────────
 
@@ -40,12 +40,13 @@ function resolveDisplayName(profilesRaw: unknown, legacyFallback: string): strin
 // ─── Carousel layout helpers ──────────────────────────────────────────────────
 
 function SectionTitle({ children }: { children: string }) {
+  const colors = useColors();
   return (
     <Text
       style={{
         fontFamily: Fonts.heading,
         fontSize: 18,
-        color: Colors.gold,
+        color: colors.gold,
         paddingHorizontal: 20,
         marginTop: 28,
         marginBottom: 12,
@@ -77,6 +78,7 @@ function SavedEventCard({
   onPress: () => void;
 }) {
   const { t, locale } = useLanguage();
+  const colors = useColors();
   const dateLabel = item.event_date
     ? formatMonthDayLabel(new Date(item.event_date), locale)
     : null;
@@ -87,9 +89,9 @@ function SavedEventCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -110,12 +112,12 @@ function SavedEventCard({
                   style={{
                     width: '100%',
                     height: 110,
-                    backgroundColor: Colors.warningBg,
+                    backgroundColor: colors.warningBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="calendar-outline" size={28} color={Colors.warning} />
+                  <Ionicons name="calendar-outline" size={28} color={colors.warning} />
                 </View>
               )}
             </View>
@@ -127,7 +129,7 @@ function SavedEventCard({
                   style={{
                     fontFamily: Fonts.bodyBold,
                     fontSize: 11,
-                    color: Colors.warning,
+                    color: colors.warning,
                     textTransform: 'uppercase',
                     letterSpacing: 0.6,
                   }}
@@ -139,7 +141,7 @@ function SavedEventCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 14,
-                  color: Colors.textPrimary,
+                  color: colors.textPrimary,
                   marginTop: 4,
                 }}
                 numberOfLines={2}
@@ -151,7 +153,7 @@ function SavedEventCard({
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 12,
-                    color: Colors.textTertiary,
+                    color: colors.textTertiary,
                     marginTop: 3,
                   }}
                   numberOfLines={1}
@@ -167,7 +169,7 @@ function SavedEventCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color={Colors.gold} />
+          <Ionicons name="bookmark" size={16} color={colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -184,6 +186,7 @@ function SavedPostCard({
   onPress: () => void;
 }) {
   const { t } = useLanguage();
+  const colors = useColors();
   const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
   const thumbUri = item.image_url
     ? item.image_url
@@ -196,9 +199,9 @@ function SavedPostCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -219,12 +222,12 @@ function SavedPostCard({
                   style={{
                     width: '100%',
                     height: 110,
-                    backgroundColor: Colors.successBg,
+                    backgroundColor: colors.successBg,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="chatbubble-outline" size={28} color={Colors.success} />
+                  <Ionicons name="chatbubble-outline" size={28} color={colors.success} />
                 </View>
               )}
             </View>
@@ -235,7 +238,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 10,
-                  color: Colors.success,
+                  color: colors.success,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -246,7 +249,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 13,
-                  color: Colors.textPrimary,
+                  color: colors.textPrimary,
                   marginTop: 3,
                 }}
                 numberOfLines={1}
@@ -257,7 +260,7 @@ function SavedPostCard({
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: Colors.textTertiary,
+                  color: colors.textTertiary,
                   marginTop: 3,
                 }}
                 numberOfLines={2}
@@ -272,7 +275,7 @@ function SavedPostCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color={Colors.gold} />
+          <Ionicons name="bookmark" size={16} color={colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -289,6 +292,7 @@ function SavedResourceCard({
   onPress: () => void;
 }) {
   const { t } = useLanguage();
+  const colors = useColors();
   const thumbUri = item.thumbnail_url ?? youTubeThumbnailUrl(item.youtube_video_id);
 
   return (
@@ -296,9 +300,9 @@ function SavedResourceCard({
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -329,12 +333,12 @@ function SavedResourceCard({
                     width: 36,
                     height: 36,
                     borderRadius: 18,
-                    backgroundColor: Colors.overlay,
+                    backgroundColor: colors.overlay,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="play" size={16} color={Colors.textPrimary} />
+                  <Ionicons name="play" size={16} color={colors.textPrimary} />
                 </View>
               </View>
             </View>
@@ -345,7 +349,7 @@ function SavedResourceCard({
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 10,
-                  color: Colors.gold,
+                  color: colors.gold,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -356,7 +360,7 @@ function SavedResourceCard({
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 13,
-                  color: Colors.textPrimary,
+                  color: colors.textPrimary,
                   marginTop: 3,
                 }}
                 numberOfLines={2}
@@ -371,7 +375,7 @@ function SavedResourceCard({
       {/* Lower bar: bookmark only (right-aligned) */}
       <View style={{ alignItems: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
         <TouchableOpacity onPress={onUnsave} activeOpacity={0.7} hitSlop={8}>
-          <Ionicons name="bookmark" size={16} color={Colors.gold} />
+          <Ionicons name="bookmark" size={16} color={colors.gold} />
         </TouchableOpacity>
       </View>
     </View>
@@ -386,6 +390,7 @@ export default function SavedScreen() {
   const { user } = useAuth();
 
   const { t } = useLanguage();
+  const colors = useColors();
 
   const [events, setEvents] = useState<HomeEventCard[]>([]);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
@@ -521,7 +526,7 @@ export default function SavedScreen() {
       <Pressable onPress={() => router.back()} hitSlop={8} style={{ padding: 4 }}>
         {({ pressed }) => (
           <View style={{ opacity: pressed ? 0.6 : 1 }}>
-            <Ionicons name="chevron-back" size={26} color={Colors.textPrimary} />
+            <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </View>
         )}
       </Pressable>
@@ -529,7 +534,7 @@ export default function SavedScreen() {
         style={{
           fontFamily: Fonts.heading,
           fontSize: 20,
-          color: Colors.gold,
+          color: colors.gold,
           marginLeft: 6,
         }}
       >
@@ -541,10 +546,10 @@ export default function SavedScreen() {
   // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         {headerBar}
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={colors.gold} size="large" />
         </View>
       </View>
     );
@@ -553,7 +558,7 @@ export default function SavedScreen() {
   // ── Empty state ───────────────────────────────────────────────────────────
   if (!hasAnySaved) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         {headerBar}
         <View
           style={{
@@ -563,12 +568,12 @@ export default function SavedScreen() {
             paddingHorizontal: 32,
           }}
         >
-          <Ionicons name="bookmark-outline" size={52} color={Colors.borderStrong} />
+          <Ionicons name="bookmark-outline" size={52} color={colors.borderStrong} />
           <Text
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 17,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginTop: 18,
               textAlign: 'center',
             }}
@@ -579,7 +584,7 @@ export default function SavedScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 14,
-              color: Colors.textMuted,
+              color: colors.textMuted,
               marginTop: 8,
               textAlign: 'center',
               lineHeight: 21,
@@ -594,7 +599,7 @@ export default function SavedScreen() {
 
   // ── Main: 3 conditional carousels ─────────────────────────────────────────
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       {headerBar}
       <ScrollView
         style={{ flex: 1 }}
@@ -604,8 +609,8 @@ export default function SavedScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor={Colors.gold}
-            colors={[Colors.gold]}
+            tintColor={colors.gold}
+            colors={[colors.gold]}
           />
         }
       >

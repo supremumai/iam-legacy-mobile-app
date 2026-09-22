@@ -12,7 +12,7 @@
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../constants/colors';
+import { useColors } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
 
 type FocusedField = 'fullName' | 'username' | 'email' | 'password' | 'confirmPassword' | null;
@@ -30,9 +30,11 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const colors = useColors();
+  const styles = createStyles(colors);
 
   const fieldBorder = (field: FocusedField) =>
-    focused === field ? Colors.gold : Colors.border;
+    focused === field ? colors.gold : colors.border;
 
   async function handleSignUp() {
     setError('');
@@ -106,7 +108,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('fullName') }]}
                 placeholder="Full Name"
-                placeholderTextColor={Colors.textFaint}
+                placeholderTextColor={colors.textFaint}
                 value={fullName}
                 onChangeText={setFullName}
                 onFocus={() => setFocused('fullName')}
@@ -120,7 +122,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('username') }]}
                 placeholder="Choose a username"
-                placeholderTextColor={Colors.textFaint}
+                placeholderTextColor={colors.textFaint}
                 value={username}
                 onChangeText={setUsername}
                 onFocus={() => setFocused('username')}
@@ -135,7 +137,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('email') }]}
                 placeholder="Email Address"
-                placeholderTextColor={Colors.textFaint}
+                placeholderTextColor={colors.textFaint}
                 value={email}
                 onChangeText={setEmail}
                 onFocus={() => setFocused('email')}
@@ -151,7 +153,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('password') }]}
                 placeholder="Password"
-                placeholderTextColor={Colors.textFaint}
+                placeholderTextColor={colors.textFaint}
                 value={password}
                 onChangeText={setPassword}
                 onFocus={() => setFocused('password')}
@@ -165,7 +167,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('confirmPassword') }]}
                 placeholder="Confirm Password"
-                placeholderTextColor={Colors.textFaint}
+                placeholderTextColor={colors.textFaint}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 onFocus={() => setFocused('confirmPassword')}
@@ -186,7 +188,7 @@ export default function SignUpScreen() {
                 disabled={loading}
               >
                 {loading ? (
-                  <ActivityIndicator color={Colors.background} />
+                  <ActivityIndicator color={colors.background} />
                 ) : (
                   <Text style={styles.submitButtonText}>Create Account</Text>
                 )}
@@ -210,10 +212,11 @@ export default function SignUpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   flex: {
     flex: 1,
@@ -225,7 +228,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -234,13 +237,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'PlayfairDisplay_700Bold',
     fontSize: 28,
-    color: Colors.gold,
+    color: colors.gold,
     marginTop: 8,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 32,
   },
@@ -250,16 +253,16 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 13,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
     marginBottom: 20,
@@ -267,11 +270,11 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.error,
+    color: colors.error,
     marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: Colors.gold,
+    backgroundColor: colors.gold,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.background,
+    color: colors.background,
   },
   footerLink: {
     marginTop: 24,
@@ -290,11 +293,11 @@ const styles = StyleSheet.create({
   footerText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
+    color: colors.textMuted,
   },
   footerLinkText: {
     fontFamily: 'Inter_600SemiBold',
-    color: Colors.gold,
+    color: colors.gold,
   },
   successContainer: {
     flex: 1,
@@ -305,8 +308,9 @@ const styles = StyleSheet.create({
   successText: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
-    color: Colors.gold,
+    color: colors.gold,
     textAlign: 'center',
     lineHeight: 26,
   },
-});
+  });
+}

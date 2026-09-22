@@ -12,12 +12,10 @@ import {
   ContinueLearningResult,
 } from '../../../lib/education';
 import { Fonts } from '../../../constants/fonts';
-import { Colors } from '../../../constants/colors';
+import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
 import TrackCard from '../../../components/education/TrackCard';
 import ContinueLearningCard from '../../../components/education/ContinueLearningCard';
-
-const GOLD = Colors.gold;
 
 export default function EducationScreen() {
   const { t } = useLanguage();
@@ -25,6 +23,7 @@ export default function EducationScreen() {
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
   const { previewAsMember, togglePreview } = useEducationPreview();
+  const colors = useColors();
 
   const [tracks, setTracks] = useState<EduTrack[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,13 +68,13 @@ export default function EducationScreen() {
 
   if (!loading && error) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={{ flex: 1, backgroundColor: colors.background }}>
         <GlobalHeader />
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 24,
-            color: Colors.gold,
+            color: colors.gold,
             paddingHorizontal: 20,
             marginTop: 16,
           }}
@@ -87,7 +86,7 @@ export default function EducationScreen() {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 16,
-              color: Colors.textPrimary,
+              color: colors.textPrimary,
               marginBottom: 16,
               textAlign: 'center',
             }}
@@ -97,13 +96,13 @@ export default function EducationScreen() {
           <Pressable
             onPress={() => { setLoading(true); load(); }}
             style={{
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
               borderRadius: 8,
               paddingHorizontal: 24,
               paddingVertical: 10,
             }}
           >
-            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.background }}>
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 14, color: colors.background }}>
               {t('events.retry')}
             </Text>
           </Pressable>
@@ -113,19 +112,19 @@ export default function EducationScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <GlobalHeader />
 
         <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 20 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: Colors.gold }}>
+          <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>
             {t('education.title')}
           </Text>
           <Text
             style={{
               fontFamily: Fonts.body,
               fontSize: 14,
-              color: Colors.textMuted,
+              color: colors.textMuted,
               marginTop: 4,
             }}
           >
@@ -142,9 +141,9 @@ export default function EducationScreen() {
                 marginTop: 14,
                 paddingVertical: 10,
                 paddingHorizontal: 14,
-                backgroundColor: previewAsMember ? Colors.borderSubtle : Colors.whiteOverlay4,
+                backgroundColor: previewAsMember ? colors.borderSubtle : colors.whiteOverlay4,
                 borderWidth: 1,
-                borderColor: previewAsMember ? Colors.borderStrong : Colors.whiteOverlay10,
+                borderColor: previewAsMember ? colors.borderStrong : colors.whiteOverlay10,
                 borderRadius: 10,
               }}
             >
@@ -152,7 +151,7 @@ export default function EducationScreen() {
                 style={{
                   fontFamily: Fonts.bodySemiBold,
                   fontSize: 13,
-                  color: previewAsMember ? GOLD : Colors.textMuted,
+                  color: previewAsMember ? colors.gold : colors.textMuted,
                 }}
               >
                 {previewAsMember
@@ -162,8 +161,8 @@ export default function EducationScreen() {
               <Switch
                 value={previewAsMember}
                 onValueChange={togglePreview}
-                trackColor={{ false: Colors.textFaint, true: Colors.borderStrong }}
-                thumbColor={previewAsMember ? GOLD : Colors.textSecondary}
+                trackColor={{ false: colors.textFaint, true: colors.borderStrong }}
+                thumbColor={previewAsMember ? colors.gold : colors.textSecondary}
               />
             </View>
           )}
@@ -176,7 +175,7 @@ export default function EducationScreen() {
               style={{
                 fontFamily: Fonts.heading,
                 fontSize: 18,
-                color: Colors.gold,
+                color: colors.gold,
                 paddingHorizontal: 20,
                 marginTop: 8,
                 marginBottom: 12,
@@ -203,11 +202,11 @@ export default function EducationScreen() {
 
         {loading ? (
           <View style={{ alignItems: 'center', paddingVertical: 48 }}>
-            <ActivityIndicator color={Colors.gold} size="large" />
+            <ActivityIndicator color={colors.gold} size="large" />
           </View>
         ) : tracks.length === 0 ? (
           <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
-            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: Colors.textPrimary, textAlign: 'center' }}>
+            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary, textAlign: 'center' }}>
               {t('education.no_tracks_yet')}
             </Text>
           </View>

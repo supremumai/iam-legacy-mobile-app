@@ -1,7 +1,7 @@
 ﻿import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
-import { Colors } from '../../constants/colors';
+import { useColors } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getTrackIcon } from '../../lib/education';
 import type { EduTrack } from '../../lib/education';
@@ -14,6 +14,7 @@ interface TrackCardProps {
 
 export default function TrackCard({ track, onPress }: TrackCardProps) {
   const { t } = useLanguage();
+  const colors = useColors();
   const icon = getTrackIcon(track.title);
   const totalModules = track.courses.reduce((sum, c) => sum + (c.modules_count ?? 0), 0);
   const progress = track.progress_percent ?? 0;
@@ -29,8 +30,8 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         marginBottom: 16,
         borderRadius: 12,
         borderWidth: 0.5,
-        borderColor: Colors.border,
-        backgroundColor: Colors.surface,
+        borderColor: colors.border,
+        backgroundColor: colors.surface,
         padding: 16,
       }}
     >
@@ -48,12 +49,12 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             width: 44,
             height: 44,
             borderRadius: 10,
-            backgroundColor: Colors.borderSubtle,
+            backgroundColor: colors.borderSubtle,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Ionicons name={icon as any} size={22} color={Colors.gold} />
+          <Ionicons name={icon as any} size={22} color={colors.gold} />
         </View>
         {progress > 0 && (
           <Text
@@ -73,7 +74,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         style={{
           fontFamily: Fonts.heading,
           fontSize: 17,
-          color: Colors.textPrimary,
+          color: colors.textPrimary,
           marginBottom: 4,
         }}
         numberOfLines={2}
@@ -87,7 +88,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
           style={{
             fontFamily: Fonts.body,
             fontSize: 12,
-            color: Colors.textTertiary,
+            color: colors.textTertiary,
             marginBottom: 12,
           }}
           numberOfLines={1}
@@ -101,7 +102,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         style={{
           height: 5,
           borderRadius: 3,
-          backgroundColor: Colors.whiteOverlay10,
+          backgroundColor: colors.whiteOverlay10,
           marginBottom: 10,
           overflow: 'hidden',
         }}
@@ -112,7 +113,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
               height: '100%',
               width: barWidth,
               borderRadius: 3,
-              backgroundColor: Colors.gold,
+              backgroundColor: colors.gold,
             }}
           />
         )}
@@ -130,7 +131,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
           style={{
             fontFamily: Fonts.body,
             fontSize: 12,
-            color: Colors.textTertiary,
+            color: colors.textTertiary,
           }}
         >
           {t('education.track_modules_label', { count: totalModules })}
@@ -140,7 +141,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             style={{
               fontFamily: Fonts.bodySemiBold,
               fontSize: 12,
-              color: Colors.gold,
+              color: colors.gold,
             }}
           >
             {t('education.track_modules_done', { done, total: totalModules })}
@@ -150,7 +151,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
             style={{
               fontFamily: Fonts.body,
               fontSize: 12,
-              color: Colors.textFaint,
+              color: colors.textFaint,
             }}
           >
             {t('education.track_not_started')}

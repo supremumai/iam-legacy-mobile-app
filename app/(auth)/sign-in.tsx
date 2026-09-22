@@ -8,12 +8,11 @@
   ScrollView,
   Platform,
   ActivityIndicator,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Colors } from '../../constants/colors';
+import { useColors } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
 
 type FocusedField = 'email' | 'password' | null;
@@ -28,9 +27,11 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const colors = useColors();
+  const styles = createStyles(colors);
 
   const fieldBorder = (field: FocusedField) =>
-    focused === field ? Colors.gold : Colors.border;
+    focused === field ? colors.gold : colors.border;
 
   async function handleSignIn() {
     setError('');
@@ -100,7 +101,7 @@ export default function SignInScreen() {
             <TextInput
               style={[styles.input, { borderColor: fieldBorder('email') }]}
               placeholder="Email Address"
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               value={email}
               onChangeText={setEmail}
               onFocus={() => setFocused('email')}
@@ -116,7 +117,7 @@ export default function SignInScreen() {
             <TextInput
               style={[styles.input, { borderColor: fieldBorder('password') }]}
               placeholder="Password"
-              placeholderTextColor={Colors.textFaint}
+              placeholderTextColor={colors.textFaint}
               value={password}
               onChangeText={setPassword}
               onFocus={() => setFocused('password')}
@@ -152,7 +153,7 @@ export default function SignInScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color={Colors.background} />
+                <ActivityIndicator color={colors.background} />
               ) : (
                 <Text style={styles.submitButtonText}>Sign In</Text>
               )}
@@ -175,10 +176,11 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   flex: {
     flex: 1,
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -199,13 +201,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'PlayfairDisplay_700Bold',
     fontSize: 28,
-    color: Colors.gold,
+    color: colors.gold,
     marginTop: 8,
   },
   subtitle: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 32,
   },
@@ -215,16 +217,16 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: 'Inter_600SemiBold',
     fontSize: 13,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     fontFamily: 'Inter_400Regular',
     fontSize: 15,
     marginBottom: 20,
@@ -237,22 +239,22 @@ const styles = StyleSheet.create({
   forgotText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 13,
-    color: Colors.textMuted,
+    color: colors.textMuted,
   },
   errorText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.error,
+    color: colors.error,
     marginBottom: 12,
   },
   successText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.gold,
+    color: colors.gold,
     marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: Colors.gold,
+    backgroundColor: colors.gold,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
@@ -262,7 +264,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontFamily: 'Inter_700Bold',
     fontSize: 16,
-    color: Colors.background,
+    color: colors.background,
   },
   footerLink: {
     marginTop: 24,
@@ -271,10 +273,11 @@ const styles = StyleSheet.create({
   footerText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
-    color: Colors.textMuted,
+    color: colors.textMuted,
   },
   footerLinkText: {
     fontFamily: 'Inter_600SemiBold',
-    color: Colors.gold,
+    color: colors.gold,
   },
-});
+  });
+}

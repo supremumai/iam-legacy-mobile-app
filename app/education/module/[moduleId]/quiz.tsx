@@ -18,12 +18,7 @@ import {
   EduQuizQuestion,
 } from '../../../../lib/education';
 import { Fonts } from '../../../../constants/fonts';
-import { Colors } from '../../../../constants/colors';
-
-const GOLD = Colors.gold;
-const BG = Colors.background;
-const GREEN = Colors.success;
-const RED = Colors.error;
+import { useColors } from '../../../../contexts/ThemeContext';
 
 type Option = 'a' | 'b' | 'c' | 'd';
 const OPTIONS: Option[] = ['a', 'b', 'c', 'd'];
@@ -34,6 +29,7 @@ function getOptionText(q: EduQuizQuestion, opt: Option): string {
 }
 
 function SegmentBar({ total, answered }: { total: number; answered: number }) {
+  const colors = useColors();
   return (
     <View style={{ flexDirection: 'row', gap: 4, marginBottom: 20 }}>
       {Array.from({ length: total }).map((_, i) => (
@@ -43,7 +39,7 @@ function SegmentBar({ total, answered }: { total: number; answered: number }) {
             flex: 1,
             height: 4,
             borderRadius: 2,
-            backgroundColor: i < answered ? GOLD : Colors.textFaint,
+            backgroundColor: i < answered ? colors.gold : colors.textFaint,
           }}
         />
       ))}
@@ -56,6 +52,11 @@ export default function QuizScreen() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
+  const colors = useColors();
+  const GOLD = colors.gold;
+  const BG = colors.background;
+  const GREEN = colors.success;
+  const RED = colors.error;
 
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<EduQuizQuestion[]>([]);
@@ -154,15 +155,15 @@ export default function QuizScreen() {
               width: 72,
               height: 72,
               borderRadius: 36,
-              backgroundColor: Colors.surfacePanel,
+              backgroundColor: colors.surfacePanel,
               borderWidth: 1,
-              borderColor: Colors.border,
+              borderColor: colors.border,
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 24,
             }}
           >
-            <Ionicons name="hourglass-outline" size={34} color={Colors.borderStrong} />
+            <Ionicons name="hourglass-outline" size={34} color={colors.borderStrong} />
           </View>
 
           <Text
@@ -181,7 +182,7 @@ export default function QuizScreen() {
             style={{
               fontFamily: Fonts.body,
               fontSize: 15,
-              color: Colors.textMuted,
+              color: colors.textMuted,
               textAlign: 'center',
               lineHeight: 22,
               marginBottom: 36,
@@ -226,7 +227,7 @@ export default function QuizScreen() {
           style={{
             fontFamily: Fonts.bodySemiBold,
             fontSize: 13,
-            color: Colors.textTertiary,
+            color: colors.textTertiary,
             marginBottom: 8,
             textAlign: 'center',
           }}
@@ -242,7 +243,7 @@ export default function QuizScreen() {
           style={{
             fontFamily: Fonts.heading,
             fontSize: 20,
-            color: Colors.textPrimary,
+            color: colors.textPrimary,
             lineHeight: 28,
             marginBottom: 28,
           }}
@@ -254,24 +255,24 @@ export default function QuizScreen() {
         {OPTIONS.map((opt) => {
           const isSelected = selected === opt;
           const correctOpt = currentQuestion!.correct_option;
-          let bg: string = Colors.surfacePanel;
-          let borderColor: string = Colors.border;
-          let textColor: string = Colors.textPrimary;
+          let bg: string = colors.surfacePanel;
+          let borderColor: string = colors.border;
+          let textColor: string = colors.textPrimary;
 
           if (answered) {
             if (opt === correctOpt) {
-              bg = Colors.successBg;
+              bg = colors.successBg;
               borderColor = GREEN;
-              textColor = Colors.textPrimary;
+              textColor = colors.textPrimary;
             } else if (isSelected) {
-              bg = Colors.errorBg;
+              bg = colors.errorBg;
               borderColor = RED;
-              textColor = Colors.textPrimary;
+              textColor = colors.textPrimary;
             }
           } else if (isSelected) {
-            bg = Colors.border;
+            bg = colors.border;
             borderColor = GOLD;
-            textColor = Colors.textPrimary;
+            textColor = colors.textPrimary;
           }
 
           return (
@@ -323,9 +324,9 @@ export default function QuizScreen() {
         {answered && !!currentQuestion!.explanation && (
           <View
             style={{
-              backgroundColor: Colors.surfaceDeep,
+              backgroundColor: colors.surfaceDeep,
               borderWidth: 1,
-              borderColor: Colors.border,
+              borderColor: colors.border,
               borderRadius: 10,
               padding: 14,
               marginTop: 4,
@@ -335,7 +336,7 @@ export default function QuizScreen() {
             <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: GOLD, marginBottom: 4 }}>
               {isCorrect ? t('education.correct') : t('education.incorrect')}
             </Text>
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20 }}>
+            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textSecondary, lineHeight: 20 }}>
               {currentQuestion!.explanation}
             </Text>
           </View>

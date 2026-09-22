@@ -12,7 +12,7 @@ import { EduCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
 import { Fonts } from '../../../constants/fonts';
-import { Colors } from '../../../constants/colors';
+import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
@@ -23,6 +23,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 
 function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void }) {
   const { t, locale } = useLanguage();
+  const colors = useColors();
   const dateLabel = item.event_date
     ? formatMonthDayLabel(new Date(item.event_date), locale)
     : null;
@@ -34,9 +35,9 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -55,12 +56,12 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: Colors.warningBg,
+                  backgroundColor: colors.warningBg,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="calendar-outline" size={28} color={Colors.warning} />
+                <Ionicons name="calendar-outline" size={28} color={colors.warning} />
               </View>
             )}
           </View>
@@ -72,7 +73,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   fontFamily: Fonts.bodyBold,
                   fontSize: 11,
-                  color: Colors.warning,
+                  color: colors.warning,
                   textTransform: 'uppercase',
                   letterSpacing: 0.6,
                 }}
@@ -84,7 +85,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 14,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 marginTop: 4,
               }}
               numberOfLines={2}
@@ -96,7 +97,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 12,
-                  color: Colors.textTertiary,
+                  color: colors.textTertiary,
                   marginTop: 3,
                 }}
                 numberOfLines={1}
@@ -113,6 +114,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
 
 function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () => void }) {
   const { t } = useLanguage();
+  const colors = useColors();
   // Image priority: uploaded image → YouTube thumbnail → placeholder
   const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
   const thumbUri = item.image_url
@@ -127,9 +129,9 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -148,12 +150,12 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: Colors.successBg,
+                  backgroundColor: colors.successBg,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="chatbubble-outline" size={28} color={Colors.success} />
+                <Ionicons name="chatbubble-outline" size={28} color={colors.success} />
               </View>
             )}
           </View>
@@ -164,7 +166,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.bodyBold,
                 fontSize: 10,
-                color: Colors.success,
+                color: colors.success,
                 textTransform: 'uppercase',
                 letterSpacing: 0.6,
               }}
@@ -175,7 +177,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 marginTop: 3,
               }}
               numberOfLines={1}
@@ -186,7 +188,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
               style={{
                 fontFamily: Fonts.body,
                 fontSize: 12,
-                color: Colors.textTertiary,
+                color: colors.textTertiary,
                 marginTop: 3,
               }}
               numberOfLines={2}
@@ -202,13 +204,14 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
 
 function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void }) {
   const { t } = useLanguage();
+  const colors = useColors();
 
   const difficultyColor =
     item.difficulty === 'advanced'
-      ? Colors.error
+      ? colors.error
       : item.difficulty === 'intermediate'
-      ? Colors.warning
-      : Colors.success;
+      ? colors.warning
+      : colors.success;
 
   const difficultyLabels: Record<string, string> = {
     beginner: t('education.difficulty_beginner'),
@@ -228,9 +231,9 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
       style={{
         width: 200,
         borderRadius: 12,
-        backgroundColor: Colors.surface,
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: Colors.border,
+        borderColor: colors.border,
         overflow: 'hidden',
       }}
     >
@@ -248,12 +251,12 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
                 style={{
                   width: '100%',
                   height: 110,
-                  backgroundColor: Colors.borderSubtle,
+                  backgroundColor: colors.borderSubtle,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Ionicons name="book-outline" size={28} color={Colors.gold} />
+                <Ionicons name="book-outline" size={28} color={colors.gold} />
               </View>
             )}
           </View>
@@ -263,7 +266,7 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
               style={{
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
-                color: Colors.textPrimary,
+                color: colors.textPrimary,
                 marginBottom: 6,
               }}
               numberOfLines={2}
@@ -288,7 +291,7 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
                 style={{
                   fontFamily: Fonts.body,
                   fontSize: 11,
-                  color: Colors.textTertiary,
+                  color: colors.textTertiary,
                 }}
               >
                 {modulesLabel}
@@ -304,12 +307,13 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
 // ─── Carousel section separator ───────────────────────────────────────────────
 
 function SectionTitle({ children }: { children: string }) {
+  const colors = useColors();
   return (
     <Text
       style={{
         fontFamily: Fonts.heading,
         fontSize: 18,
-        color: Colors.gold,
+        color: colors.gold,
         paddingHorizontal: 20,
         marginTop: 28,
         marginBottom: 12,
@@ -321,12 +325,13 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 function EmptySection({ message }: { message: string }) {
+  const colors = useColors();
   return (
     <Text
       style={{
         fontFamily: Fonts.body,
         fontSize: 13,
-        color: Colors.textTertiary,
+        color: colors.textTertiary,
         paddingHorizontal: 20,
       }}
     >
@@ -344,6 +349,7 @@ function CardSeparator() {
 export default function HomeScreen() {
   const router = useRouter();
   const { t } = useLanguage();
+  const colors = useColors();
 
   // Each section has independent loaded/items state
   const [events, setEvents] = useState<HomeEventCard[]>([]);
@@ -375,7 +381,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <GlobalHeader />
 
       {/* ── Carousels ────────────────────────────────────────────────────── */}

@@ -133,7 +133,11 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
           }}
         >
           <Image
-            source={require('../assets/legacy-logo.png')}
+            source={
+              theme === 'dark'
+                ? require('../assets/legacy-logo.png')
+                : require('../assets/legacy-logo-dark.png')
+            }
             style={{ width: 60, height: 60 }}
             resizeMode="contain"
           />
