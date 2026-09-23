@@ -11,7 +11,7 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-navigation/drawer": "^7.13.10",
-    "@supabase/supabase-js": "^2.106.1",
+    "@supabase/supabase-js": "2.105.4",
     "babel-preset-expo": "~54.0.10",
     "expo": "^54.0.0",
     "expo-constants": "~18.0.13",
