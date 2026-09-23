@@ -19,6 +19,10 @@ eas build --platform android --profile production  # Play Store AAB
 eas build --platform ios --profile production      # App Store IPA (requires Apple Developer account)
 ```
 
+## Known dependency constraints
+
+- **`@supabase/supabase-js` is pinned to `2.105.4`** — versions 2.106.0+ use `dynamic import()` that breaks Hermes compilation on Android. Before upgrading, verify with `npx expo export --platform android`. See build a6e29211 (failed) vs b276c692 (passed).
+
 ## Release flow
 1. All development on `main`
 2. Before each store build: `git tag v1.x.x && git push --tags`
