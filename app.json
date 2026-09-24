@@ -35,6 +35,12 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ec7f8060-aeef-4f0b-8744-adde75363a58"
+    },
     "plugins": [
       "expo-router",
       "expo-font",
