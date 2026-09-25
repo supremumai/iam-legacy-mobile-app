@@ -138,20 +138,20 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
                 ? require('../assets/legacy-logo.png')
                 : require('../assets/legacy-logo-dark.png')
             }
-            style={{ width: 60, height: 60 }}
+            style={{ width: 160, height: 54 }}
             resizeMode="contain"
           />
           <Text
             style={{
-              fontFamily: Fonts.heading,
-              fontSize: 11,
-              color: colors.gold,
-              letterSpacing: 1.5,
-              marginTop: 6,
+              fontFamily: Fonts.bodySemiBold,
+              fontSize: 18,
+              color: colors.textPrimary,
+              marginTop: 10,
             }}
             numberOfLines={1}
           >
-            {t('drawer.welcome', { name: firstName })}
+            {'Hola, '}
+            <Text style={{ color: colors.gold }}>{firstName}</Text>
           </Text>
         </View>
 
