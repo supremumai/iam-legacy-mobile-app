@@ -45,15 +45,29 @@ export async function fetchUpcomingEvents(): Promise<{
   }
 }
 
+export interface PollOption {
+  id: string;
+  label: string;
+  sort_order: number;
+  votes_count: number;
+}
+
 export interface HomePostCard {
   id: string;
+  post_type: string;
   content: string;
   image_url: string | null;
   created_at: string;
-  authorName: string; // resolved via the established full_name -> @username -> "Legacy Member" chain
+  likes_count: number;
+  authorName: string;
+  authorAvatar: string | null;
+  // poll fields (only when post_type === 'poll')
+  pollQuestion: string | null;
+  pollOptions: PollOption[];
+  pollTotalVotes: number;
 }
 
-/** Fetch up to 5 most-recent posts with author display name resolved. */
+/** Fetch up to 5 most-recent posts with author name, avatar, and poll data resolved in one query. */
 export async function fetchRecentPosts(): Promise<{
   items: HomePostCard[];
   error: string | null;
@@ -61,18 +75,38 @@ export async function fetchRecentPosts(): Promise<{
   try {
     const { data, error } = await supabase
       .from('posts')
-      .select('id, content, image_url, created_at, profiles(full_name, username)')
+      .select(
+        'id, post_type, content, image_url, created_at, likes_count, profiles(full_name, username, avatar_url), polls(question, poll_options(id, label, sort_order, votes_count))',
+      )
       .order('created_at', { ascending: false })
       .limit(5);
+
     if (error) return { items: [], error: 'Could not load posts.' };
+
     return {
-      items: (data ?? []).map((row: any) => ({
-        id: row.id,
-        content: row.content ?? '',
-        image_url: row.image_url ?? null,
-        created_at: row.created_at,
-        authorName: getDisplayName(row.profiles),
-      })),
+      items: (data ?? []).map((row: any) => {
+        const pollRaw = Array.isArray(row.polls) ? row.polls[0] : row.polls;
+        const pollOptions: PollOption[] = pollRaw?.poll_options
+          ? [...pollRaw.poll_options].sort((a: PollOption, b: PollOption) => a.sort_order - b.sort_order)
+          : [];
+        const pollTotalVotes = pollOptions.reduce((acc, o) => acc + (o.votes_count ?? 0), 0);
+
+        const profileRaw = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+
+        return {
+          id: row.id,
+          post_type: row.post_type ?? 'text',
+          content: row.content ?? '',
+          image_url: row.image_url ?? null,
+          created_at: row.created_at,
+          likes_count: row.likes_count ?? 0,
+          authorName: getDisplayName(row.profiles),
+          authorAvatar: profileRaw?.avatar_url ?? null,
+          pollQuestion: pollRaw?.question ?? null,
+          pollOptions,
+          pollTotalVotes,
+        };
+      }),
       error: null,
     };
   } catch {

@@ -8,6 +8,7 @@ import {
   fetchUpcomingEvents,
   fetchRecentPosts,
 } from '../../../lib/home';
+import PostPreviewCard from '../../../components/home/PostPreviewCard';
 import { EduCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
@@ -416,20 +417,15 @@ export default function HomeScreen() {
           posts.length === 0 ? (
             <EmptySection message={t('home.no_posts_yet')} />
           ) : (
-            <FlatList<HomePostCard>
-              horizontal
-              data={posts}
-              keyExtractor={(item) => item.id}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
-              ItemSeparatorComponent={CardSeparator}
-              renderItem={({ item }) => (
-                <CommunityPostCard
+            <>
+              {posts.map((item) => (
+                <PostPreviewCard
+                  key={item.id}
                   item={item}
                   onPress={() => router.push(`/post?id=${item.id}` as any)}
                 />
-              )}
-            />
+              ))}
+            </>
           )
         ) : null}
 
