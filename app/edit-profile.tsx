@@ -249,6 +249,7 @@ export default function EditProfileScreen() {
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
@@ -422,19 +423,19 @@ export default function EditProfileScreen() {
                 <View
                   style={{
                     position: 'absolute',
-                    bottom: 2,
-                    right: 2,
-                    width: 22,
-                    height: 22,
-                    borderRadius: 11,
-                    backgroundColor: colors.background,
-                    borderWidth: 1,
-                    borderColor: colors.borderStrong,
+                    bottom: 0,
+                    right: 0,
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    backgroundColor: '#c9a84c',
+                    borderWidth: 2,
+                    borderColor: '#0a0900',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Ionicons name="pencil" size={10} color={colors.gold} />
+                  <Ionicons name="camera" size={13} color="#0a0900" />
                 </View>
               )}
             </Pressable>
