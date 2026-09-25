@@ -1,20 +1,30 @@
-﻿import { Text, TouchableOpacity, View } from 'react-native';
+import { Share, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
+import { Fonts } from '../constants/fonts';
+
+const INVITE_MESSAGE =
+  '¡Únete a I Am Legacy! La comunidad donde los emprendedores latinos construyen su legado. ' +
+  'Descarga la app: https://iamlegacy.app/download';
 
 export default function InviteScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { t } = useLanguage();
   const colors = useColors();
+
+  const handleShare = async () => {
+    try {
+      await Share.share({ message: INVITE_MESSAGE });
+    } catch {
+      // user dismissed
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: insets.top }}>
-      {/* ── Header ──────────────────────────────────────────────────── */}
+      {/* ── Header ───────────────────────────────────────────────── */}
       <View
         style={{
           flexDirection: 'row',
@@ -23,48 +33,45 @@ export default function InviteScreen() {
           paddingVertical: 16,
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
+          gap: 12,
         }}
       >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-          hitSlop={10}
-        >
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7} hitSlop={10}>
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text
-          style={{
-            fontFamily: Fonts.heading,
-            fontSize: 20,
-            color: colors.gold,
-            marginLeft: 12,
-          }}
-        >
-          {t('drawer.invite_friends')}
+        <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.gold }}>
+          Invitar Amigos
         </Text>
       </View>
 
-      {/* ── Body ────────────────────────────────────────────────────── */}
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingHorizontal: 32,
-        }}
-      >
-        <Ionicons name="people-outline" size={56} color={colors.borderStrong} />
+      {/* ── Body ─────────────────────────────────────────────────── */}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+        <View
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: colors.surface,
+            borderWidth: 1,
+            borderColor: colors.border,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 24,
+          }}
+        >
+          <Ionicons name="people-outline" size={40} color={colors.gold} />
+        </View>
+
         <Text
           style={{
             fontFamily: Fonts.heading,
             fontSize: 26,
-            color: colors.gold,
-            marginTop: 20,
-            marginBottom: 12,
+            color: colors.textPrimary,
             textAlign: 'center',
+            marginBottom: 12,
           }}
         >
-          {t('common.coming_soon')}
+          Comparte el Legado
         </Text>
         <Text
           style={{
@@ -72,26 +79,29 @@ export default function InviteScreen() {
             fontSize: 15,
             color: colors.textMuted,
             textAlign: 'center',
-            lineHeight: 23,
+            lineHeight: 24,
+            marginBottom: 36,
           }}
         >
-          {t('invite.body')}
+          Invita a tus amigos y construyan juntos una comunidad de emprendedores latinos imparables.
         </Text>
+
         <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.7}
+          onPress={handleShare}
+          activeOpacity={0.8}
           style={{
-            marginTop: 36,
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.borderStrong,
-            borderRadius: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            backgroundColor: colors.gold,
+            borderRadius: 10,
             paddingHorizontal: 32,
-            paddingVertical: 13,
+            paddingVertical: 14,
           }}
         >
-          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold }}>
-            {t('common.back')}
+          <Ionicons name="share-social-outline" size={20} color={colors.background} />
+          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.background }}>
+            Compartir Invitación
           </Text>
         </TouchableOpacity>
       </View>
