@@ -1,7 +1,6 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -20,6 +19,8 @@ import { getInitials } from '../lib/avatar';
 import { pickAndUploadImage } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
+import SearchableSelect from '../components/SearchableSelect';
+import { US_STATES, STATE_MAP } from '../constants/us-locations';
 
 const USERNAME_REGEX = /^[a-z0-9_-]{3,30}$/;
 
@@ -42,12 +43,41 @@ export default function EditProfileScreen() {
   const { user, profile, refreshProfile } = useAuth();
   const colors = useColors();
 
+  // ── Original values (for dirty tracking) ────────────────────────────────────
+  const originalRef = useRef({
+    fullName: profile?.full_name ?? '',
+    username: profile?.username ?? '',
+    role: profile?.role ?? '',
+    location: profile?.location ?? '',
+    bio: profile?.bio ?? '',
+  });
+
+  // ── Parse existing location into state/city if it matches "City, ST" ─────────
+  const parseLocation = (loc: string) => {
+    const match = loc.match(/^(.+),\s*([A-Z]{2})$/);
+    if (match) {
+      const stateCode = match[2];
+      const cityName = match[1].trim();
+      if (STATE_MAP[stateCode]) return { state: stateCode, city: cityName };
+    }
+    return { state: '', city: '' };
+  };
+
+  const { state: initState, city: initCity } = parseLocation(profile?.location ?? '');
+
   // ── Field state ─────────────────────────────────────────────────────────────
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [role, setRole] = useState(profile?.role ?? '');
-  const [location, setLocation] = useState(profile?.location ?? '');
+  const [selectedState, setSelectedState] = useState(initState);
+  const [selectedCity, setSelectedCity] = useState(initCity);
   const [bio, setBio] = useState(profile?.bio ?? '');
+
+  const location = selectedState
+    ? selectedCity
+      ? `${selectedCity}, ${selectedState}`
+      : selectedState
+    : profile?.location ?? '';
 
   // ── Touch tracking (inline errors only after field visited) ─────────────────
   const [fullNameTouched, setFullNameTouched] = useState(false);
@@ -65,6 +95,7 @@ export default function EditProfileScreen() {
 
   // ── Submit ───────────────────────────────────────────────────────────────────
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // ── Username change handler ──────────────────────────────────────────────────
   const handleUsernameChange = useCallback(
@@ -134,14 +165,29 @@ export default function EditProfileScreen() {
   // ── Derived validation ───────────────────────────────────────────────────────
   const fullNameTrimmed = fullName.trim();
   const fullNameError = fullNameTouched && fullNameTrimmed.length === 0
-    ? 'Full name is required'
+    ? 'El nombre completo es requerido'
     : null;
 
+  const isDirty =
+    fullName !== originalRef.current.fullName ||
+    username !== originalRef.current.username ||
+    role !== originalRef.current.role ||
+    location !== originalRef.current.location ||
+    bio !== originalRef.current.bio ||
+    pickedAvatarUrl !== null ||
+    pickedCoverUrl !== null;
+
+  const usernameUnchanged = username === originalRef.current.username;
+  const usernameOk =
+    usernameUnchanged ||
+    (USERNAME_REGEX.test(username) &&
+      usernameStatus !== 'taken' &&
+      usernameStatus !== 'checking');
+
   const canSave =
+    isDirty &&
     fullNameTrimmed.length > 0 &&
-    USERNAME_REGEX.test(username) &&
-    usernameStatus !== 'taken' &&
-    usernameStatus !== 'checking' &&
+    usernameOk &&
     !submitting &&
     !uploadingAvatar &&
     !uploadingCover;
@@ -149,6 +195,7 @@ export default function EditProfileScreen() {
   // ── Submit handler ───────────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!user || !canSave) return;
+    setSaveError(null);
 
     setSubmitting(true);
     const { error } = await supabase
@@ -167,15 +214,13 @@ export default function EditProfileScreen() {
 
     if (error) {
       if (isUniqueViolation(error)) {
-        // Surface inline rather than showing a generic Alert
         setUsernameStatus('taken');
         return;
       }
-      Alert.alert('Could not update profile', error.message);
+      setSaveError(error.message);
       return;
     }
 
-    // Await so profile data is fresh before the previous screen re-mounts
     await refreshProfile();
     router.back();
   };
@@ -251,7 +296,6 @@ export default function EditProfileScreen() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
         >
           {/* Page title */}
           <Text
@@ -489,18 +533,26 @@ export default function EditProfileScreen() {
             />
           </View>
 
-          {/* Location */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={labelStyle}>Location</Text>
-            <TextInput
-              value={location}
-              onChangeText={setLocation}
-              placeholder="e.g. Miami, FL"
-              placeholderTextColor={colors.textTertiary}
-              maxLength={100}
-              style={inputStyle}
-            />
-          </View>
+          {/* Location — Estado + Ciudad */}
+          <SearchableSelect
+            label="Estado"
+            placeholder="Selecciona un estado"
+            value={selectedState ? (STATE_MAP[selectedState]?.name ?? selectedState) : ''}
+            options={US_STATES.map((s) => s.name)}
+            onChange={(name) => {
+              const found = US_STATES.find((s) => s.name === name);
+              setSelectedState(found?.code ?? '');
+              setSelectedCity('');
+            }}
+          />
+          <SearchableSelect
+            label="Ciudad"
+            placeholder="Selecciona una ciudad"
+            value={selectedCity}
+            options={selectedState ? (STATE_MAP[selectedState]?.cities ?? []) : []}
+            disabled={!selectedState}
+            onChange={setSelectedCity}
+          />
 
           {/* Bio */}
           <View style={{ marginBottom: 8 }}>
@@ -527,6 +579,21 @@ export default function EditProfileScreen() {
               {bio.length}/300
             </Text>
           </View>
+
+          {/* Inline save error */}
+          {saveError ? (
+            <Text
+              style={{
+                fontFamily: Fonts.body,
+                fontSize: 13,
+                color: colors.error,
+                marginTop: 8,
+                textAlign: 'center',
+              }}
+            >
+              {saveError}
+            </Text>
+          ) : null}
 
           {/* Save button */}
           <Pressable
