@@ -8,7 +8,6 @@ import {
   fetchUpcomingEvents,
   fetchRecentPosts,
 } from '../../../lib/home';
-import PostPreviewCard from '../../../components/home/PostPreviewCard';
 import { EduCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
@@ -116,7 +115,7 @@ function EventCard({ item, onPress }: { item: HomeEventCard; onPress: () => void
 function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () => void }) {
   const { t } = useLanguage();
   const colors = useColors();
-  // Image priority: uploaded image → YouTube thumbnail → placeholder
+
   const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
   const thumbUri = item.image_url
     ? item.image_url
@@ -124,11 +123,15 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
     ? youTubeThumbnailUrl(videoId)
     : null;
 
+  const isImage = item.post_type === 'image' && !!item.image_url;
+  const isVideo = item.post_type === 'video';
+  const isPoll = item.post_type === 'poll';
+
   return (
     <Pressable
       onPress={onPress}
       style={{
-        width: 200,
+        width: 300,
         borderRadius: 12,
         backgroundColor: colors.surface,
         borderWidth: 1,
@@ -138,28 +141,53 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
     >
       {({ pressed }) => (
         <View style={{ opacity: pressed ? 0.8 : 1 }}>
-          {/* Media area */}
-          <View style={{ width: '100%', height: 110 }}>
-            {thumbUri ? (
-              <Image
-                source={{ uri: thumbUri }}
-                style={{ width: '100%', height: 110 }}
-                resizeMode="cover"
-              />
-            ) : (
-              <View
-                style={{
-                  width: '100%',
-                  height: 110,
-                  backgroundColor: colors.successBg,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons name="chatbubble-outline" size={28} color={colors.success} />
-              </View>
-            )}
-          </View>
+          {/* Media area — images and videos */}
+          {(isImage || isVideo) && (
+            <View style={{ width: '100%', height: 120 }}>
+              {thumbUri ? (
+                <Image
+                  source={{ uri: thumbUri }}
+                  style={{ width: '100%', height: 120 }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View
+                  style={{
+                    width: '100%',
+                    height: 120,
+                    backgroundColor: colors.borderSubtle,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons name="image-outline" size={28} color={colors.textMuted} />
+                </View>
+              )}
+              {isVideo && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      backgroundColor: colors.gold,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons name="play" size={16} color="#0a0900" style={{ marginLeft: 2 }} />
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Body */}
           <View style={{ padding: 12 }}>
@@ -170,6 +198,7 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
                 color: colors.success,
                 textTransform: 'uppercase',
                 letterSpacing: 0.6,
+                marginBottom: 4,
               }}
             >
               {t('home.community_badge')}
@@ -179,23 +208,94 @@ function CommunityPostCard({ item, onPress }: { item: HomePostCard; onPress: () 
                 fontFamily: Fonts.bodySemiBold,
                 fontSize: 13,
                 color: colors.textPrimary,
-                marginTop: 3,
+                marginBottom: 4,
               }}
               numberOfLines={1}
             >
               {item.authorName}
             </Text>
-            <Text
-              style={{
-                fontFamily: Fonts.body,
-                fontSize: 12,
-                color: colors.textTertiary,
-                marginTop: 3,
-              }}
-              numberOfLines={2}
-            >
-              {item.content}
-            </Text>
+
+            {isPoll ? (
+              <>
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodySemiBold,
+                    fontSize: 13,
+                    color: colors.textPrimary,
+                    marginBottom: 6,
+                    lineHeight: 19,
+                  }}
+                  numberOfLines={2}
+                >
+                  {item.pollQuestion ?? item.content}
+                </Text>
+                {item.pollOptions.slice(0, 2).map((opt) => {
+                  const pct = item.pollTotalVotes > 0
+                    ? Math.round((opt.votes_count / item.pollTotalVotes) * 100)
+                    : 0;
+                  return (
+                    <View
+                      key={opt.id}
+                      style={{
+                        height: 28,
+                        backgroundColor: '#111008',
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: colors.borderStrong,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        marginBottom: 4,
+                      }}
+                    >
+                      {pct > 0 && (
+                        <View
+                          style={{
+                            position: 'absolute',
+                            left: 0, top: 0, bottom: 0,
+                            width: `${pct}%`,
+                            backgroundColor: 'rgba(201,168,76,0.25)',
+                          }}
+                        />
+                      )}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          paddingHorizontal: 8,
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Text
+                          style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textPrimary }}
+                          numberOfLines={1}
+                        >
+                          {opt.label}
+                        </Text>
+                        {item.pollTotalVotes > 0 && (
+                          <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.gold }}>
+                            {pct}%
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  );
+                })}
+                <Text style={{ fontFamily: Fonts.body, fontSize: 10, color: colors.textMuted, marginTop: 2 }}>
+                  {item.pollTotalVotes} {item.pollTotalVotes === 1 ? 'vote' : 'votes'}
+                </Text>
+              </>
+            ) : (
+              <Text
+                style={{
+                  fontFamily: Fonts.body,
+                  fontSize: 12,
+                  color: colors.textTertiary,
+                  lineHeight: 18,
+                }}
+                numberOfLines={4}
+              >
+                {item.content}
+              </Text>
+            )}
           </View>
         </View>
       )}
@@ -417,15 +517,20 @@ export default function HomeScreen() {
           posts.length === 0 ? (
             <EmptySection message={t('home.no_posts_yet')} />
           ) : (
-            <>
-              {posts.map((item) => (
-                <PostPreviewCard
-                  key={item.id}
+            <FlatList<HomePostCard>
+              horizontal
+              data={posts}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 20 }}
+              ItemSeparatorComponent={CardSeparator}
+              renderItem={({ item }) => (
+                <CommunityPostCard
                   item={item}
                   onPress={() => router.push(`/post?id=${item.id}` as any)}
                 />
-              ))}
-            </>
+              )}
+            />
           )
         ) : null}
 
