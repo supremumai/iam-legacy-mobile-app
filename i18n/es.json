@@ -85,7 +85,8 @@
     "latest_in_education": "Lo último en educación",
     "no_courses_yet": "Aún no hay cursos",
     "one_module": "1 módulo",
-    "count_modules": "%{count} módulos"
+    "count_modules": "%{count} módulos",
+    "see_more": "Ver más"
   },
   "composer": {
     "tab_post": "Post",

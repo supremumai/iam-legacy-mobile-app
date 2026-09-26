@@ -58,8 +58,11 @@ export interface HomePostCard {
   image_url: string | null;
   created_at: string;
   likes_count: number;
+  comments_count: number;
+  authorId: string | null;
   authorName: string;
   authorAvatar: string | null;
+  topic_name: string | null;
   // poll fields (only when post_type === 'poll')
   pollQuestion: string | null;
   pollOptions: PollOption[];
@@ -75,7 +78,7 @@ export async function fetchRecentPosts(): Promise<{
     const { data, error } = await supabase
       .from('posts')
       .select(
-        'id, post_type, content, image_url, created_at, likes_count, profiles(full_name, username, avatar_url), polls(question, poll_options(id, label, sort_order, votes_count))',
+        'id, post_type, content, image_url, created_at, likes_count, comments_count, user_id, profiles(full_name, avatar_url), topics(name), polls(question, poll_options(id, label, sort_order, votes_count))',
       )
       .order('created_at', { ascending: false })
       .limit(5);
@@ -91,6 +94,7 @@ export async function fetchRecentPosts(): Promise<{
         const pollTotalVotes = pollOptions.reduce((acc, o) => acc + (o.votes_count ?? 0), 0);
 
         const profileRaw = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+        const topicRaw = Array.isArray(row.topics) ? row.topics[0] : row.topics;
 
         return {
           id: row.id,
@@ -99,8 +103,11 @@ export async function fetchRecentPosts(): Promise<{
           image_url: row.image_url ?? null,
           created_at: row.created_at,
           likes_count: row.likes_count ?? 0,
+          comments_count: row.comments_count ?? 0,
+          authorId: row.user_id ?? null,
           authorName: getDisplayName(row.profiles),
           authorAvatar: profileRaw?.avatar_url ?? null,
+          topic_name: topicRaw?.name ?? null,
           pollQuestion: pollRaw?.question ?? null,
           pollOptions,
           pollTotalVotes,
