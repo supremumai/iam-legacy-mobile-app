@@ -237,6 +237,28 @@
     "terms_title": "Términos de Uso",
     "last_updated": "Última actualización: enero 2025"
   },
+  "event_detail": {
+    "could_not_load": "No se pudo cargar el evento",
+    "not_found": "Evento no encontrado",
+    "retry": "Intentar de nuevo",
+    "online": "En línea",
+    "attendees_one": "1 asistente",
+    "attendees_count": "%{count} asistentes",
+    "register": "Registrarse",
+    "description": "Sobre este evento",
+    "options_title": "Opciones del evento",
+    "edit": "Editar evento",
+    "delete": "Eliminar evento",
+    "delete_confirm_title": "¿Eliminar este evento?",
+    "delete_confirm_body": "Esta acción no se puede deshacer.",
+    "delete_cancel": "Cancelar",
+    "delete_confirm": "Eliminar",
+    "could_not_delete": "No se pudo eliminar el evento",
+    "could_not_save": "No se pudo actualizar el guardado",
+    "could_not_open_link": "No se pudo abrir el enlace de registro",
+    "save": "Guardar",
+    "saved": "Guardado"
+  },
   "members": {
     "title": "Miembros",
     "loading": "Cargando...",

@@ -34,16 +34,10 @@ function parseDateParts(isoString: string | null, locale: string): DateParts {
 interface Props {
   event: EventItem;
   isPast: boolean;
-  /** Whether this event is saved by the current user. Default: false. */
   isSaved?: boolean;
-  /** Called when the user taps the bookmark icon. Parent manages optimistic state. */
   onToggleSave?: (event: EventItem) => void;
-  /**
-   * Called after the user confirms deletion via the kebab menu.
-   * Parent is responsible for the optimistic remove + DB delete + rollback.
-   * When omitted the kebab menu is hidden (even for admins).
-   */
   onDelete?: (event: EventItem) => void;
+  onPress?: (event: EventItem) => void;
 }
 
 export default function EventCard({
@@ -52,6 +46,7 @@ export default function EventCard({
   isSaved = false,
   onToggleSave,
   onDelete,
+  onPress,
 }: Props) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
@@ -90,6 +85,11 @@ export default function EventCard({
   };
 
   return (
+    <TouchableOpacity
+      activeOpacity={onPress ? 0.85 : 1}
+      onPress={onPress ? () => onPress(event) : undefined}
+      disabled={!onPress}
+    >
     <View
       style={{
         backgroundColor: colors.surface,
@@ -309,5 +309,6 @@ export default function EventCard({
         </View>
       </View>
     </View>
+    </TouchableOpacity>
   );
 }

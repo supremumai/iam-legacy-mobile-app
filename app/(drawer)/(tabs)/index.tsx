@@ -505,7 +505,7 @@ export default function HomeScreen() {
               contentContainerStyle={{ paddingHorizontal: 20 }}
               ItemSeparatorComponent={CardSeparator}
               renderItem={({ item }) => (
-                <EventCard item={item} onPress={() => router.push('/events' as any)} />
+                <EventCard item={item} onPress={() => router.push(`/event/${item.id}` as any)} />
               )}
             />
           )

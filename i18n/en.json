@@ -237,6 +237,28 @@
     "terms_title": "Terms of Use",
     "last_updated": "Last updated: January 2025"
   },
+  "event_detail": {
+    "could_not_load": "Could not load event",
+    "not_found": "Event not found",
+    "retry": "Retry",
+    "online": "Online",
+    "attendees_one": "1 going",
+    "attendees_count": "%{count} going",
+    "register": "Register",
+    "description": "About this event",
+    "options_title": "Event Options",
+    "edit": "Edit Event",
+    "delete": "Delete Event",
+    "delete_confirm_title": "Delete this event?",
+    "delete_confirm_body": "This can't be undone.",
+    "delete_cancel": "Cancel",
+    "delete_confirm": "Delete",
+    "could_not_delete": "Could not delete event",
+    "could_not_save": "Could not update save",
+    "could_not_open_link": "Could not open registration link",
+    "save": "Save",
+    "saved": "Saved"
+  },
   "members": {
     "title": "Members",
     "loading": "Loading...",
