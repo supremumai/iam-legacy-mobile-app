@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, FlatList, Image, LayoutAnimation, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
@@ -131,18 +131,31 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
   const colors = useColors();
   const [expanded, setExpanded] = useState(false);
 
-  const videoId = item.image_url ? null : findFirstYouTubeVideoId(item.content);
-  const thumbUri = item.image_url
-    ? item.image_url
-    : videoId
-    ? youTubeThumbnailUrl(videoId)
-    : null;
-
-  const isImage = item.post_type === 'image' && !!item.image_url;
-  const isVideo = item.post_type === 'video';
   const isPoll = item.post_type === 'poll';
+  // Fix: show media strip whenever image_url is present, regardless of post_type
+  const hasImage = !!item.image_url;
+  const videoId = hasImage ? null : findFirstYouTubeVideoId(item.content);
+  const isVideo = !hasImage && !!videoId;
+  const thumbUri = hasImage ? item.image_url : videoId ? youTubeThumbnailUrl(videoId) : null;
+
   const initials = getInitials(item.authorName !== 'Legacy Member' ? item.authorName : null);
   const relativeDate = formatRelativeTime(item.created_at, locale);
+
+  // Overflow detection for expand wedge
+  const textOverflows = !isPoll && !hasImage && !isVideo && item.content.length > 200;
+  const pollOverflows = isPoll && item.pollOptions.length > 2;
+  const mediaExpandable = hasImage || isVideo;
+  const canExpand = textOverflows || pollOverflows || mediaExpandable;
+
+  const toggleExpanded = () => {
+    LayoutAnimation.configureNext({
+      duration: 200,
+      update: { type: LayoutAnimation.Types.easeInEaseOut },
+    });
+    setExpanded((e) => !e);
+  };
+
+  const visibleOptions = expanded ? item.pollOptions : item.pollOptions.slice(0, 2);
 
   return (
     <Pressable
@@ -158,20 +171,20 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
     >
       {({ pressed }) => (
         <View style={{ opacity: pressed ? 0.8 : 1 }}>
-          {/* Media area — images and videos */}
-          {(isImage || isVideo) && (
-            <View style={{ width: '100%', height: 120 }}>
+          {/* Media strip — image or video thumbnail */}
+          {(hasImage || isVideo) && (
+            <View style={{ width: '100%', height: expanded ? 200 : 110 }}>
               {thumbUri ? (
                 <Image
                   source={{ uri: thumbUri }}
-                  style={{ width: '100%', height: 120 }}
+                  style={{ width: '100%', height: '100%' }}
                   resizeMode="cover"
                 />
               ) : (
                 <View
                   style={{
                     width: '100%',
-                    height: 120,
+                    height: '100%',
                     backgroundColor: colors.borderSubtle,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -262,7 +275,7 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
               </View>
             ) : null}
 
-            {/* Content */}
+            {/* Content zone */}
             {isPoll ? (
               <>
                 <Text
@@ -273,11 +286,11 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
                     marginBottom: 6,
                     lineHeight: 19,
                   }}
-                  numberOfLines={2}
+                  numberOfLines={expanded ? undefined : 2}
                 >
                   {item.pollQuestion ?? item.content}
                 </Text>
-                {item.pollOptions.slice(0, 2).map((opt) => {
+                {visibleOptions.map((opt) => {
                   const pct = item.pollTotalVotes > 0
                     ? Math.round((opt.votes_count / item.pollTotalVotes) * 100)
                     : 0;
@@ -305,17 +318,8 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
                           }}
                         />
                       )}
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          paddingHorizontal: 8,
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <Text
-                          style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textPrimary }}
-                          numberOfLines={1}
-                        >
+                      <View style={{ flexDirection: 'row', paddingHorizontal: 8, justifyContent: 'space-between' }}>
+                        <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textPrimary }} numberOfLines={1}>
                           {opt.label}
                         </Text>
                         {item.pollTotalVotes > 0 && (
@@ -332,35 +336,43 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
                 </Text>
               </>
             ) : (
-              <>
-                <Text
-                  style={{
-                    fontFamily: Fonts.body,
-                    fontSize: 13,
-                    color: colors.textSecondary,
-                    lineHeight: 19,
-                  }}
-                  numberOfLines={expanded ? undefined : 5}
-                >
-                  {item.content}
-                </Text>
-                {!expanded && item.content.length > 200 ? (
-                  <Pressable onPress={(e) => { e.stopPropagation?.(); setExpanded(true); }}>
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: colors.gold, marginTop: 2 }}>
-                      {t('home.see_more')}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </>
+              <Text
+                style={{
+                  fontFamily: Fonts.body,
+                  fontSize: 13,
+                  color: colors.textSecondary,
+                  lineHeight: 19,
+                }}
+                numberOfLines={expanded ? undefined : 4}
+              >
+                {item.content}
+              </Text>
             )}
           </View>
 
-          {/* Action row */}
+          {/* Expand wedge — only when content overflows collapsed state */}
+          {canExpand && (
+            <Pressable
+              onPress={(e) => { e.stopPropagation?.(); toggleExpanded(); }}
+              hitSlop={4}
+              style={{
+                alignItems: 'center',
+                paddingVertical: 6,
+                borderTopWidth: 1,
+                borderTopColor: 'rgba(201,168,76,0.15)',
+              }}
+            >
+              <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.gold} />
+            </Pressable>
+          )}
+
+          {/* Footer: like, comment, save */}
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 12,
+              paddingTop: 8,
               paddingBottom: 12,
               gap: 16,
             }}
@@ -370,7 +382,7 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
               hitSlop={8}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
             >
-              <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={18} color={isLiked ? colors.error : colors.textMuted} />
+              <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={16} color={isLiked ? colors.error : colors.textMuted} />
               <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.textMuted }}>
                 {item.likes_count}
               </Text>
@@ -380,7 +392,7 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
               hitSlop={8}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
             >
-              <Ionicons name="chatbubble-outline" size={16} color={colors.textMuted} />
+              <Ionicons name="chatbubble-outline" size={14} color={colors.textMuted} />
               <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.textMuted }}>
                 {item.comments_count}
               </Text>
@@ -390,7 +402,7 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
               hitSlop={8}
               style={{ marginLeft: 'auto' }}
             >
-              <Ionicons name={isSaved ? 'bookmark' : 'bookmark-outline'} size={18} color={isSaved ? colors.gold : colors.textMuted} />
+              <Ionicons name={isSaved ? 'bookmark' : 'bookmark-outline'} size={16} color={isSaved ? colors.gold : colors.textMuted} />
             </Pressable>
           </View>
         </View>
@@ -704,7 +716,7 @@ export default function HomeScreen() {
               data={posts}
               keyExtractor={(item) => item.id}
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
+              contentContainerStyle={{ paddingHorizontal: 20, alignItems: 'flex-start' }}
               ItemSeparatorComponent={CardSeparator}
               renderItem={({ item }) => (
                 <CommunityPostCard
