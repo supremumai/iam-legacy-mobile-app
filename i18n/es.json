@@ -370,6 +370,14 @@
     "course_modules_complete": "%{done} de %{total} módulos completados",
     "module_badge": "Módulo %{n} de %{total}"
   },
+  "post": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "La publicación es demasiado larga"
+  },
+  "comment": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "El comentario es demasiado largo"
+  },
   "add_resource": {
     "title": "Compartir un video",
     "label_url": "URL de YouTube *",

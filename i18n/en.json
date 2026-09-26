@@ -370,6 +370,14 @@
     "course_modules_complete": "%{done} of %{total} modules complete",
     "module_badge": "Module %{n} of %{total}"
   },
+  "post": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "Post is too long"
+  },
+  "comment": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "Comment is too long"
+  },
   "add_resource": {
     "title": "Share a Video",
     "label_url": "YouTube URL *",

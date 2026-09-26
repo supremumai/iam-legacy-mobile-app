@@ -271,6 +271,9 @@ interface ComposerProps {
   inputRef: React.RefObject<TextInput | null>;
 }
 
+const COMMENT_MAX = 5000;
+const COMMENT_WARN = 4000;
+
 function ComposerSection({
   replyingTo,
   onClearReply,
@@ -281,6 +284,7 @@ function ComposerSection({
   inputRef,
 }: ComposerProps) {
   const colors = useColors();
+  const { t } = useLanguage();
   const inputVideoId = findFirstYouTubeVideoId(inputText);
 
   return (
@@ -351,7 +355,7 @@ function ComposerSection({
           value={inputText}
           onChangeText={onChangeText}
           multiline
-          maxLength={2000}
+          maxLength={COMMENT_MAX}
           returnKeyType="default"
         />
         <Pressable
@@ -367,6 +371,20 @@ function ComposerSection({
           />
         </Pressable>
       </View>
+      {inputText.length >= COMMENT_WARN && (
+        <Text
+          style={{
+            fontFamily: Fonts.body,
+            fontSize: 11,
+            textAlign: 'right',
+            paddingHorizontal: 20,
+            paddingBottom: 6,
+            color: inputText.length > COMMENT_MAX ? colors.error : inputText.length >= COMMENT_MAX - 100 ? colors.gold : colors.textMuted,
+          }}
+        >
+          {t('comment.char_counter', { count: inputText.length.toLocaleString(), max: COMMENT_MAX.toLocaleString() })}
+        </Text>
+      )}
     </>
   );
 }
@@ -540,7 +558,7 @@ export default function CommentThread({
   };
 
   const threads = buildCommentThreads(comments);
-  const canSubmit = inputText.trim().length > 0 && !submitting;
+  const canSubmit = inputText.trim().length > 0 && inputText.length <= COMMENT_MAX && !submitting;
 
   const composerProps: ComposerProps = {
     replyingTo,

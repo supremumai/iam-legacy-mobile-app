@@ -78,7 +78,9 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
 
   // ── Post derived state ────────────────────────────────────────────────────
   const trimmed = content.trim();
-  const isPostDisabled = trimmed.length === 0 || content.length > 2000 || submitting;
+  const POST_MAX = 10000;
+  const POST_WARN = 8000;
+  const isPostDisabled = trimmed.length === 0 || content.length > POST_MAX || submitting;
   const initials = getInitials(profile?.full_name, profile?.username);
   const composerVideoId = findFirstYouTubeVideoId(content);
 
@@ -411,7 +413,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 textAlignVertical: 'top',
               }}
               multiline
-              maxLength={2000}
+              maxLength={POST_MAX}
               value={content}
               onChangeText={setContent}
               placeholder={t('composer.post_placeholder')}
@@ -466,15 +468,17 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text
-                  style={{
-                    fontFamily: Fonts.body,
-                    fontSize: 12,
-                    color: content.length > 1900 ? colors.error : colors.textMuted,
-                  }}
-                >
-                  {content.length}/2000
-                </Text>
+                {content.length >= POST_WARN && (
+                  <Text
+                    style={{
+                      fontFamily: Fonts.body,
+                      fontSize: 12,
+                      color: content.length > POST_MAX ? colors.error : content.length >= POST_MAX - 200 ? colors.gold : colors.textMuted,
+                    }}
+                  >
+                    {t('post.char_counter', { count: content.length.toLocaleString(), max: POST_MAX.toLocaleString() })}
+                  </Text>
+                )}
 
                 {/* Image attachment button */}
                 <Pressable
