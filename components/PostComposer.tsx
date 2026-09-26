@@ -21,6 +21,7 @@ import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
+import MentionInput, { extractMentions } from './MentionInput';
 
 interface PostComposerProps {
   onPostCreated: () => void;
@@ -81,7 +82,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
   const POST_MAX = 10000;
   const POST_WARN = 8000;
   const isPostDisabled = trimmed.length === 0 || content.length > POST_MAX || submitting;
-  const initials = getInitials(profile?.full_name, profile?.username);
+  const initials = getInitials(profile?.full_name);
   const composerVideoId = findFirstYouTubeVideoId(content);
 
   // ── Poll derived state ────────────────────────────────────────────────────
@@ -118,13 +119,34 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { data: postData, error } = await supabase
         .from('posts')
-        .insert({ user_id: user.id, content: trimmed, image_url: pickedImageUrl, topic_id: selectedTopicId });
+        .insert({ user_id: user.id, content: trimmed, image_url: pickedImageUrl, topic_id: selectedTopicId })
+        .select('id')
+        .single();
 
       if (error) {
         Alert.alert(t('composer.could_not_post'), error.message);
         return;
+      }
+
+      // Fire mention notifications — fire-and-forget, never block the UX
+      const mentions = extractMentions(trimmed);
+      const postId = (postData as any)?.id as string | undefined;
+      if (postId && mentions.length > 0) {
+        const uniqueIds = [...new Set(mentions.map((m) => m.userId))].filter((id) => id !== user.id);
+        if (uniqueIds.length > 0) {
+          supabase.from('notifications').insert(
+            uniqueIds.map((recipientId) => ({
+              recipient_id: recipientId,
+              actor_id: user.id,
+              type: 'mention',
+              post_id: postId,
+            })),
+          ).then(({ error: nErr }) => {
+            if (nErr) console.warn('[PostComposer] mention notification error:', nErr.message);
+          });
+        }
       }
 
       setContent('');
@@ -401,8 +423,8 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               )}
             </View>
 
-            {/* Input */}
-            <TextInput
+            {/* Input with @mention support */}
+            <MentionInput
               style={{
                 flex: 1,
                 marginLeft: 12,

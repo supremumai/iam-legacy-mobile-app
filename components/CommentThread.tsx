@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import MentionInput, { extractMentions } from './MentionInput';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -166,7 +167,8 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
         </View>
 
         {/* Content */}
-        <Text
+        <MentionText
+          text={comment.content}
           style={{
             fontFamily: Fonts.body,
             fontSize: isReply ? 13 : 14,
@@ -174,9 +176,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
             lineHeight: isReply ? 18 : 20,
             marginTop: 2,
           }}
-        >
-          {comment.content}
-        </Text>
+        />
 
         {/* YouTube preview — compact, sits within the comment's flex:1 block so
             replies are automatically indented at the same level as the text */}
@@ -340,8 +340,8 @@ function ComposerSection({
           borderTopColor: colors.borderSubtle,
         }}
       >
-        <TextInput
-          ref={inputRef}
+        <MentionInput
+          inputRef={inputRef as React.RefObject<TextInput>}
           style={{
             flex: 1,
             fontFamily: Fonts.body,
@@ -356,7 +356,6 @@ function ComposerSection({
           onChangeText={onChangeText}
           multiline
           maxLength={COMMENT_MAX}
-          returnKeyType="default"
         />
         <Pressable
           onPress={onSubmit}
@@ -497,6 +496,25 @@ export default function CommentThread({
       setInputText('');
       setReplyingTo(null);
       onCommentCountChange(postId, 1);
+
+      // Fire mention notifications — fire-and-forget
+      const mentions = extractMentions(trimmed);
+      if (mentions.length > 0 && user?.id) {
+        const uniqueIds = [...new Set(mentions.map((m) => m.userId))].filter((id) => id !== user.id);
+        if (uniqueIds.length > 0) {
+          supabase.from('notifications').insert(
+            uniqueIds.map((recipientId) => ({
+              recipient_id: recipientId,
+              actor_id: user.id,
+              type: 'mention',
+              post_id: postId,
+              comment_id: data.id,
+            })),
+          ).then(({ error: nErr }) => {
+            if (nErr) console.warn('[CommentThread] mention notification error:', nErr.message);
+          });
+        }
+      }
     } catch (e: unknown) {
       Alert.alert('Could not comment', e instanceof Error ? e.message : 'Unknown error');
       // Keep replyingTo so the user doesn't lose their reply target

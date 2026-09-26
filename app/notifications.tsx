@@ -219,7 +219,9 @@ export default function NotificationsScreen() {
                 ? ' liked your post'
                 : notification.type === 'post_comment'
                   ? ' commented on your post'
-                  : ' replied to your comment';
+                  : notification.type === 'mention'
+                    ? ' mentioned you in a post'
+                    : ' replied to your comment';
             const wasUnread = wasUnreadIds.has(notification.id);
 
             return (
@@ -284,7 +286,9 @@ export default function NotificationsScreen() {
                           ? 'heart'
                           : notification.type === 'post_comment'
                             ? 'chatbubble'
-                            : 'arrow-undo'
+                            : notification.type === 'mention'
+                              ? 'at'
+                              : 'arrow-undo'
                       }
                       size={10}
                       color={colors.gold}

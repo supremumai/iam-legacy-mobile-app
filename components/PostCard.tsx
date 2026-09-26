@@ -10,6 +10,7 @@ import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
+import MentionText from './MentionText';
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -252,7 +253,8 @@ export default function PostCard({
         onPress={() => onOpenPost(post)}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
-        <Text
+        <MentionText
+          text={post.content}
           style={{
             fontFamily: Fonts.body,
             fontSize: 14,
@@ -260,9 +262,7 @@ export default function PostCard({
             lineHeight: 21,
             marginTop: 12,
           }}
-        >
-          {post.content}
-        </Text>
+        />
 
         {/* Post image — shown only when image_url is present (image wins over video) */}
         {post.image_url ? (
