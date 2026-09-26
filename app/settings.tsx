@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Alert,
-  Linking,
   Modal,
   ScrollView,
   Switch,
@@ -15,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 import { supabase } from '../lib/supabase';
 
@@ -91,8 +91,9 @@ function SettingsRow({
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const colors = useColors();
+  const { t } = useLanguage();
 
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [notifLoading, setNotifLoading] = useState(true);
@@ -121,7 +122,7 @@ export default function SettingsScreen() {
       });
       setResetSent(true);
     } catch {
-      Alert.alert('Error', 'No se pudo enviar el correo. Intenta de nuevo.');
+      Alert.alert(t('common.error_title'), t('settings.password_error'));
     }
   };
 
@@ -134,7 +135,7 @@ export default function SettingsScreen() {
     } catch {
       setDeleting(false);
       setShowDeleteModal(false);
-      Alert.alert('Error', 'No se pudo eliminar la cuenta. Intenta de nuevo.');
+      Alert.alert(t('common.error_title'), t('settings.delete_error'));
     }
   };
 
@@ -157,7 +158,7 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.gold }}>
-          Configuración
+          {t('settings.title')}
         </Text>
       </View>
 
@@ -166,7 +167,7 @@ export default function SettingsScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
       >
         {/* ── CUENTA ─────────────────────────────────────────────── */}
-        <SectionLabel title="Cuenta" colors={colors} />
+        <SectionLabel title={t('settings.section_account')} colors={colors} />
         <View
           style={{
             marginHorizontal: 16,
@@ -179,19 +180,19 @@ export default function SettingsScreen() {
         >
           <SettingsRow
             icon="person-outline"
-            label="Editar Perfil"
+            label={t('settings.edit_profile')}
             onPress={() => router.push('/edit-profile')}
             colors={colors}
           />
           <SettingsRow
             icon="lock-closed-outline"
-            label={resetSent ? '✓ Correo enviado — revisa tu bandeja' : 'Cambiar Contraseña'}
+            label={resetSent ? t('settings.password_sent') : t('settings.change_password')}
             onPress={resetSent ? undefined : handleChangePassword}
             colors={colors}
             right={
               resetSent ? (
                 <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.gold }}>
-                  Enviado
+                  {t('settings.password_sent_badge')}
                 </Text>
               ) : undefined
             }
@@ -199,7 +200,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── NOTIFICACIONES ─────────────────────────────────────── */}
-        <SectionLabel title="Notificaciones" colors={colors} />
+        <SectionLabel title={t('settings.section_notifications')} colors={colors} />
         <View
           style={{
             marginHorizontal: 16,
@@ -212,7 +213,7 @@ export default function SettingsScreen() {
         >
           <SettingsRow
             icon="notifications-outline"
-            label="Notificaciones Push"
+            label={t('settings.push_notifications')}
             colors={colors}
             right={
               !notifLoading ? (
@@ -227,34 +228,8 @@ export default function SettingsScreen() {
           />
         </View>
 
-        {/* ── LEGAL ──────────────────────────────────────────────── */}
-        <SectionLabel title="Legal" colors={colors} />
-        <View
-          style={{
-            marginHorizontal: 16,
-            backgroundColor: colors.surface,
-            borderRadius: 12,
-            overflow: 'hidden',
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}
-        >
-          <SettingsRow
-            icon="document-text-outline"
-            label="Términos de Servicio"
-            onPress={() => Linking.openURL('https://iamlegacy.app/terms')}
-            colors={colors}
-          />
-          <SettingsRow
-            icon="shield-checkmark-outline"
-            label="Política de Privacidad"
-            onPress={() => Linking.openURL('https://iamlegacy.app/privacy')}
-            colors={colors}
-          />
-        </View>
-
         {/* ── ZONA DE PELIGRO ────────────────────────────────────── */}
-        <SectionLabel title="Zona de Peligro" colors={colors} />
+        <SectionLabel title={t('settings.section_danger')} colors={colors} />
         <View
           style={{
             marginHorizontal: 16,
@@ -267,14 +242,14 @@ export default function SettingsScreen() {
         >
           <SettingsRow
             icon="trash-outline"
-            label="Eliminar Cuenta"
+            label={t('settings.delete_account')}
             onPress={() => setShowDeleteModal(true)}
             danger
             colors={colors}
           />
           <SettingsRow
             icon="log-out-outline"
-            label="Cerrar Sesión"
+            label={t('settings.sign_out')}
             onPress={signOut}
             colors={colors}
           />
@@ -317,7 +292,7 @@ export default function SettingsScreen() {
                 marginBottom: 10,
               }}
             >
-              ¿Eliminar cuenta?
+              {t('settings.delete_modal_title')}
             </Text>
             <Text
               style={{
@@ -329,7 +304,7 @@ export default function SettingsScreen() {
                 marginBottom: 24,
               }}
             >
-              Esta acción es permanente e irreversible. Se eliminarán todos tus datos, publicaciones y conexiones.
+              {t('settings.delete_modal_body')}
             </Text>
             <TouchableOpacity
               onPress={handleDeleteAccount}
@@ -345,7 +320,7 @@ export default function SettingsScreen() {
               }}
             >
               <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: '#fff' }}>
-                {deleting ? 'Eliminando…' : 'Sí, eliminar mi cuenta'}
+                {deleting ? t('settings.deleting') : t('settings.delete_confirm')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -361,7 +336,7 @@ export default function SettingsScreen() {
               }}
             >
               <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textSecondary }}>
-                Cancelar
+                {t('common.cancel')}
               </Text>
             </TouchableOpacity>
           </View>

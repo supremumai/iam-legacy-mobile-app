@@ -1,32 +1,24 @@
-import { Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
 
-const PILLARS = [
-  {
-    icon: 'flame-outline' as const,
-    title: 'Propósito',
-    desc: 'Construye una vida con intención. Cada decisión que tomas deja una huella para los que vienen después.',
-  },
-  {
-    icon: 'people-outline' as const,
-    title: 'Comunidad',
-    desc: 'No construyes solo. La tribu que eliges define el legado que dejas. Aquí todos se elevan juntos.',
-  },
-  {
-    icon: 'trending-up-outline' as const,
-    title: 'Crecimiento',
-    desc: 'El legado no es un destino, es un camino de mejora continua. Aprende, comparte, evoluciona.',
-  },
-];
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const colors = useColors();
+  const { t } = useLanguage();
+
+  const PILLARS: { icon: IoniconName; titleKey: string; descKey: string }[] = [
+    { icon: 'flame-outline', titleKey: 'about.pillar_purpose_title', descKey: 'about.pillar_purpose_desc' },
+    { icon: 'people-outline', titleKey: 'about.pillar_community_title', descKey: 'about.pillar_community_desc' },
+    { icon: 'trending-up-outline', titleKey: 'about.pillar_growth_title', descKey: 'about.pillar_growth_desc' },
+  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: insets.top }}>
@@ -46,7 +38,7 @@ export default function AboutScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.gold }}>
-          Acerca de
+          {t('about.title')}
         </Text>
       </View>
 
@@ -74,7 +66,7 @@ export default function AboutScreen() {
               marginBottom: 16,
             }}
           >
-            I Am Legacy
+            {t('about.hero_title')}
           </Text>
           <Text
             style={{
@@ -85,11 +77,11 @@ export default function AboutScreen() {
               lineHeight: 26,
             }}
           >
-            Una comunidad para emprendedores latinos que construyen algo que trasciende. No solo negocios — legados.
+            {t('about.hero_subtitle')}
           </Text>
         </View>
 
-        {/* ── Misión y Visión ─────────────────────────────────── */}
+        {/* ── Mission & Vision ─────────────────────────────────── */}
         <View style={{ paddingHorizontal: 20, marginTop: 32 }}>
           <Text
             style={{
@@ -101,7 +93,7 @@ export default function AboutScreen() {
               marginBottom: 12,
             }}
           >
-            Misión
+            {t('about.section_mission')}
           </Text>
           <Text
             style={{
@@ -112,7 +104,7 @@ export default function AboutScreen() {
               marginBottom: 28,
             }}
           >
-            Empoderar a emprendedores latinos para que construyan negocios, relaciones y estilos de vida que dejen una huella duradera en sus familias y comunidades.
+            {t('about.mission_text')}
           </Text>
 
           <Text
@@ -125,7 +117,7 @@ export default function AboutScreen() {
               marginBottom: 12,
             }}
           >
-            Visión
+            {t('about.section_vision')}
           </Text>
           <Text
             style={{
@@ -135,11 +127,11 @@ export default function AboutScreen() {
               lineHeight: 24,
             }}
           >
-            Un mundo donde cada latino vive con propósito, lidera con integridad y construye un legado que inspira a las generaciones futuras.
+            {t('about.vision_text')}
           </Text>
         </View>
 
-        {/* ── Los 3 Pilares ───────────────────────────────────── */}
+        {/* ── The 3 Pillars ────────────────────────────────────── */}
         <Text
           style={{
             fontFamily: Fonts.bodySemiBold,
@@ -152,13 +144,13 @@ export default function AboutScreen() {
             marginBottom: 12,
           }}
         >
-          Los 3 Pilares
+          {t('about.section_pillars')}
         </Text>
 
         <View style={{ paddingHorizontal: 16, gap: 12 }}>
           {PILLARS.map((p) => (
             <View
-              key={p.title}
+              key={p.titleKey}
               style={{
                 backgroundColor: colors.surface,
                 borderRadius: 12,
@@ -191,7 +183,7 @@ export default function AboutScreen() {
                     marginBottom: 6,
                   }}
                 >
-                  {p.title}
+                  {t(p.titleKey)}
                 </Text>
                 <Text
                   style={{
@@ -201,14 +193,14 @@ export default function AboutScreen() {
                     lineHeight: 22,
                   }}
                 >
-                  {p.desc}
+                  {t(p.descKey)}
                 </Text>
               </View>
             </View>
           ))}
         </View>
 
-        {/* ── Fundador ─────────────────────────────────────────── */}
+        {/* ── Founder ──────────────────────────────────────────── */}
         <Text
           style={{
             fontFamily: Fonts.bodySemiBold,
@@ -221,7 +213,7 @@ export default function AboutScreen() {
             marginBottom: 12,
           }}
         >
-          Fundador
+          {t('about.section_founder')}
         </Text>
 
         <View
@@ -255,7 +247,7 @@ export default function AboutScreen() {
             <Text
               style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.textPrimary }}
             >
-              Julio Solís
+              {t('about.founder_name')}
             </Text>
             <Text
               style={{
@@ -266,62 +258,9 @@ export default function AboutScreen() {
                 lineHeight: 20,
               }}
             >
-              Emprendedor, mentor y constructor de comunidades latinas. Fundó I Am Legacy para dar a cada latino las herramientas para trascender.
+              {t('about.founder_bio')}
             </Text>
           </View>
-        </View>
-
-        {/* ── CTA Comunidad ────────────────────────────────────── */}
-        <View
-          style={{
-            marginHorizontal: 16,
-            marginTop: 36,
-            backgroundColor: 'rgba(201,168,76,0.08)',
-            borderRadius: 14,
-            borderWidth: 1,
-            borderColor: 'rgba(201,168,76,0.3)',
-            padding: 24,
-            alignItems: 'center',
-          }}
-        >
-          <Ionicons name="globe-outline" size={32} color={colors.gold} style={{ marginBottom: 12 }} />
-          <Text
-            style={{
-              fontFamily: Fonts.heading,
-              fontSize: 20,
-              color: colors.textPrimary,
-              textAlign: 'center',
-              marginBottom: 8,
-            }}
-          >
-            Únete a la Comunidad
-          </Text>
-          <Text
-            style={{
-              fontFamily: Fonts.body,
-              fontSize: 14,
-              color: colors.textMuted,
-              textAlign: 'center',
-              lineHeight: 22,
-              marginBottom: 20,
-            }}
-          >
-            Síguenos, comparte tu historia y sé parte del movimiento que está cambiando la narrativa latina.
-          </Text>
-          <TouchableOpacity
-            onPress={() => Linking.openURL('https://iamlegacy.app')}
-            activeOpacity={0.8}
-            style={{
-              backgroundColor: colors.gold,
-              borderRadius: 8,
-              paddingHorizontal: 28,
-              paddingVertical: 12,
-            }}
-          >
-            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.background }}>
-              iamlegacy.app
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

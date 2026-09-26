@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -19,6 +20,7 @@ import { getInitials } from '../lib/avatar';
 import { pickAndUploadImage } from '../lib/upload';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import SearchableSelect from '../components/SearchableSelect';
 import { US_STATES, STATE_MAP } from '../constants/us-locations';
 
@@ -42,6 +44,7 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const { user, profile, refreshProfile } = useAuth();
   const colors = useColors();
+  const { t } = useLanguage();
 
   // ── Original values (for dirty tracking) ────────────────────────────────────
   const originalRef = useRef({
@@ -165,7 +168,7 @@ export default function EditProfileScreen() {
   // ── Derived validation ───────────────────────────────────────────────────────
   const fullNameTrimmed = fullName.trim();
   const fullNameError = fullNameTouched && fullNameTrimmed.length === 0
-    ? 'El nombre completo es requerido'
+    ? t('edit_profile.full_name_required')
     : null;
 
   const isDirty =
@@ -231,16 +234,16 @@ export default function EditProfileScreen() {
 
   if (username.length > 0) {
     if (usernameStatus === 'invalid') {
-      usernameHint = '3-30 characters: letters, numbers, _ or -';
+      usernameHint = t('edit_profile.username_invalid');
       usernameHintColor = colors.error;
     } else if (usernameStatus === 'checking') {
-      usernameHint = 'Checking availability...';
+      usernameHint = t('edit_profile.username_checking');
       usernameHintColor = colors.textMuted;
     } else if (usernameStatus === 'taken') {
-      usernameHint = 'Username already taken';
+      usernameHint = t('edit_profile.username_taken');
       usernameHintColor = colors.error;
     } else if (usernameStatus === 'available') {
-      usernameHint = 'Username available';
+      usernameHint = t('edit_profile.username_available');
       usernameHintColor = colors.success;
     }
     // 'idle' with content means either unchanged or check-error passthrough — no hint
@@ -307,7 +310,7 @@ export default function EditProfileScreen() {
               marginBottom: 20,
             }}
           >
-            Edit Profile
+            {t('edit_profile.title')}
           </Text>
 
           {/* ── Cover banner + Avatar ──────────────────────────────────────── */}
@@ -327,7 +330,7 @@ export default function EditProfileScreen() {
                 const result = await pickAndUploadImage(user.id, 'cover', { aspect: [16, 9] });
                 setUploadingCover(false);
                 if ('error' in result) {
-                  Alert.alert('Could not update photo', result.error);
+                  Alert.alert(t('edit_profile.photo_error'), result.error);
                 } else if ('url' in result) {
                   setPickedCoverUrl(result.url);
                 }
@@ -406,7 +409,7 @@ export default function EditProfileScreen() {
                 const result = await pickAndUploadImage(user.id, 'avatar', { aspect: [1, 1] });
                 setUploadingAvatar(false);
                 if ('error' in result) {
-                  Alert.alert('Could not update photo', result.error);
+                  Alert.alert(t('edit_profile.photo_error'), result.error);
                 } else if ('url' in result) {
                   setPickedAvatarUrl(result.url);
                 }
@@ -487,12 +490,12 @@ export default function EditProfileScreen() {
 
           {/* Full Name */}
           <View style={{ marginBottom: 16 }}>
-            <Text style={labelStyle}>Full Name *</Text>
+            <Text style={labelStyle}>{t('edit_profile.label_full_name')}</Text>
             <TextInput
               value={fullName}
               onChangeText={setFullName}
               onBlur={() => setFullNameTouched(true)}
-              placeholder="Your full name"
+              placeholder={t('edit_profile.placeholder_full_name')}
               placeholderTextColor={colors.textTertiary}
               maxLength={100}
               style={inputStyle}
@@ -502,11 +505,11 @@ export default function EditProfileScreen() {
 
           {/* Username */}
           <View style={{ marginBottom: 16 }}>
-            <Text style={labelStyle}>Username *</Text>
+            <Text style={labelStyle}>{t('edit_profile.label_username')}</Text>
             <TextInput
               value={username}
               onChangeText={handleUsernameChange}
-              placeholder="your_handle"
+              placeholder={t('edit_profile.placeholder_username')}
               placeholderTextColor={colors.textTertiary}
               autoCapitalize="none"
               autoCorrect={false}
@@ -522,11 +525,11 @@ export default function EditProfileScreen() {
 
           {/* Role */}
           <View style={{ marginBottom: 16 }}>
-            <Text style={labelStyle}>Role</Text>
+            <Text style={labelStyle}>{t('edit_profile.label_role')}</Text>
             <TextInput
               value={role}
               onChangeText={setRole}
-              placeholder="e.g. Entrepreneur, Investor, Mentor"
+              placeholder={t('edit_profile.placeholder_role')}
               placeholderTextColor={colors.textTertiary}
               maxLength={60}
               style={inputStyle}
@@ -535,8 +538,8 @@ export default function EditProfileScreen() {
 
           {/* Location — Estado + Ciudad */}
           <SearchableSelect
-            label="Estado"
-            placeholder="Selecciona un estado"
+            label={t('edit_profile.label_state')}
+            placeholder={t('edit_profile.placeholder_state')}
             value={selectedState ? (STATE_MAP[selectedState]?.name ?? selectedState) : ''}
             options={US_STATES.map((s) => s.name)}
             onChange={(name) => {
@@ -546,8 +549,8 @@ export default function EditProfileScreen() {
             }}
           />
           <SearchableSelect
-            label="Ciudad"
-            placeholder="Selecciona una ciudad"
+            label={t('edit_profile.label_city')}
+            placeholder={t('edit_profile.placeholder_city')}
             value={selectedCity}
             options={selectedState ? (STATE_MAP[selectedState]?.cities ?? []) : []}
             disabled={!selectedState}
@@ -556,11 +559,11 @@ export default function EditProfileScreen() {
 
           {/* Bio */}
           <View style={{ marginBottom: 8 }}>
-            <Text style={labelStyle}>Bio</Text>
+            <Text style={labelStyle}>{t('edit_profile.label_bio')}</Text>
             <TextInput
               value={bio}
               onChangeText={setBio}
-              placeholder="Tell the community who you are..."
+              placeholder={t('edit_profile.placeholder_bio')}
               placeholderTextColor={colors.textTertiary}
               multiline
               maxLength={300}
@@ -613,7 +616,7 @@ export default function EditProfileScreen() {
               <ActivityIndicator color={colors.background} size="small" />
             ) : (
               <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.background }}>
-                Save
+                {t('edit_profile.save')}
               </Text>
             )}
           </Pressable>

@@ -4,26 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
-
-const FAQ = [
-  {
-    q: '¿Cómo edito mi perfil?',
-    a: 'Ve al menú lateral y toca "Editar Perfil". Allí puedes cambiar tu foto, nombre, bio, ubicación e intereses.',
-  },
-  {
-    q: '¿Cómo publico contenido?',
-    a: 'Toca el botón "+" en la barra principal. Puedes crear posts de texto, subir fotos o compartir reflexiones con la comunidad.',
-  },
-  {
-    q: '¿Cómo funciona el sistema de puntos?',
-    a: 'Ganas puntos por participar activamente: publicar, comentar, conectar con otros miembros y asistir a eventos. Los puntos reflejan tu contribución al legado.',
-  },
-  {
-    q: '¿Puedo cambiar el idioma de la app?',
-    a: 'Sí. Abre el menú lateral y usa el selector EN / ES en la sección de ajustes del menú para cambiar entre inglés y español.',
-  },
-];
 
 function FaqItem({ q, a, colors }: { q: string; a: string; colors: any }) {
   const [open, setOpen] = useState(false);
@@ -76,6 +58,14 @@ export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const colors = useColors();
+  const { t } = useLanguage();
+
+  const FAQ = [
+    { q: t('support.faq_edit_profile_q'), a: t('support.faq_edit_profile_a') },
+    { q: t('support.faq_post_q'), a: t('support.faq_post_a') },
+    { q: t('support.faq_points_q'), a: t('support.faq_points_a') },
+    { q: t('support.faq_language_q'), a: t('support.faq_language_a') },
+  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: insets.top }}>
@@ -95,7 +85,7 @@ export default function SupportScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.gold }}>
-          Ayuda y Soporte
+          {t('support.title')}
         </Text>
       </View>
 
@@ -116,7 +106,7 @@ export default function SupportScreen() {
             marginBottom: 4,
           }}
         >
-          Preguntas Frecuentes
+          {t('support.section_faq')}
         </Text>
 
         <View
@@ -147,7 +137,7 @@ export default function SupportScreen() {
             marginBottom: 4,
           }}
         >
-          Contacto
+          {t('support.section_contact')}
         </Text>
 
         <View
@@ -161,7 +151,7 @@ export default function SupportScreen() {
           }}
         >
           <TouchableOpacity
-            onPress={() => Linking.openURL('mailto:soporte@iamlegacy.app')}
+            onPress={() => Linking.openURL(`mailto:${t('support.contact_email')}`)}
             activeOpacity={0.7}
             style={{
               flexDirection: 'row',
@@ -174,10 +164,10 @@ export default function SupportScreen() {
             <Ionicons name="mail-outline" size={20} color={colors.textSecondary} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary }}>
-                Escríbenos
+                {t('support.contact_name')}
               </Text>
               <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted, marginTop: 2 }}>
-                soporte@iamlegacy.app
+                {t('support.contact_email')}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
