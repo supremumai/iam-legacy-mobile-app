@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import MentionInput, { extractMentions } from './MentionInput';
+import ActionSheet from './ActionSheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -403,6 +404,7 @@ export default function CommentThread({
   const [inputText, setInputText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [replyingTo, setReplyingTo] = useState<CommentWithAuthor | null>(null);
+  const [pendingDeleteComment, setPendingDeleteComment] = useState<CommentWithAuthor | null>(null);
   const inputRef = useRef<TextInput>(null);
 
   // Fetch comments on mount and whenever postId changes
@@ -524,55 +526,41 @@ export default function CommentThread({
   };
 
   const handleDeleteComment = (comment: CommentWithAuthor) => {
-    // Count replies that would cascade-delete with a top-level comment
+    setPendingDeleteComment(comment);
+  };
+
+  const performDeleteComment = async (comment: CommentWithAuthor) => {
     const repliesCount =
       comment.parent_id === null
         ? comments.filter((c) => c.parent_id === comment.id).length
         : 0;
+    try {
+      const { error } = await supabase
+        .from('post_comments')
+        .delete()
+        .eq('id', comment.id);
 
-    const alertMessage =
-      repliesCount > 0
-        ? `This will also delete ${repliesCount} ${repliesCount === 1 ? 'reply' : 'replies'}. This can't be undone.`
-        : "This can't be undone.";
+      if (error) {
+        Alert.alert('Could not delete', error.message);
+        return;
+      }
 
-    Alert.alert('Delete Comment', alertMessage, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const { error } = await supabase
-              .from('post_comments')
-              .delete()
-              .eq('id', comment.id);
+      if (repliesCount > 0) {
+        setComments((prev) =>
+          prev.filter((c) => c.id !== comment.id && c.parent_id !== comment.id),
+        );
+        onCommentCountChange(postId, -(1 + repliesCount));
+      } else {
+        setComments((prev) => prev.filter((c) => c.id !== comment.id));
+        onCommentCountChange(postId, -1);
+      }
 
-            if (error) {
-              Alert.alert('Could not delete', error.message);
-              return;
-            }
-
-            if (repliesCount > 0) {
-              // Remove parent AND all its replies from local flat list
-              setComments((prev) =>
-                prev.filter((c) => c.id !== comment.id && c.parent_id !== comment.id),
-              );
-              onCommentCountChange(postId, -(1 + repliesCount));
-            } else {
-              setComments((prev) => prev.filter((c) => c.id !== comment.id));
-              onCommentCountChange(postId, -1);
-            }
-
-            // If we were replying to the deleted comment, clear that state
-            if (replyingTo?.id === comment.id || replyingTo?.parent_id === comment.id) {
-              setReplyingTo(null);
-            }
-          } catch (e: unknown) {
-            Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
-          }
-        },
-      },
-    ]);
+      if (replyingTo?.id === comment.id || replyingTo?.parent_id === comment.id) {
+        setReplyingTo(null);
+      }
+    } catch (e: unknown) {
+      Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
+    }
   };
 
   const threads = buildCommentThreads(comments);
@@ -638,6 +626,19 @@ export default function CommentThread({
           />
         )}
         <ComposerSection {...composerProps} />
+        <ActionSheet
+          visible={!!pendingDeleteComment}
+          onClose={() => setPendingDeleteComment(null)}
+          title="This can't be undone."
+          actions={[
+            {
+              label: 'Delete Comment',
+              icon: 'trash-outline',
+              destructive: true,
+              onPress: () => pendingDeleteComment && performDeleteComment(pendingDeleteComment),
+            },
+          ]}
+        />
       </View>
     );
   }
@@ -698,6 +699,20 @@ export default function CommentThread({
 
       {/* Bottom breathing room */}
       <View style={{ height: 32 }} />
+
+      <ActionSheet
+        visible={!!pendingDeleteComment}
+        onClose={() => setPendingDeleteComment(null)}
+        title="This can't be undone."
+        actions={[
+          {
+            label: 'Delete Comment',
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: () => pendingDeleteComment && performDeleteComment(pendingDeleteComment),
+          },
+        ]}
+      />
     </View>
   );
 }

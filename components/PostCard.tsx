@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -11,6 +12,7 @@ import { useColors } from '../contexts/ThemeContext';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
 import MentionText from './MentionText';
+import ActionSheet from './ActionSheet';
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -43,6 +45,8 @@ export default function PostCard({
   const { t, locale } = useLanguage();
   const colors = useColors();
   const isOwner = post.user_id === currentUserId;
+  const [optionsVisible, setOptionsVisible] = useState(false);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const author = post.author;
 
   const initials = getInitials(author?.full_name);
@@ -53,48 +57,21 @@ export default function PostCard({
   const subLine = `${formatRelativeTime(post.created_at, locale)}${editedSuffix}`;
   const videoId = findFirstYouTubeVideoId(post.content);
 
-  // ─── Two-step delete: confirm then delete ──────────────────────────────────
-  const handleDeletePress = () => {
-    Alert.alert(
-      t('community.delete_post'),
-      t('community.delete_confirm_body'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('events.delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { error } = await supabase
-                .from('posts')
-                .delete()
-                .eq('id', post.id);
-
-              if (error) {
-                Alert.alert(t('community.could_not_delete_post'), error.message);
-                return;
-              }
-
-              onDeleted(post.id);
-            } catch (e: unknown) {
-              Alert.alert(
-                t('community.could_not_delete_post'),
-                e instanceof Error ? e.message : t('common.unknown_error'),
-              );
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  // ─── Kebab menu ───────────────────────────────────────────────────────────
-  const handleOptionsPress = () => {
-    Alert.alert(t('community.post_options'), undefined, [
-      { text: t('community.edit_post'), onPress: () => onEditPost(post) },
-      { text: t('community.delete_post'), style: 'destructive', onPress: handleDeletePress },
-      { text: t('common.cancel'), style: 'cancel' },
-    ]);
+  // ─── Delete (called from delete-confirm sheet) ────────────────────────────
+  const performDelete = async () => {
+    try {
+      const { error } = await supabase.from('posts').delete().eq('id', post.id);
+      if (error) {
+        Alert.alert(t('community.could_not_delete_post'), error.message);
+        return;
+      }
+      onDeleted(post.id);
+    } catch (e: unknown) {
+      Alert.alert(
+        t('community.could_not_delete_post'),
+        e instanceof Error ? e.message : t('common.unknown_error'),
+      );
+    }
   };
 
   return (
@@ -207,9 +184,8 @@ export default function PostCard({
         {/* Kebab menu (owner only) — fixed-size, far right, vertically centered */}
         {isOwner && (
           <Pressable
-            onPress={handleOptionsPress}
+            onPress={() => setOptionsVisible(true)}
             hitSlop={8}
-            onLayout={(e) => console.log('KEBAB x:', e.nativeEvent.layout.x, 'width:', e.nativeEvent.layout.width)}
             style={{ paddingLeft: 8 }}
           >
             {({ pressed }) => (
@@ -332,6 +308,41 @@ export default function PostCard({
           />
         </TouchableOpacity>
       </View>
+
+      {/* Options sheet */}
+      <ActionSheet
+        visible={optionsVisible}
+        onClose={() => setOptionsVisible(false)}
+        title={t('community.post_options')}
+        actions={[
+          {
+            label: t('community.edit_post'),
+            icon: 'create-outline',
+            onPress: () => onEditPost(post),
+          },
+          {
+            label: t('community.delete_post'),
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: () => setDeleteConfirmVisible(true),
+          },
+        ]}
+      />
+
+      {/* Delete confirm sheet */}
+      <ActionSheet
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title={t('community.delete_confirm_body')}
+        actions={[
+          {
+            label: t('events.delete'),
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: performDelete,
+          },
+        ]}
+      />
     </View>
   );
 }
