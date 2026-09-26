@@ -458,82 +458,82 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
           {/* Topic selector */}
           {topicSelector}
 
-          {content.length > 0 && (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 12,
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                {content.length >= POST_WARN && (
-                  <Text
-                    style={{
-                      fontFamily: Fonts.body,
-                      fontSize: 12,
-                      color: content.length > POST_MAX ? colors.error : content.length >= POST_MAX - 200 ? colors.gold : colors.textMuted,
-                    }}
-                  >
-                    {t('post.char_counter', { count: content.length.toLocaleString(), max: POST_MAX.toLocaleString() })}
-                  </Text>
-                )}
-
-                {/* Image attachment button */}
-                <Pressable
-                  disabled={uploadingImage}
-                  onPress={async () => {
-                    if (!user) return;
-                    setUploadingImage(true);
-                    const result = await pickAndUploadImage(user.id, 'posts', { aspect: [4, 3] });
-                    setUploadingImage(false);
-                    if ('error' in result) {
-                      Alert.alert(t('composer.could_not_attach_image'), result.error);
-                    } else if ('url' in result) {
-                      setPickedImageUrl(result.url);
-                    }
-                    // cancelled: no-op
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: 12,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {content.length >= POST_WARN && (
+                <Text
+                  style={{
+                    fontFamily: Fonts.body,
+                    fontSize: 12,
+                    color: content.length > POST_MAX ? colors.error : content.length >= POST_MAX - 200 ? colors.gold : colors.textMuted,
                   }}
-                  hitSlop={8}
-                  style={({ pressed }) => ({ opacity: pressed || uploadingImage ? 0.5 : 1 })}
                 >
-                  {uploadingImage ? (
-                    <ActivityIndicator color={colors.gold} size="small" />
-                  ) : (
-                    <Ionicons name="image-outline" size={20} color={colors.gold} />
-                  )}
-                </Pressable>
-              </View>
+                  {t('post.char_counter', { count: content.length.toLocaleString(), max: POST_MAX.toLocaleString() })}
+                </Text>
+              )}
 
+              {/* Image attachment button — always visible */}
               <Pressable
-                onPress={handlePost}
-                disabled={isPostDisabled}
-                style={{
-                  backgroundColor: isPostDisabled ? colors.borderStrong : colors.gold,
-                  borderRadius: 8,
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  minWidth: 60,
-                  alignItems: 'center',
+                disabled={uploadingImage}
+                onPress={async () => {
+                  if (!user) return;
+                  setUploadingImage(true);
+                  const result = await pickAndUploadImage(user.id, 'posts', { aspect: [4, 3] });
+                  setUploadingImage(false);
+                  if ('error' in result) {
+                    Alert.alert(t('composer.could_not_attach_image'), result.error);
+                  } else if ('url' in result) {
+                    setPickedImageUrl(result.url);
+                  }
+                  // cancelled: no-op
                 }}
+                hitSlop={8}
+                style={({ pressed }) => ({ opacity: pressed || uploadingImage ? 0.5 : 1 })}
               >
-                {submitting ? (
-                  <ActivityIndicator color={colors.overlay} size="small" />
+                {uploadingImage ? (
+                  <ActivityIndicator color={colors.gold} size="small" />
                 ) : (
-                  <Text
-                    style={{
-                      fontFamily: Fonts.bodyBold,
-                      fontSize: 13,
-                      color: isPostDisabled ? colors.overlay : colors.background,
-                    }}
-                  >
-                    {t('composer.submit_post')}
-                  </Text>
+                  <Ionicons name="image-outline" size={20} color={colors.gold} />
                 )}
               </Pressable>
             </View>
-          )}
+
+            {/* Post button — always visible; disabled + 40% opacity until content exists */}
+            <Pressable
+              onPress={handlePost}
+              disabled={isPostDisabled}
+              style={{
+                backgroundColor: isPostDisabled ? colors.borderStrong : colors.gold,
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                minWidth: 60,
+                alignItems: 'center',
+                opacity: isPostDisabled ? 0.4 : 1,
+              }}
+            >
+              {submitting ? (
+                <ActivityIndicator color={colors.overlay} size="small" />
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodyBold,
+                    fontSize: 13,
+                    color: isPostDisabled ? colors.overlay : colors.background,
+                  }}
+                >
+                  {t('composer.submit_post')}
+                </Text>
+              )}
+            </Pressable>
+          </View>
         </>
       ) : (
         /* ════════════════════════════════════════════════════════
