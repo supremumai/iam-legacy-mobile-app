@@ -154,12 +154,12 @@ export default function ProfileScreen() {
     );
   }
 
-  const initials = getInitials(activeProfile.full_name, activeProfile.username);
+  const initials = getInitials(activeProfile.full_name);
 
   // ── Name / role fallbacks differ by branch ────────────────────────────────
   const displayName = isOwnProfile
     ? (activeProfile.full_name ?? t('profile.complete_your_profile'))
-    : (activeProfile.full_name ?? (activeProfile.username ? `@${activeProfile.username}` : t('profile.legacy_member_fallback')));
+    : (activeProfile.full_name ?? t('profile.legacy_member_fallback'));
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -242,13 +242,6 @@ export default function ProfileScreen() {
           >
             {displayName}
           </Text>
-
-          {/* Username */}
-          {activeProfile.username ? (
-            <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted, marginTop: 2 }}>
-              @{activeProfile.username}
-            </Text>
-          ) : null}
 
           {/* Role */}
           {activeProfile.role ? (

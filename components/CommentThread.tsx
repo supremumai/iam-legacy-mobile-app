@@ -56,7 +56,7 @@ function normalizeAuthor(raw: any): PostAuthor | null {
 }
 
 function resolveDisplayName(author: PostAuthor | null): string {
-  return author?.full_name ?? (author?.username ? `@${author.username}` : 'Legacy Member');
+  return author?.full_name ?? 'Legacy Member';
 }
 
 const COMMENT_COLS =
@@ -71,7 +71,7 @@ interface AvatarProps {
 
 function CommentAvatar({ author, size }: AvatarProps) {
   const colors = useColors();
-  const initials = getInitials(author?.full_name, author?.username);
+  const initials = getInitials(author?.full_name);
   return (
     <View
       style={{

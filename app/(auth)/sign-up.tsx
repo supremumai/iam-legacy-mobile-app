@@ -15,13 +15,12 @@ import { useRouter } from 'expo-router';
 import { useColors } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
 
-type FocusedField = 'fullName' | 'username' | 'email' | 'password' | 'confirmPassword' | null;
+type FocusedField = 'fullName' | 'email' | 'password' | 'confirmPassword' | null;
 
 export default function SignUpScreen() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,7 +38,7 @@ export default function SignUpScreen() {
   async function handleSignUp() {
     setError('');
 
-    if (!fullName.trim() || !username.trim() || !email.trim() || !password || !confirmPassword) {
+    if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
       setError('All fields are required.');
       return;
     }
@@ -59,7 +58,6 @@ export default function SignUpScreen() {
       options: {
         data: {
           full_name: fullName.trim(),
-          username: username.trim(),
         },
       },
     });
@@ -115,21 +113,6 @@ export default function SignUpScreen() {
                 onFocus={() => setFocused('fullName')}
                 onBlur={() => setFocused(null)}
                 autoCapitalize="words"
-                returnKeyType="next"
-              />
-
-              {/* Username */}
-              <Text style={styles.label}>Username</Text>
-              <TextInput
-                style={[styles.input, { borderColor: fieldBorder('username') }]}
-                placeholder="Choose a username"
-                placeholderTextColor={colors.textFaint}
-                value={username}
-                onChangeText={setUsername}
-                onFocus={() => setFocused('username')}
-                onBlur={() => setFocused(null)}
-                autoCapitalize="none"
-                autoCorrect={false}
                 returnKeyType="next"
               />
 

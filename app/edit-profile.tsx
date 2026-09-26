@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -24,20 +24,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import SearchableSelect from '../components/SearchableSelect';
 import { US_STATES, STATE_MAP } from '../constants/us-locations';
 
-const USERNAME_REGEX = /^[a-z0-9_-]{3,30}$/;
-
-type UsernameStatus =
-  | 'idle'          // empty or unchanged — show nothing
-  | 'invalid'       // fails regex
-  | 'checking'      // debounce in flight
-  | 'taken'         // check complete, unavailable
-  | 'available';    // check complete, free
-
-function isUniqueViolation(err: { code?: string; message?: string }): boolean {
-  if (err.code === '23505') return true;
-  const msg = (err.message ?? '').toLowerCase();
-  return msg.includes('username') && (msg.includes('duplicate') || msg.includes('unique'));
-}
 
 export default function EditProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -49,7 +35,6 @@ export default function EditProfileScreen() {
   // ── Original values (for dirty tracking) ────────────────────────────────────
   const originalRef = useRef({
     fullName: profile?.full_name ?? '',
-    username: profile?.username ?? '',
     role: profile?.role ?? '',
     location: profile?.location ?? '',
     bio: profile?.bio ?? '',
@@ -70,7 +55,6 @@ export default function EditProfileScreen() {
 
   // ── Field state ─────────────────────────────────────────────────────────────
   const [fullName, setFullName] = useState(profile?.full_name ?? '');
-  const [username, setUsername] = useState(profile?.username ?? '');
   const [role, setRole] = useState(profile?.role ?? '');
   const [selectedState, setSelectedState] = useState(initState);
   const [selectedCity, setSelectedCity] = useState(initCity);
@@ -85,11 +69,6 @@ export default function EditProfileScreen() {
   // ── Touch tracking (inline errors only after field visited) ─────────────────
   const [fullNameTouched, setFullNameTouched] = useState(false);
 
-  // ── Username availability ────────────────────────────────────────────────────
-  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const currentUsername = profile?.username ?? '';
-
   // ── Photo upload state ───────────────────────────────────────────────────────
   const [pickedAvatarUrl, setPickedAvatarUrl] = useState<string | null>(null);
   const [pickedCoverUrl, setPickedCoverUrl] = useState<string | null>(null);
@@ -100,71 +79,6 @@ export default function EditProfileScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // ── Username change handler ──────────────────────────────────────────────────
-  const handleUsernameChange = useCallback(
-    (raw: string) => {
-      const val = raw.toLowerCase();
-      setUsername(val);
-
-      // Clear any pending debounced check
-      if (debounceTimer.current !== null) {
-        clearTimeout(debounceTimer.current);
-        debounceTimer.current = null;
-      }
-
-      if (!val) {
-        setUsernameStatus('idle');
-        return;
-      }
-
-      if (!USERNAME_REGEX.test(val)) {
-        setUsernameStatus('invalid');
-        return;
-      }
-
-      // Unchanged from current profile — no check needed
-      if (val === currentUsername) {
-        setUsernameStatus('idle');
-        return;
-      }
-
-      // New valid value — debounce the availability check
-      setUsernameStatus('checking');
-      debounceTimer.current = setTimeout(async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('id')
-            .ilike('username', val)
-            .neq('id', user!.id)
-            .maybeSingle();
-
-          if (error) {
-            console.warn('[EditProfile] username check error:', error.message);
-            // Treat as unknown — don't block submission
-            setUsernameStatus('idle');
-            return;
-          }
-
-          setUsernameStatus(data ? 'taken' : 'available');
-        } catch (e) {
-          console.warn('[EditProfile] username check threw:', e);
-          setUsernameStatus('idle');
-        }
-      }, 400);
-    },
-    [currentUsername, user],
-  );
-
-  // Clean up debounce timer on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current !== null) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, []);
-
   // ── Derived validation ───────────────────────────────────────────────────────
   const fullNameTrimmed = fullName.trim();
   const fullNameError = fullNameTouched && fullNameTrimmed.length === 0
@@ -173,24 +87,15 @@ export default function EditProfileScreen() {
 
   const isDirty =
     fullName !== originalRef.current.fullName ||
-    username !== originalRef.current.username ||
     role !== originalRef.current.role ||
     location !== originalRef.current.location ||
     bio !== originalRef.current.bio ||
     pickedAvatarUrl !== null ||
     pickedCoverUrl !== null;
 
-  const usernameUnchanged = username === originalRef.current.username;
-  const usernameOk =
-    usernameUnchanged ||
-    (USERNAME_REGEX.test(username) &&
-      usernameStatus !== 'taken' &&
-      usernameStatus !== 'checking');
-
   const canSave =
     isDirty &&
     fullNameTrimmed.length > 0 &&
-    usernameOk &&
     !submitting &&
     !uploadingAvatar &&
     !uploadingCover;
@@ -205,7 +110,6 @@ export default function EditProfileScreen() {
       .from('profiles')
       .update({
         full_name: fullNameTrimmed,
-        username: username,
         role: role.trim() || null,
         location: location.trim() || null,
         bio: bio.trim() || null,
@@ -216,10 +120,6 @@ export default function EditProfileScreen() {
     setSubmitting(false);
 
     if (error) {
-      if (isUniqueViolation(error)) {
-        setUsernameStatus('taken');
-        return;
-      }
       setSaveError(error.message);
       return;
     }
@@ -227,27 +127,6 @@ export default function EditProfileScreen() {
     await refreshProfile();
     router.back();
   };
-
-  // ── Username feedback text / color ───────────────────────────────────────────
-  let usernameHint: string | null = null;
-  let usernameHintColor: string = colors.textMuted;
-
-  if (username.length > 0) {
-    if (usernameStatus === 'invalid') {
-      usernameHint = t('edit_profile.username_invalid');
-      usernameHintColor = colors.error;
-    } else if (usernameStatus === 'checking') {
-      usernameHint = t('edit_profile.username_checking');
-      usernameHintColor = colors.textMuted;
-    } else if (usernameStatus === 'taken') {
-      usernameHint = t('edit_profile.username_taken');
-      usernameHintColor = colors.error;
-    } else if (usernameStatus === 'available') {
-      usernameHint = t('edit_profile.username_available');
-      usernameHintColor = colors.success;
-    }
-    // 'idle' with content means either unchanged or check-error passthrough — no hint
-  }
 
   // ── Input style ──────────────────────────────────────────────────────────────
   const inputStyle = {
@@ -445,7 +324,7 @@ export default function EditProfileScreen() {
                   />
                 ) : (
                   <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 28, color: colors.textPrimary }}>
-                    {getInitials(profile?.full_name, profile?.username)}
+                    {getInitials(profile?.full_name)}
                   </Text>
                 )}
 
@@ -501,26 +380,6 @@ export default function EditProfileScreen() {
               style={inputStyle}
             />
             {fullNameError ? <Text style={errorStyle}>{fullNameError}</Text> : null}
-          </View>
-
-          {/* Username */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={labelStyle}>{t('edit_profile.label_username')}</Text>
-            <TextInput
-              value={username}
-              onChangeText={handleUsernameChange}
-              placeholder={t('edit_profile.placeholder_username')}
-              placeholderTextColor={colors.textTertiary}
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={30}
-              style={inputStyle}
-            />
-            {usernameHint ? (
-              <Text style={[{ fontFamily: Fonts.body, fontSize: 12, marginTop: 4 }, { color: usernameHintColor }]}>
-                {usernameHint}
-              </Text>
-            ) : null}
           </View>
 
           {/* Role */}

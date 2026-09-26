@@ -44,16 +44,12 @@ export default function PostCard({
   const isOwner = post.user_id === currentUserId;
   const author = post.author;
 
-  const initials = getInitials(author?.full_name, author?.username);
+  const initials = getInitials(author?.full_name);
 
-  const displayName =
-    author?.full_name ??
-    (author?.username ? `@${author.username}` : 'Legacy Member');
+  const displayName = author?.full_name ?? 'Legacy Member';
 
   const editedSuffix = post.updated_at ? t('community.edited_suffix') : '';
-  const subLine = author?.username
-    ? `@${author.username} · ${formatRelativeTime(post.created_at, locale)}${editedSuffix}`
-    : `${formatRelativeTime(post.created_at, locale)}${editedSuffix}`;
+  const subLine = `${formatRelativeTime(post.created_at, locale)}${editedSuffix}`;
   const videoId = findFirstYouTubeVideoId(post.content);
 
   // ─── Two-step delete: confirm then delete ──────────────────────────────────

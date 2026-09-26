@@ -130,7 +130,7 @@ export default function MembersScreen() {
   const handleToggleAdmin = (member: MemberListItem, newValue: boolean) => {
     if (!newValue) {
       // admin → member: confirm first
-      const name = member.full_name ?? member.username ?? t('members.this_member_fallback');
+      const name = member.full_name ?? t('members.this_member_fallback');
       Alert.alert(
         t('members.remove_admin_title'),
         t('members.remove_admin_confirm', { name }),
@@ -155,10 +155,7 @@ export default function MembersScreen() {
   const filtered = searchText.trim()
     ? members.filter((m) => {
         const q = searchText.toLowerCase();
-        return (
-          (m.full_name?.toLowerCase().includes(q) ?? false) ||
-          (m.username?.toLowerCase().includes(q) ?? false)
-        );
+        return m.full_name?.toLowerCase().includes(q) ?? false;
       })
     : members;
 
@@ -333,10 +330,8 @@ export default function MembersScreen() {
             </View>
           }
           renderItem={({ item: member }) => {
-            const initials = getInitials(member.full_name, member.username);
-            const displayName =
-              member.full_name ??
-              (member.username ? `@${member.username}` : t('profile.legacy_member_fallback'));
+            const initials = getInitials(member.full_name);
+            const displayName = member.full_name ?? t('profile.legacy_member_fallback');
             const secondLine = [member.role, member.location].filter(Boolean).join(' · ');
 
             // Toggle visible only to admin viewers on rows that aren't their own.

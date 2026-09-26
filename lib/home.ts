@@ -11,7 +11,6 @@ function getDisplayName(profilesRaw: unknown): string {
     : ((profilesRaw as Record<string, unknown>) ?? null);
   if (!p) return 'Legacy Member';
   if (p.full_name) return String(p.full_name);
-  if (p.username) return `@${String(p.username)}`;
   return 'Legacy Member';
 }
 

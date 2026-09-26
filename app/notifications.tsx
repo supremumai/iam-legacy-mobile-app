@@ -212,10 +212,8 @@ export default function NotificationsScreen() {
           }
           renderItem={({ item: notification }) => {
             const actor = notification.actor;
-            const initials = getInitials(actor?.full_name, actor?.username);
-            const actorName =
-              actor?.full_name ??
-              (actor?.username ? `@${actor.username}` : 'Legacy Member');
+            const initials = getInitials(actor?.full_name);
+            const actorName = actor?.full_name ?? 'Legacy Member';
             const actionPhrase =
               notification.type === 'post_like'
                 ? ' liked your post'
