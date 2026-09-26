@@ -205,6 +205,18 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             onPress={() => navigate('/about')}
             colors={colors}
           />
+          <DrawerItem
+            icon="shield-checkmark-outline"
+            label={t('drawer.privacy_policy')}
+            onPress={() => navigate('/privacy')}
+            colors={colors}
+          />
+          <DrawerItem
+            icon="document-text-outline"
+            label={t('drawer.terms_of_use')}
+            onPress={() => navigate('/terms')}
+            colors={colors}
+          />
 
           {/* Language toggle — does NOT close the drawer; setLocale() only */}
           <View
