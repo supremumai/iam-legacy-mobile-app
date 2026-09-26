@@ -126,7 +126,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
         <View
           style={{
             alignItems: 'center',
-            paddingTop: 4,
+            paddingTop: 20,
             paddingBottom: 20,
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
@@ -138,7 +138,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
                 ? require('../assets/legacy-logo.png')
                 : require('../assets/legacy-logo-dark.png')
             }
-            style={{ width: 160, height: 54 }}
+            style={{ width: 220, height: 74 }}
             resizeMode="contain"
           />
           <Text
@@ -150,7 +150,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             }}
             numberOfLines={1}
           >
-            {'Hola, '}
+            {t('drawer.greeting_prefix')}
             <Text style={{ color: colors.gold }}>{firstName}</Text>
           </Text>
         </View>
