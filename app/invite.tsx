@@ -3,20 +3,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Fonts } from '../constants/fonts';
-
-const INVITE_MESSAGE =
-  '¡Únete a I Am Legacy! La comunidad donde los emprendedores latinos construyen su legado. ' +
-  'Descarga la app: https://iamlegacy.app/download';
 
 export default function InviteScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const colors = useColors();
+  const { t } = useLanguage();
 
   const handleShare = async () => {
     try {
-      await Share.share({ message: INVITE_MESSAGE });
+      await Share.share({ message: t('invite.message') });
     } catch {
       // user dismissed
     }
@@ -40,7 +38,7 @@ export default function InviteScreen() {
           <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={{ fontFamily: Fonts.heading, fontSize: 22, color: colors.gold }}>
-          Invitar Amigos
+          {t('invite.title')}
         </Text>
       </View>
 
@@ -71,7 +69,7 @@ export default function InviteScreen() {
             marginBottom: 12,
           }}
         >
-          Comparte el Legado
+          {t('invite.heading')}
         </Text>
         <Text
           style={{
@@ -83,7 +81,7 @@ export default function InviteScreen() {
             marginBottom: 36,
           }}
         >
-          Invita a tus amigos y construyan juntos una comunidad de emprendedores latinos imparables.
+          {t('invite.body')}
         </Text>
 
         <TouchableOpacity
@@ -101,7 +99,7 @@ export default function InviteScreen() {
         >
           <Ionicons name="share-social-outline" size={20} color={colors.background} />
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 16, color: colors.background }}>
-            Compartir Invitación
+            {t('invite.share_button')}
           </Text>
         </TouchableOpacity>
       </View>

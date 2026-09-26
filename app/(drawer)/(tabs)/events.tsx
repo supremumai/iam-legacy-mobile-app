@@ -353,6 +353,7 @@ export default function EventsScreen() {
                 isSaved={savedEventIds.has(event.id)}
                 onToggleSave={handleToggleSaveEvent}
                 onDelete={handleDeleteEvent}
+                onPress={(e) => router.push(`/event/${e.id}` as any)}
               />
             ))}
           </View>
@@ -416,6 +417,7 @@ export default function EventsScreen() {
               isSaved={savedEventIds.has(item.id)}
               onToggleSave={handleToggleSaveEvent}
               onDelete={handleDeleteEvent}
+              onPress={(e) => router.push(`/event/${e.id}` as any)}
             />
           </View>
         )}
