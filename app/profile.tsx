@@ -269,6 +269,29 @@ export default function ProfileScreen() {
             <LevelBadge points={activeProfile.points} />
           </View>
 
+          {/* Bio — integrated into hero, below badge */}
+          {activeProfile.bio ? (
+            <Text
+              style={{
+                fontFamily: Fonts.body,
+                fontSize: 13,
+                color: colors.textMuted,
+                textAlign: 'center',
+                maxWidth: '85%',
+                marginTop: 10,
+                lineHeight: 19,
+              }}
+            >
+              {activeProfile.bio}
+            </Text>
+          ) : isOwnProfile ? (
+            <Pressable onPress={() => router.push('/edit-profile' as any)} style={{ marginTop: 8 }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.gold }}>
+                {t('profile.add_bio')}
+              </Text>
+            </Pressable>
+          ) : null}
+
           {/* Stats row */}
           <View style={{ flexDirection: 'row', marginTop: 20, marginBottom: 2, gap: 40 }}>
             {[
@@ -328,63 +351,30 @@ export default function ProfileScreen() {
           </View>
         ) : null}
 
-        {/* About section */}
-        <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 18, color: colors.gold }}>{t('profile.about_section')}</Text>
-          <View
-            style={{
-              marginTop: 10,
-              backgroundColor: colors.surface,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: colors.border,
-              padding: 16,
-            }}
-          >
-            {activeProfile.bio ? (
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textPrimary, lineHeight: 22 }}>
-                {activeProfile.bio}
-              </Text>
-            ) : (
-              <View>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textFaint, lineHeight: 22 }}>
-                  {t('profile.bio_empty')}
-                </Text>
-                {/* "Add bio" link only appears on own profile */}
-                {isOwnProfile && (
-                  <Pressable onPress={() => router.push('/edit-profile' as any)}>
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold, marginTop: 8 }}>
-                      {t('profile.add_bio')}
-                    </Text>
-                  </Pressable>
-                )}
-              </View>
-            )}
-
-            {/* Topics */}
-            {activeProfile.topics && activeProfile.topics.length > 0 ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 14, gap: 8 }}>
-                {activeProfile.topics.map((topic) => (
-                  <View
-                    key={topic.id}
-                    style={{
-                      backgroundColor: colors.surfaceAlt,
-                      borderRadius: 999,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      paddingHorizontal: 12,
-                      paddingVertical: 4,
-                    }}
-                  >
-                    <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.gold }}>
-                      #{topic.name.replace(/\s+/g, '')}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            ) : null}
+        {/* Topics section — shown only when the profile has topics */}
+        {activeProfile.topics && activeProfile.topics.length > 0 ? (
+          <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {activeProfile.topics.map((topic) => (
+                <View
+                  key={topic.id}
+                  style={{
+                    backgroundColor: colors.surfaceAlt,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                  }}
+                >
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.gold }}>
+                    #{topic.name.replace(/\s+/g, '')}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        ) : null}
       </ScrollView>
     </View>
   );
