@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -156,6 +156,21 @@ export default function CourseDetailScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.gold} />
         </TouchableOpacity>
+
+        {/* Thumbnail hero — full-width above the card, ~100 tall */}
+        {!!course.thumbnail_url && (
+          <View style={{ marginHorizontal: 20, marginBottom: 12, borderRadius: 12, overflow: 'hidden', height: 100 }}>
+            <Image
+              source={{ uri: course.thumbnail_url }}
+              style={{ width: '100%', height: 100 }}
+              resizeMode="cover"
+            />
+            <View
+              style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, backgroundColor: 'rgba(0,0,0,0.35)' }}
+              pointerEvents="none"
+            />
+          </View>
+        )}
 
         {/* Hero card */}
         <View
