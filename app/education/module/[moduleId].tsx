@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ActionSheet from '../../../components/ActionSheet';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -22,6 +23,8 @@ import {
   setModuleVideoUrl,
   updateQuizQuestion,
   upsertVideoWatched,
+  addQuizQuestion,
+  deleteQuizQuestion,
   ModuleDetailResult,
 } from '../../../lib/education';
 import { uploadModuleVideo } from '../../../lib/upload';
@@ -82,6 +85,8 @@ export default function ModuleVideoScreen() {
 
   // Admin panel state — quiz questions
   const [quizEdits, setQuizEdits] = useState<QuizQEdit[]>([]);
+  const [addingQuestion, setAddingQuestion] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!moduleId) return;
@@ -272,6 +277,41 @@ export default function ModuleVideoScreen() {
     } finally {
       updateQuizEdit(idx, { saving: false, error: errMsg });
     }
+  }
+
+  async function handleAddQuestion() {
+    if (!moduleId) return;
+    setAddingQuestion(true);
+    const result = await addQuizQuestion(moduleId);
+    setAddingQuestion(false);
+    if ('error' in result) {
+      Alert.alert(t('common.error'), result.error);
+      return;
+    }
+    setQuizEdits((prev) => [
+      ...prev,
+      {
+        id: result.id,
+        question: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'A',
+        saving: false,
+        error: null,
+      },
+    ]);
+  }
+
+  async function handleDeleteQuestion(qId: string) {
+    const err = await deleteQuizQuestion(qId);
+    if (err) {
+      Alert.alert(t('common.error'), err);
+      return;
+    }
+    setQuizEdits((prev) => prev.filter((q) => q.id !== qId));
+    setDeleteConfirmId(null);
   }
 
   const handleQuizPress = () => {
@@ -608,9 +648,23 @@ export default function ModuleVideoScreen() {
             <View style={{ marginTop: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 16 }}>
                 <Ionicons name="help-circle-outline" size={13} color={colors.borderStrong} />
-                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.8, textTransform: 'uppercase', flex: 1 }}>
                   {t('education.admin_quiz_questions')}
                 </Text>
+                <TouchableOpacity
+                  onPress={addingQuestion ? undefined : handleAddQuestion}
+                  activeOpacity={0.75}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, opacity: addingQuestion ? 0.6 : 1 }}
+                >
+                  {addingQuestion ? (
+                    <ActivityIndicator size="small" color={GOLD} />
+                  ) : (
+                    <Ionicons name="add-circle-outline" size={18} color={GOLD} />
+                  )}
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 12, color: GOLD }}>
+                    {t('education.admin_add_question')}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               {quizEdits.length === 0 ? (
@@ -630,9 +684,18 @@ export default function ModuleVideoScreen() {
                       marginBottom: 12,
                     }}
                   >
-                    <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 }}>
-                      {t('education.admin_question')} {idx + 1}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.borderStrong, letterSpacing: 0.6, textTransform: 'uppercase', flex: 1 }}>
+                        {t('education.admin_question')} {idx + 1}
+                      </Text>
+                      <Pressable
+                        onPress={() => setDeleteConfirmId(edit.id)}
+                        hitSlop={8}
+                        style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                      >
+                        <Ionicons name="trash-outline" size={16} color={RED} />
+                      </Pressable>
+                    </View>
 
                     <TextInput
                       value={edit.question}
@@ -744,6 +807,20 @@ export default function ModuleVideoScreen() {
         {!isAdmin && <View style={{ paddingBottom: 48 }} />}
 
       </ScrollView>
+
+      <ActionSheet
+        visible={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        title={t('education.admin_delete_question_confirm')}
+        actions={[
+          {
+            label: t('education.admin_delete_question'),
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: () => deleteConfirmId && handleDeleteQuestion(deleteConfirmId),
+          },
+        ]}
+      />
     </View>
   );
 }
