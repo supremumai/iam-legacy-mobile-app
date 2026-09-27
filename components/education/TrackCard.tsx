@@ -1,4 +1,4 @@
-﻿import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
 import { useColors } from '../../contexts/ThemeContext';
@@ -10,9 +10,11 @@ interface TrackCardProps {
   track: EduTrack;
   index: number;
   onPress: () => void;
+  onEdit?: () => void;
+  isDraft?: boolean;
 }
 
-export default function TrackCard({ track, onPress }: TrackCardProps) {
+export default function TrackCard({ track, onPress, onEdit, isDraft }: TrackCardProps) {
   const { t } = useLanguage();
   const colors = useColors();
   const icon = getTrackIcon(track.title);
@@ -35,7 +37,7 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
         padding: 16,
       }}
     >
-      {/* Top row: thematic icon + progress % */}
+      {/* Top row: thematic icon + draft badge + progress % + edit */}
       <View
         style={{
           flexDirection: 'row',
@@ -44,29 +46,45 @@ export default function TrackCard({ track, onPress }: TrackCardProps) {
           marginBottom: 12,
         }}
       >
-        <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 10,
-            backgroundColor: colors.borderSubtle,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Ionicons name={icon as any} size={22} color={colors.gold} />
-        </View>
-        {progress > 0 && (
-          <Text
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View
             style={{
-              fontFamily: Fonts.bodySemiBold,
-              fontSize: 13,
-              color: '#5fa564',
+              width: 44,
+              height: 44,
+              borderRadius: 10,
+              backgroundColor: colors.borderSubtle,
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            {progress}%
-          </Text>
-        )}
+            <Ionicons name={icon as any} size={22} color={colors.gold} />
+          </View>
+          {isDraft && (
+            <View style={{ borderWidth: 1, borderColor: colors.gold, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 3 }}>
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 10, color: colors.gold, letterSpacing: 0.5 }}>
+                {t('education.admin_draft_badge')}
+              </Text>
+            </View>
+          )}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          {progress > 0 && (
+            <Text
+              style={{
+                fontFamily: Fonts.bodySemiBold,
+                fontSize: 13,
+                color: '#5fa564',
+              }}
+            >
+              {progress}%
+            </Text>
+          )}
+          {!!onEdit && (
+            <Pressable onPress={onEdit} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+              <Ionicons name="pencil-outline" size={16} color={colors.textMuted} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {/* Title */}
