@@ -8,7 +8,7 @@ import {
   fetchUpcomingEvents,
   fetchRecentPosts,
 } from '../../../lib/home';
-import { EduCourse, fetchHomeCourses } from '../../../lib/education';
+import { HomeCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { formatRelativeTime } from '../../../lib/time';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';
@@ -411,7 +411,7 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
   );
 }
 
-function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void }) {
+function CourseCard({ item, onPress }: { item: HomeCourse; onPress: () => void }) {
   const { t } = useLanguage();
   const colors = useColors();
 
@@ -449,9 +449,9 @@ function CourseCard({ item, onPress }: { item: EduCourse; onPress: () => void })
       {({ pressed }) => (
         <View style={{ opacity: pressed ? 0.8 : 1 }}>
           <View style={{ width: '100%', height: 110 }}>
-            {item.thumbnail_url ? (
+            {(item.thumbnail_url ?? item.track_thumbnail_url) ? (
               <Image
-                source={{ uri: item.thumbnail_url }}
+                source={{ uri: (item.thumbnail_url ?? item.track_thumbnail_url) as string }}
                 style={{ width: '100%', height: 110 }}
                 resizeMode="cover"
               />
@@ -566,7 +566,7 @@ export default function HomeScreen() {
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
   const [postsLoaded, setPostsLoaded] = useState(false);
-  const [courses, setCourses] = useState<EduCourse[]>([]);
+  const [courses, setCourses] = useState<HomeCourse[]>([]);
   const [coursesLoaded, setCoursesLoaded] = useState(false);
 
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set());

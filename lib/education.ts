@@ -358,18 +358,26 @@ export async function fetchContinueLearning(
   }
 }
 
-export async function fetchHomeCourses(): Promise<EduCourse[]> {
+export interface HomeCourse extends EduCourse {
+  track_thumbnail_url: string | null;
+}
+
+export async function fetchHomeCourses(): Promise<HomeCourse[]> {
   try {
     const { data, error } = await supabase
       .from('edu_courses')
       .select(
-        'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published',
+        'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published, edu_tracks(thumbnail_url)',
       )
       .eq('is_published', true)
       .order('order_index', { ascending: true })
       .limit(3);
     if (error) return [];
-    return (data ?? []) as EduCourse[];
+    return (data ?? []).map((row: any) => ({
+      ...row,
+      track_thumbnail_url: row.edu_tracks?.thumbnail_url ?? null,
+      edu_tracks: undefined,
+    })) as HomeCourse[];
   } catch {
     return [];
   }
