@@ -1,7 +1,8 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useAuth } from '../contexts/AuthContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
@@ -75,6 +76,7 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
   const { locale, setLocale, t } = useLanguage();
   const colors = useColors();
   const { theme, setTheme } = useTheme();
+  const [signingOut, setSigningOut] = useState(false);
 
   const firstName =
     profile?.full_name?.split(' ')[0] ??
@@ -86,9 +88,15 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
     router.push(path as any);
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
     navigation.closeDrawer();
-    signOut();
+    try {
+      await signOut();
+    } finally {
+      setSigningOut(false);
+    }
   };
 
   return (
@@ -351,12 +359,27 @@ export default function DrawerContent({ navigation }: DrawerContentComponentProp
             paddingTop: 8,
           }}
         >
-          <DrawerItem
-            icon="log-out-outline"
-            label={t('drawer.log_out')}
+          <TouchableOpacity
             onPress={handleSignOut}
-            colors={colors}
-          />
+            activeOpacity={0.65}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingVertical: 14,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.borderSubtle,
+              gap: 14,
+            }}
+          >
+            {signingOut ? (
+              <ActivityIndicator size="small" color={colors.textSecondary} style={{ width: 20 }} />
+            ) : (
+              <Ionicons name="log-out-outline" size={20} color={colors.textSecondary} />
+            )}
+            <Text style={{ fontFamily: Fonts.body, fontSize: 15, color: colors.textPrimary }}>
+              {t('drawer.log_out')}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

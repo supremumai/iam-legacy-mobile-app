@@ -8,7 +8,7 @@ import {
   fetchUpcomingEvents,
   fetchRecentPosts,
 } from '../../../lib/home';
-import { HomeCourse, fetchHomeCourses } from '../../../lib/education';
+import { EduCourse, HomeCourse, fetchHomeCourses } from '../../../lib/education';
 import { formatMonthDayLabel } from '../../../lib/dateFormat';
 import { formatRelativeTime } from '../../../lib/time';
 import { findFirstYouTubeVideoId, youTubeThumbnailUrl } from '../../../lib/youtube';

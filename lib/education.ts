@@ -364,19 +364,32 @@ export interface HomeCourse extends EduCourse {
 
 export async function fetchHomeCourses(): Promise<HomeCourse[]> {
   try {
-    const { data, error } = await supabase
+    const { data: courses, error } = await supabase
       .from('edu_courses')
       .select(
-        'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published, edu_tracks(thumbnail_url)',
+        'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published',
       )
       .eq('is_published', true)
       .order('order_index', { ascending: true })
       .limit(3);
-    if (error) return [];
-    return (data ?? []).map((row: any) => ({
-      ...row,
-      track_thumbnail_url: row.edu_tracks?.thumbnail_url ?? null,
-      edu_tracks: undefined,
+    if (error || !courses?.length) return [];
+
+    // Fetch track thumbnails separately to avoid relying on PostgREST FK introspection
+    const trackIds = [...new Set(courses.map((c: any) => c.track_id).filter(Boolean))];
+    let trackThumbMap: Record<string, string | null> = {};
+    if (trackIds.length) {
+      const { data: tracks } = await supabase
+        .from('edu_tracks')
+        .select('id, thumbnail_url')
+        .in('id', trackIds);
+      for (const t of tracks ?? []) {
+        trackThumbMap[t.id] = (t as any).thumbnail_url ?? null;
+      }
+    }
+
+    return courses.map((c: any) => ({
+      ...c,
+      track_thumbnail_url: trackThumbMap[c.track_id] ?? null,
     })) as HomeCourse[];
   } catch {
     return [];
