@@ -1,5 +1,9 @@
 import { supabase } from './supabase';
 
+// Minimum score fraction to pass a quiz — applies to NEW attempts only.
+// Previously-passed modules remain passed regardless of this value.
+export const QUIZ_PASS_THRESHOLD = 0.85;
+
 const TRACK_ICON_MAP: Array<[string, string]> = [
   ['wholesale', 'cash-outline'],
   ['investment', 'trending-up-outline'],
@@ -226,6 +230,7 @@ export interface QuizAttemptResult {
   passed: boolean;
   score: number;
   alreadyPassed: boolean;
+  newAttempts: number;
 }
 
 export async function fetchQuizQuestions(moduleId: string): Promise<EduQuizQuestion[]> {
@@ -253,7 +258,8 @@ export async function submitQuizAttempt(
   score: number,
   totalQuestions: number,
 ): Promise<QuizAttemptResult> {
-  const passed = totalQuestions > 0 && score / totalQuestions >= 0.7;
+  // Apply the new threshold only to new attempts; previously-passed rows stay passed.
+  const passed = totalQuestions > 0 && score / totalQuestions >= QUIZ_PASS_THRESHOLD;
   try {
     const { data: current } = await supabase
       .from('edu_user_progress')
@@ -267,12 +273,13 @@ export async function submitQuizAttempt(
     const prevBest = current?.best_score ?? null;
     const newBest = prevBest === null ? score : Math.max(prevBest, score);
     const newPassed = alreadyPassed || passed;
+    const newAttempts = prevAttempts + 1;
 
     const payload: Record<string, unknown> = {
       user_id: userId,
       module_id: moduleId,
       video_watched: true,
-      quiz_attempts: prevAttempts + 1,
+      quiz_attempts: newAttempts,
       best_score: newBest,
       quiz_passed: newPassed,
     };
@@ -282,9 +289,9 @@ export async function submitQuizAttempt(
 
     await supabase.from('edu_user_progress').upsert(payload, { onConflict: 'user_id,module_id' });
 
-    return { passed, score, alreadyPassed };
+    return { passed, score, alreadyPassed, newAttempts };
   } catch {
-    return { passed, score, alreadyPassed: false };
+    return { passed, score, alreadyPassed: false, newAttempts: 1 };
   }
 }
 
