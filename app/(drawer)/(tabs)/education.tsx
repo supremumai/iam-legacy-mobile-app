@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -12,6 +12,7 @@ import {
   EduTrack,
   ContinueLearningResult,
 } from '../../../lib/education';
+import { fetchDeals, SimDeal } from '../../../lib/simulator';
 import { Fonts } from '../../../constants/fonts';
 import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -30,6 +31,7 @@ export default function EducationScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [continueLearning, setContinueLearning] = useState<ContinueLearningResult | null>(null);
+  const [deals, setDeals] = useState<SimDeal[]>([]);
 
   const showAdminContent = isAdmin && !previewAsMember;
 
@@ -56,6 +58,12 @@ export default function EducationScreen() {
       setContinueLearning(result);
     })();
   }, [user?.id]);
+
+  useEffect(() => {
+    fetchDeals({ includeUnpublished: showAdminContent })
+      .then(setDeals)
+      .catch(() => {});
+  }, [showAdminContent]);
 
   const handleTrackPress = (track: EduTrack) => {
     if (track.courses.length === 1) {
@@ -239,6 +247,119 @@ export default function EducationScreen() {
               onEdit={showAdminContent ? () => router.push(`/education/admin/track-form?id=${track.id}` as any) : undefined}
             />
           ))
+        )}
+
+        {/* Simulator section */}
+        {(deals.length > 0 || showAdminContent) && (
+          <View style={{ marginTop: 28 }}>
+            <View style={{ paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: Fonts.headingHeavy, fontSize: 22, color: colors.gold }}>
+                  {t('simulator.section_title')}
+                </Text>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted, marginTop: 2 }}>
+                  {t('simulator.section_subtitle')}
+                </Text>
+              </View>
+              {showAdminContent && (
+                <TouchableOpacity
+                  onPress={() => router.push('/simulator/admin/deal-form' as any)}
+                  activeOpacity={0.7}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                >
+                  <Ionicons name="add-circle-outline" size={20} color={colors.gold} />
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.gold }}>
+                    {t('simulator.admin_new_deal')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {deals.map((deal) => (
+              <Pressable
+                key={deal.id}
+                onPress={() => router.push(`/simulator/${deal.id}` as any)}
+                style={({ pressed }) => ({
+                  marginHorizontal: 20,
+                  marginBottom: 16,
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                  opacity: pressed ? 0.88 : 1,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                })}
+              >
+                {/* Cover image or dark-gold fallback */}
+                {deal.image_url ? (
+                  <Image
+                    source={{ uri: deal.image_url }}
+                    style={{ width: '100%', height: 160 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={{ width: '100%', height: 160, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="business-outline" size={48} color={colors.gold} style={{ opacity: 0.4 }} />
+                  </View>
+                )}
+
+                <View style={{ padding: 14 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: colors.textPrimary, marginBottom: 2 }} numberOfLines={2}>
+                        {deal.title}
+                      </Text>
+                      <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted }} numberOfLines={1}>
+                        {deal.address}
+                      </Text>
+                    </View>
+                    <View style={{ backgroundColor: colors.borderSubtle, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, borderWidth: 1, borderColor: colors.borderStrong }}>
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: colors.gold }}>
+                        ${deal.price.toLocaleString()}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
+                    {showAdminContent && !deal.is_published && (
+                      <View style={{ backgroundColor: colors.errorBg, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                        <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 11, color: colors.error }}>
+                          {t('simulator.draft_badge')}
+                        </Text>
+                      </View>
+                    )}
+                    {showAdminContent && (
+                      <TouchableOpacity
+                        onPress={() => router.push(`/simulator/admin/deal-form?id=${deal.id}` as any)}
+                        hitSlop={8}
+                        style={{ marginLeft: 8 }}
+                      >
+                        <Ionicons name="pencil-outline" size={16} color={colors.textMuted} />
+                      </TouchableOpacity>
+                    )}
+                    <View style={{ flex: 1 }} />
+                    <TouchableOpacity
+                      onPress={() => router.push(`/simulator/${deal.id}` as any)}
+                      activeOpacity={0.75}
+                      style={{ backgroundColor: colors.gold, borderRadius: 8, paddingHorizontal: 20, paddingVertical: 8 }}
+                    >
+                      <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: colors.background }}>
+                        {t('simulator.play_button')}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Pressable>
+            ))}
+
+            {showAdminContent && deals.length === 0 && (
+              <View style={{ paddingHorizontal: 20, paddingVertical: 24, alignItems: 'center' }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textFaint, textAlign: 'center' }}>
+                  No deals yet. Create one with the button above.
+                </Text>
+              </View>
+            )}
+          </View>
         )}
 
         <View style={{ paddingBottom: 32 }} />
