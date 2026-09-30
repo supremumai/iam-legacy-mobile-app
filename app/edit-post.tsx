@@ -22,6 +22,7 @@ import { findFirstYouTubeVideoId } from '../lib/youtube';
 import { PostWithAuthor, Topic } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import YouTubePreview from '../components/YouTubePreview';
 
 export default function EditPostScreen() {
@@ -30,6 +31,9 @@ export default function EditPostScreen() {
   const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const colors = useColors();
+  const { t } = useLanguage();
+  const POST_MAX = 10000;
+  const POST_WARN = 8000;
 
   const [post, setPost] = useState<PostWithAuthor | null>(null);
   const [loadingPost, setLoadingPost] = useState(true);
@@ -330,7 +334,7 @@ export default function EditPostScreen() {
               placeholder="What's on your mind?"
               placeholderTextColor={colors.textTertiary}
               multiline
-              maxLength={2000}
+              maxLength={POST_MAX}
               textAlignVertical="top"
               style={{
                 fontFamily: Fonts.body,
@@ -340,18 +344,20 @@ export default function EditPostScreen() {
               }}
             />
           </View>
-          {/* Character counter */}
-          <Text
-            style={{
-              fontFamily: Fonts.body,
-              fontSize: 12,
-              color: content.length > 1900 ? colors.error : colors.textTertiary,
-              textAlign: 'right',
-              marginTop: 4,
-            }}
-          >
-            {content.length}/2000
-          </Text>
+          {/* Character counter — hidden until 80% (8000) */}
+          {content.length >= POST_WARN && (
+            <Text
+              style={{
+                fontFamily: Fonts.body,
+                fontSize: 12,
+                color: content.length > POST_MAX ? colors.error : content.length >= POST_MAX - 200 ? colors.gold : colors.textMuted,
+                textAlign: 'right',
+                marginTop: 4,
+              }}
+            >
+              {t('post.char_counter', { count: content.length.toLocaleString(), max: POST_MAX.toLocaleString() })}
+            </Text>
+          )}
 
           {/* Live YouTube preview — shown when content contains a link and no image is attached */}
           {!imageUrl && editVideoId ? (

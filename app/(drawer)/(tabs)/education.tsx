@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useIsAdmin } from '../../../hooks/useIsAdmin';
@@ -30,17 +31,19 @@ export default function EducationScreen() {
   const [error, setError] = useState(false);
   const [continueLearning, setContinueLearning] = useState<ContinueLearningResult | null>(null);
 
+  const showAdminContent = isAdmin && !previewAsMember;
+
   const load = useCallback(async () => {
     setError(false);
     try {
-      const data = await fetchTracks(user?.id);
+      const data = await fetchTracks(user?.id, { includeUnpublished: showAdminContent });
       setTracks(data);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, showAdminContent]);
 
   useEffect(() => {
     setLoading(true);
@@ -117,9 +120,23 @@ export default function EducationScreen() {
         <GlobalHeader />
 
         <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 20 }}>
-          <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>
-            {t('education.title')}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>
+              {t('education.title')}
+            </Text>
+            {showAdminContent && (
+              <TouchableOpacity
+                onPress={() => router.push('/education/admin/track-form' as any)}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="add-circle-outline" size={20} color={colors.gold} />
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.gold }}>
+                  {t('education.admin_new_track')}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
           <Text
             style={{
               fontFamily: Fonts.body,
@@ -130,6 +147,7 @@ export default function EducationScreen() {
           >
             {t('education.lms_subtitle')}
           </Text>
+
 
           {/* Admin-only preview toggle */}
           {isAdmin && (
@@ -217,6 +235,8 @@ export default function EducationScreen() {
               track={track}
               index={index}
               onPress={() => handleTrackPress(track)}
+              isDraft={showAdminContent && !track.is_published}
+              onEdit={showAdminContent ? () => router.push(`/education/admin/track-form?id=${track.id}` as any) : undefined}
             />
           ))
         )}

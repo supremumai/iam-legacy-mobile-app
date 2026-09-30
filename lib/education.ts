@@ -1,5 +1,9 @@
 import { supabase } from './supabase';
 
+// Minimum score fraction to pass a quiz — applies to NEW attempts only.
+// Previously-passed modules remain passed regardless of this value.
+export const QUIZ_PASS_THRESHOLD = 0.85;
+
 const TRACK_ICON_MAP: Array<[string, string]> = [
   ['wholesale', 'cash-outline'],
   ['investment', 'trending-up-outline'],
@@ -75,26 +79,31 @@ export interface CourseDetailResult {
   trackTitle: string | null;
 }
 
-export async function fetchTracks(userId?: string | null): Promise<EduTrack[]> {
+export async function fetchTracks(
+  userId?: string | null,
+  opts: { includeUnpublished?: boolean } = {},
+): Promise<EduTrack[]> {
   try {
-    const { data: tracks, error: tracksError } = await supabase
+    let tracksQuery = supabase
       .from('tracks')
       .select('id, title, tagline, description, order_index, thumbnail_url, is_published')
-      .eq('is_published', true)
       .order('order_index', { ascending: true });
+    if (!opts.includeUnpublished) tracksQuery = tracksQuery.eq('is_published', true);
+    const { data: tracks, error: tracksError } = await tracksQuery;
 
     if (tracksError || !tracks || tracks.length === 0) return [];
 
     const trackIds = tracks.map((t) => t.id);
 
-    const { data: courses, error: coursesError } = await supabase
+    let coursesQuery = supabase
       .from('edu_courses')
       .select(
         'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published',
       )
-      .eq('is_published', true)
       .in('track_id', trackIds)
       .order('order_index', { ascending: true });
+    if (!opts.includeUnpublished) coursesQuery = coursesQuery.eq('is_published', true);
+    const { data: courses, error: coursesError } = await coursesQuery;
 
     if (coursesError) return [];
 
@@ -221,6 +230,7 @@ export interface QuizAttemptResult {
   passed: boolean;
   score: number;
   alreadyPassed: boolean;
+  newAttempts: number;
 }
 
 export async function fetchQuizQuestions(moduleId: string): Promise<EduQuizQuestion[]> {
@@ -248,7 +258,8 @@ export async function submitQuizAttempt(
   score: number,
   totalQuestions: number,
 ): Promise<QuizAttemptResult> {
-  const passed = totalQuestions > 0 && score / totalQuestions >= 0.7;
+  // Apply the new threshold only to new attempts; previously-passed rows stay passed.
+  const passed = totalQuestions > 0 && score / totalQuestions >= QUIZ_PASS_THRESHOLD;
   try {
     const { data: current } = await supabase
       .from('edu_user_progress')
@@ -262,12 +273,13 @@ export async function submitQuizAttempt(
     const prevBest = current?.best_score ?? null;
     const newBest = prevBest === null ? score : Math.max(prevBest, score);
     const newPassed = alreadyPassed || passed;
+    const newAttempts = prevAttempts + 1;
 
     const payload: Record<string, unknown> = {
       user_id: userId,
       module_id: moduleId,
       video_watched: true,
-      quiz_attempts: prevAttempts + 1,
+      quiz_attempts: newAttempts,
       best_score: newBest,
       quiz_passed: newPassed,
     };
@@ -277,9 +289,9 @@ export async function submitQuizAttempt(
 
     await supabase.from('edu_user_progress').upsert(payload, { onConflict: 'user_id,module_id' });
 
-    return { passed, score, alreadyPassed };
+    return { passed, score, alreadyPassed, newAttempts };
   } catch {
-    return { passed, score, alreadyPassed: false };
+    return { passed, score, alreadyPassed: false, newAttempts: 1 };
   }
 }
 
@@ -353,9 +365,13 @@ export async function fetchContinueLearning(
   }
 }
 
-export async function fetchHomeCourses(): Promise<EduCourse[]> {
+export interface HomeCourse extends EduCourse {
+  track_thumbnail_url: string | null;
+}
+
+export async function fetchHomeCourses(): Promise<HomeCourse[]> {
   try {
-    const { data, error } = await supabase
+    const { data: courses, error } = await supabase
       .from('edu_courses')
       .select(
         'id, track_id, title, description, order_index, difficulty, thumbnail_url, modules_count, is_published',
@@ -363,8 +379,25 @@ export async function fetchHomeCourses(): Promise<EduCourse[]> {
       .eq('is_published', true)
       .order('order_index', { ascending: true })
       .limit(3);
-    if (error) return [];
-    return (data ?? []) as EduCourse[];
+    if (error || !courses?.length) return [];
+
+    // Fetch track thumbnails separately to avoid relying on PostgREST FK introspection
+    const trackIds = [...new Set(courses.map((c: any) => c.track_id).filter(Boolean))];
+    let trackThumbMap: Record<string, string | null> = {};
+    if (trackIds.length) {
+      const { data: tracks } = await supabase
+        .from('edu_tracks')
+        .select('id, thumbnail_url')
+        .in('id', trackIds);
+      for (const t of tracks ?? []) {
+        trackThumbMap[t.id] = (t as any).thumbnail_url ?? null;
+      }
+    }
+
+    return courses.map((c: any) => ({
+      ...c,
+      track_thumbnail_url: trackThumbMap[c.track_id] ?? null,
+    })) as HomeCourse[];
   } catch {
     return [];
   }
@@ -409,6 +442,7 @@ export async function upsertVideoWatched(moduleId: string, userId: string): Prom
 export async function fetchCourseDetail(
   courseId: string,
   userId: string | null,
+  opts: { includeUnpublished?: boolean } = {},
 ): Promise<CourseDetailResult> {
   const empty: CourseDetailResult = {
     course: null,
@@ -427,14 +461,17 @@ export async function fetchCourseDetail(
         )
         .eq('id', courseId)
         .single(),
-      supabase
-        .from('edu_modules')
-        .select(
-          'id, course_id, title, summary, order_index, video_url, video_duration_seconds, key_terms, is_published',
-        )
-        .eq('course_id', courseId)
-        .eq('is_published', true)
-        .order('order_index', { ascending: true }),
+      (() => {
+        let q = supabase
+          .from('edu_modules')
+          .select(
+            'id, course_id, title, summary, order_index, video_url, video_duration_seconds, key_terms, is_published',
+          )
+          .eq('course_id', courseId)
+          .order('order_index', { ascending: true });
+        if (!opts.includeUnpublished) q = q.eq('is_published', true);
+        return q;
+      })(),
     ]);
 
     if (courseResult.error || !courseResult.data) return empty;
@@ -443,7 +480,7 @@ export async function fetchCourseDetail(
     let progressMap: Record<string, EduUserProgress> = {};
     let enrollment: EduEnrollment | null = null;
 
-    if (userId && modules.length > 0) {
+    if (userId && (modules as EduModule[]).length > 0) {
       const moduleIds = modules.map((m) => m.id);
       const [progressResult, enrollmentResult] = await Promise.all([
         supabase
@@ -484,5 +521,248 @@ export async function fetchCourseDetail(
     };
   } catch {
     return empty;
+  }
+}
+
+// ─── Admin CRUD ───────────────────────────────────────────────────────────────
+
+type TrackFields = {
+  title: string;
+  tagline?: string | null;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  order_index?: number;
+  is_published?: boolean;
+};
+
+export async function createTrack(fields: TrackFields): Promise<{ id: string } | { error: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('tracks')
+      .insert({ ...fields, is_published: fields.is_published ?? false })
+      .select('id')
+      .single();
+    if (error || !data) return { error: error?.message ?? 'Could not create track' };
+    return { id: data.id };
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not create track' };
+  }
+}
+
+export async function updateTrack(id: string, fields: Partial<TrackFields>): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('tracks').update(fields).eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not update track';
+  }
+}
+
+export async function deleteTrack(id: string): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('tracks').delete().eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not delete track';
+  }
+}
+
+type CourseFields = {
+  title: string;
+  description?: string | null;
+  difficulty?: string | null;
+  thumbnail_url?: string | null;
+  order_index?: number;
+  is_published?: boolean;
+};
+
+export async function createCourse(
+  trackId: string,
+  fields: CourseFields,
+): Promise<{ id: string } | { error: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('edu_courses')
+      .insert({ ...fields, track_id: trackId, is_published: fields.is_published ?? false, modules_count: 0 })
+      .select('id')
+      .single();
+    if (error || !data) return { error: error?.message ?? 'Could not create course' };
+    return { id: data.id };
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not create course' };
+  }
+}
+
+export async function updateCourse(id: string, fields: Partial<CourseFields>): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('edu_courses').update(fields).eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not update course';
+  }
+}
+
+export async function deleteCourse(id: string): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('edu_courses').delete().eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not delete course';
+  }
+}
+
+type ModuleFields = {
+  title: string;
+  summary?: string | null;
+  key_terms?: string[] | null;
+  order_index?: number;
+  is_published?: boolean;
+};
+
+export async function createModule(
+  courseId: string,
+  fields: ModuleFields,
+): Promise<{ id: string } | { error: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('edu_modules')
+      .insert({ ...fields, course_id: courseId, is_published: fields.is_published ?? false })
+      .select('id')
+      .single();
+    if (error || !data) return { error: error?.message ?? 'Could not create module' };
+    return { id: data.id };
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not create module' };
+  }
+}
+
+export async function updateModule(id: string, fields: Partial<ModuleFields>): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('edu_modules').update(fields).eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not update module';
+  }
+}
+
+export async function deleteModule(id: string): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('edu_modules').delete().eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not delete module';
+  }
+}
+
+export async function addQuizQuestion(
+  moduleId: string,
+): Promise<{ id: string } | { error: string }> {
+  try {
+    const { data: existing } = await supabase
+      .from('edu_quiz_questions')
+      .select('order_index')
+      .eq('module_id', moduleId)
+      .order('order_index', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextIndex = (existing?.order_index ?? 0) + 1;
+    const { data, error } = await supabase
+      .from('edu_quiz_questions')
+      .insert({
+        module_id: moduleId,
+        order_index: nextIndex,
+        question: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'a',
+        explanation: null,
+      })
+      .select('id')
+      .single();
+    if (error || !data) return { error: error?.message ?? 'Could not add question' };
+    return { id: data.id };
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not add question' };
+  }
+}
+
+export async function deleteQuizQuestion(id: string): Promise<string | null> {
+  try {
+    const { error } = await supabase.from('edu_quiz_questions').delete().eq('id', id);
+    if (error) return error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not delete question';
+  }
+}
+
+export async function swapModuleOrder(
+  moduleAId: string,
+  orderA: number,
+  moduleBId: string,
+  orderB: number,
+): Promise<string | null> {
+  try {
+    const [r1, r2] = await Promise.all([
+      supabase.from('edu_modules').update({ order_index: orderB }).eq('id', moduleAId),
+      supabase.from('edu_modules').update({ order_index: orderA }).eq('id', moduleBId),
+    ]);
+    if (r1.error) return r1.error.message;
+    if (r2.error) return r2.error.message;
+    return null;
+  } catch (e: any) {
+    return e?.message ?? 'Could not reorder modules';
+  }
+}
+
+export async function getNextTrackOrderIndex(): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from('tracks')
+      .select('order_index')
+      .order('order_index', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data?.order_index ?? 0) + 1;
+  } catch {
+    return 1;
+  }
+}
+
+export async function getNextCourseOrderIndex(trackId: string): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from('edu_courses')
+      .select('order_index')
+      .eq('track_id', trackId)
+      .order('order_index', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data?.order_index ?? 0) + 1;
+  } catch {
+    return 1;
+  }
+}
+
+export async function getNextModuleOrderIndex(courseId: string): Promise<number> {
+  try {
+    const { data } = await supabase
+      .from('edu_modules')
+      .select('order_index')
+      .eq('course_id', courseId)
+      .order('order_index', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return (data?.order_index ?? 0) + 1;
+  } catch {
+    return 1;
   }
 }

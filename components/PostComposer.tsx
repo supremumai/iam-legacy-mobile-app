@@ -21,6 +21,7 @@ import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
+import MentionInput, { extractMentions } from './MentionInput';
 
 interface PostComposerProps {
   onPostCreated: () => void;
@@ -78,8 +79,10 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
 
   // ── Post derived state ────────────────────────────────────────────────────
   const trimmed = content.trim();
-  const isPostDisabled = trimmed.length === 0 || content.length > 2000 || submitting;
-  const initials = getInitials(profile?.full_name, profile?.username);
+  const POST_MAX = 10000;
+  const POST_WARN = 8000;
+  const isPostDisabled = trimmed.length === 0 || content.length > POST_MAX || submitting;
+  const initials = getInitials(profile?.full_name);
   const composerVideoId = findFirstYouTubeVideoId(content);
 
   // ── Poll derived state ────────────────────────────────────────────────────
@@ -116,13 +119,34 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
+      const { data: postData, error } = await supabase
         .from('posts')
-        .insert({ user_id: user.id, content: trimmed, image_url: pickedImageUrl, topic_id: selectedTopicId });
+        .insert({ user_id: user.id, content: trimmed, image_url: pickedImageUrl, topic_id: selectedTopicId })
+        .select('id')
+        .single();
 
       if (error) {
         Alert.alert(t('composer.could_not_post'), error.message);
         return;
+      }
+
+      // Fire mention notifications — fire-and-forget, never block the UX
+      const mentions = extractMentions(trimmed);
+      const postId = (postData as any)?.id as string | undefined;
+      if (postId && mentions.length > 0) {
+        const uniqueIds = [...new Set(mentions.map((m) => m.userId))].filter((id) => id !== user.id);
+        if (uniqueIds.length > 0) {
+          supabase.from('notifications').insert(
+            uniqueIds.map((recipientId) => ({
+              recipient_id: recipientId,
+              actor_id: user.id,
+              type: 'mention',
+              post_id: postId,
+            })),
+          ).then(({ error: nErr }) => {
+            if (nErr) console.warn('[PostComposer] mention notification error:', nErr.message);
+          });
+        }
       }
 
       setContent('');
@@ -399,8 +423,8 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
               )}
             </View>
 
-            {/* Input */}
-            <TextInput
+            {/* Input with @mention support */}
+            <MentionInput
               style={{
                 flex: 1,
                 marginLeft: 12,
@@ -411,7 +435,7 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
                 textAlignVertical: 'top',
               }}
               multiline
-              maxLength={2000}
+              maxLength={POST_MAX}
               value={content}
               onChangeText={setContent}
               placeholder={t('composer.post_placeholder')}
@@ -456,80 +480,82 @@ export default function PostComposer({ onPostCreated }: PostComposerProps) {
           {/* Topic selector */}
           {topicSelector}
 
-          {content.length > 0 && (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 12,
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: 12,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {content.length >= POST_WARN && (
                 <Text
                   style={{
                     fontFamily: Fonts.body,
                     fontSize: 12,
-                    color: content.length > 1900 ? colors.error : colors.textMuted,
+                    color: content.length > POST_MAX ? colors.error : content.length >= POST_MAX - 200 ? colors.gold : colors.textMuted,
                   }}
                 >
-                  {content.length}/2000
+                  {t('post.char_counter', { count: content.length.toLocaleString(), max: POST_MAX.toLocaleString() })}
                 </Text>
+              )}
 
-                {/* Image attachment button */}
-                <Pressable
-                  disabled={uploadingImage}
-                  onPress={async () => {
-                    if (!user) return;
-                    setUploadingImage(true);
-                    const result = await pickAndUploadImage(user.id, 'posts', { aspect: [4, 3] });
-                    setUploadingImage(false);
-                    if ('error' in result) {
-                      Alert.alert(t('composer.could_not_attach_image'), result.error);
-                    } else if ('url' in result) {
-                      setPickedImageUrl(result.url);
-                    }
-                    // cancelled: no-op
-                  }}
-                  hitSlop={8}
-                  style={({ pressed }) => ({ opacity: pressed || uploadingImage ? 0.5 : 1 })}
-                >
-                  {uploadingImage ? (
-                    <ActivityIndicator color={colors.gold} size="small" />
-                  ) : (
-                    <Ionicons name="image-outline" size={20} color={colors.gold} />
-                  )}
-                </Pressable>
-              </View>
-
+              {/* Image attachment button — always visible */}
               <Pressable
-                onPress={handlePost}
-                disabled={isPostDisabled}
-                style={{
-                  backgroundColor: isPostDisabled ? colors.borderStrong : colors.gold,
-                  borderRadius: 8,
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  minWidth: 60,
-                  alignItems: 'center',
+                disabled={uploadingImage}
+                onPress={async () => {
+                  if (!user) return;
+                  setUploadingImage(true);
+                  const result = await pickAndUploadImage(user.id, 'posts', { aspect: [4, 3] });
+                  setUploadingImage(false);
+                  if ('error' in result) {
+                    Alert.alert(t('composer.could_not_attach_image'), result.error);
+                  } else if ('url' in result) {
+                    setPickedImageUrl(result.url);
+                  }
+                  // cancelled: no-op
                 }}
+                hitSlop={8}
+                style={({ pressed }) => ({ opacity: pressed || uploadingImage ? 0.5 : 1 })}
               >
-                {submitting ? (
-                  <ActivityIndicator color={colors.overlay} size="small" />
+                {uploadingImage ? (
+                  <ActivityIndicator color={colors.gold} size="small" />
                 ) : (
-                  <Text
-                    style={{
-                      fontFamily: Fonts.bodyBold,
-                      fontSize: 13,
-                      color: isPostDisabled ? colors.overlay : colors.background,
-                    }}
-                  >
-                    {t('composer.submit_post')}
-                  </Text>
+                  <Ionicons name="image-outline" size={20} color={colors.gold} />
                 )}
               </Pressable>
             </View>
-          )}
+
+            {/* Post button — always visible; disabled + 40% opacity until content exists */}
+            <Pressable
+              onPress={handlePost}
+              disabled={isPostDisabled}
+              style={{
+                backgroundColor: isPostDisabled ? colors.borderStrong : colors.gold,
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                minWidth: 60,
+                alignItems: 'center',
+                opacity: isPostDisabled ? 0.4 : 1,
+              }}
+            >
+              {submitting ? (
+                <ActivityIndicator color={colors.overlay} size="small" />
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: Fonts.bodyBold,
+                    fontSize: 13,
+                    color: isPostDisabled ? colors.overlay : colors.background,
+                  }}
+                >
+                  {t('composer.submit_post')}
+                </Text>
+              )}
+            </Pressable>
+          </View>
         </>
       ) : (
         /* ════════════════════════════════════════════════════════

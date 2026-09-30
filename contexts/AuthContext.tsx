@@ -74,7 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, fetchProfile]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('[signOut] supabase.auth.signOut threw:', e);
+    }
+    // Always clear local state regardless of network/server error
     setSession(null);
     setUser(null);
     setProfile(null);

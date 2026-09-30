@@ -85,7 +85,8 @@
     "latest_in_education": "Latest in Education",
     "no_courses_yet": "No courses yet",
     "one_module": "1 module",
-    "count_modules": "%{count} modules"
+    "count_modules": "%{count} modules",
+    "see_more": "See more"
   },
   "composer": {
     "tab_post": "Post",
@@ -329,7 +330,13 @@
     "correct": "Correct",
     "incorrect": "Incorrect",
     "module_complete": "Module Complete",
+    "module_mastered": "Module Mastered!",
+    "xp_earned": "+%{xp} XP",
+    "attempt_label": "Attempt %{n}",
     "almost_there": "Almost There",
+    "mastery_hint": "Master the module with 85% or more to pass",
+    "course_complete_heading": "Course Complete!",
+    "back_to_education": "Back to Education",
     "your_score": "%{score} of %{total} correct",
     "next_module": "Next Module",
     "course_complete_cta": "Back to Course",
@@ -368,7 +375,42 @@
     "track_modules_done": "%{done} of %{total} done",
     "track_not_started": "Not started",
     "course_modules_complete": "%{done} of %{total} modules complete",
-    "module_badge": "Module %{n} of %{total}"
+    "module_badge": "Module %{n} of %{total}",
+    "admin_new_track": "New Track",
+    "admin_new_course": "New Course",
+    "admin_new_module": "New Module",
+    "admin_edit_track": "Edit Track",
+    "admin_edit_course": "Edit Course",
+    "admin_edit_module": "Edit Module",
+    "admin_delete": "Delete",
+    "admin_delete_track_warn": "This will permanently delete all courses and modules inside.",
+    "admin_delete_course_warn": "This will permanently delete all modules inside.",
+    "admin_delete_module_warn": "This will permanently delete this module and its quiz.",
+    "admin_field_title": "Title",
+    "admin_field_tagline": "Tagline",
+    "admin_field_description": "Description",
+    "admin_field_order": "Order",
+    "admin_field_difficulty": "Difficulty",
+    "admin_field_summary": "Summary",
+    "admin_field_key_terms": "Key Terms",
+    "admin_key_terms_placeholder": "Add term…",
+    "admin_field_thumbnail": "Thumbnail",
+    "admin_draft_badge": "Draft",
+    "admin_publish_toggle": "Published",
+    "admin_save": "Save",
+    "admin_title_required": "Title is required",
+    "admin_save_and_continue": "Save & Set Up Video",
+    "admin_add_question": "Add Question",
+    "admin_delete_question": "Delete Question",
+    "admin_delete_question_confirm": "Delete this quiz question?"
+  },
+  "post": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "Post is too long"
+  },
+  "comment": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "Comment is too long"
   },
   "add_resource": {
     "title": "Share a Video",

@@ -9,6 +9,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import MentionInput, { extractMentions } from './MentionInput';
+import ActionSheet from './ActionSheet';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -56,7 +58,7 @@ function normalizeAuthor(raw: any): PostAuthor | null {
 }
 
 function resolveDisplayName(author: PostAuthor | null): string {
-  return author?.full_name ?? (author?.username ? `@${author.username}` : 'Legacy Member');
+  return author?.full_name ?? 'Legacy Member';
 }
 
 const COMMENT_COLS =
@@ -71,7 +73,7 @@ interface AvatarProps {
 
 function CommentAvatar({ author, size }: AvatarProps) {
   const colors = useColors();
-  const initials = getInitials(author?.full_name, author?.username);
+  const initials = getInitials(author?.full_name);
   return (
     <View
       style={{
@@ -166,7 +168,8 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
         </View>
 
         {/* Content */}
-        <Text
+        <MentionText
+          text={comment.content}
           style={{
             fontFamily: Fonts.body,
             fontSize: isReply ? 13 : 14,
@@ -174,9 +177,7 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
             lineHeight: isReply ? 18 : 20,
             marginTop: 2,
           }}
-        >
-          {comment.content}
-        </Text>
+        />
 
         {/* YouTube preview — compact, sits within the comment's flex:1 block so
             replies are automatically indented at the same level as the text */}
@@ -271,6 +272,9 @@ interface ComposerProps {
   inputRef: React.RefObject<TextInput | null>;
 }
 
+const COMMENT_MAX = 5000;
+const COMMENT_WARN = 4000;
+
 function ComposerSection({
   replyingTo,
   onClearReply,
@@ -281,6 +285,7 @@ function ComposerSection({
   inputRef,
 }: ComposerProps) {
   const colors = useColors();
+  const { t } = useLanguage();
   const inputVideoId = findFirstYouTubeVideoId(inputText);
 
   return (
@@ -336,8 +341,8 @@ function ComposerSection({
           borderTopColor: colors.borderSubtle,
         }}
       >
-        <TextInput
-          ref={inputRef}
+        <MentionInput
+          inputRef={inputRef as React.RefObject<TextInput>}
           style={{
             flex: 1,
             fontFamily: Fonts.body,
@@ -351,8 +356,7 @@ function ComposerSection({
           value={inputText}
           onChangeText={onChangeText}
           multiline
-          maxLength={2000}
-          returnKeyType="default"
+          maxLength={COMMENT_MAX}
         />
         <Pressable
           onPress={onSubmit}
@@ -367,6 +371,20 @@ function ComposerSection({
           />
         </Pressable>
       </View>
+      {inputText.length >= COMMENT_WARN && (
+        <Text
+          style={{
+            fontFamily: Fonts.body,
+            fontSize: 11,
+            textAlign: 'right',
+            paddingHorizontal: 20,
+            paddingBottom: 6,
+            color: inputText.length > COMMENT_MAX ? colors.error : inputText.length >= COMMENT_MAX - 100 ? colors.gold : colors.textMuted,
+          }}
+        >
+          {t('comment.char_counter', { count: inputText.length.toLocaleString(), max: COMMENT_MAX.toLocaleString() })}
+        </Text>
+      )}
     </>
   );
 }
@@ -386,6 +404,7 @@ export default function CommentThread({
   const [inputText, setInputText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [replyingTo, setReplyingTo] = useState<CommentWithAuthor | null>(null);
+  const [pendingDeleteComment, setPendingDeleteComment] = useState<CommentWithAuthor | null>(null);
   const inputRef = useRef<TextInput>(null);
 
   // Fetch comments on mount and whenever postId changes
@@ -479,6 +498,25 @@ export default function CommentThread({
       setInputText('');
       setReplyingTo(null);
       onCommentCountChange(postId, 1);
+
+      // Fire mention notifications — fire-and-forget
+      const mentions = extractMentions(trimmed);
+      if (mentions.length > 0 && user?.id) {
+        const uniqueIds = [...new Set(mentions.map((m) => m.userId))].filter((id) => id !== user.id);
+        if (uniqueIds.length > 0) {
+          supabase.from('notifications').insert(
+            uniqueIds.map((recipientId) => ({
+              recipient_id: recipientId,
+              actor_id: user.id,
+              type: 'mention',
+              post_id: postId,
+              comment_id: data.id,
+            })),
+          ).then(({ error: nErr }) => {
+            if (nErr) console.warn('[CommentThread] mention notification error:', nErr.message);
+          });
+        }
+      }
     } catch (e: unknown) {
       Alert.alert('Could not comment', e instanceof Error ? e.message : 'Unknown error');
       // Keep replyingTo so the user doesn't lose their reply target
@@ -488,59 +526,45 @@ export default function CommentThread({
   };
 
   const handleDeleteComment = (comment: CommentWithAuthor) => {
-    // Count replies that would cascade-delete with a top-level comment
+    setPendingDeleteComment(comment);
+  };
+
+  const performDeleteComment = async (comment: CommentWithAuthor) => {
     const repliesCount =
       comment.parent_id === null
         ? comments.filter((c) => c.parent_id === comment.id).length
         : 0;
+    try {
+      const { error } = await supabase
+        .from('post_comments')
+        .delete()
+        .eq('id', comment.id);
 
-    const alertMessage =
-      repliesCount > 0
-        ? `This will also delete ${repliesCount} ${repliesCount === 1 ? 'reply' : 'replies'}. This can't be undone.`
-        : "This can't be undone.";
+      if (error) {
+        Alert.alert('Could not delete', error.message);
+        return;
+      }
 
-    Alert.alert('Delete Comment', alertMessage, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const { error } = await supabase
-              .from('post_comments')
-              .delete()
-              .eq('id', comment.id);
+      if (repliesCount > 0) {
+        setComments((prev) =>
+          prev.filter((c) => c.id !== comment.id && c.parent_id !== comment.id),
+        );
+        onCommentCountChange(postId, -(1 + repliesCount));
+      } else {
+        setComments((prev) => prev.filter((c) => c.id !== comment.id));
+        onCommentCountChange(postId, -1);
+      }
 
-            if (error) {
-              Alert.alert('Could not delete', error.message);
-              return;
-            }
-
-            if (repliesCount > 0) {
-              // Remove parent AND all its replies from local flat list
-              setComments((prev) =>
-                prev.filter((c) => c.id !== comment.id && c.parent_id !== comment.id),
-              );
-              onCommentCountChange(postId, -(1 + repliesCount));
-            } else {
-              setComments((prev) => prev.filter((c) => c.id !== comment.id));
-              onCommentCountChange(postId, -1);
-            }
-
-            // If we were replying to the deleted comment, clear that state
-            if (replyingTo?.id === comment.id || replyingTo?.parent_id === comment.id) {
-              setReplyingTo(null);
-            }
-          } catch (e: unknown) {
-            Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
-          }
-        },
-      },
-    ]);
+      if (replyingTo?.id === comment.id || replyingTo?.parent_id === comment.id) {
+        setReplyingTo(null);
+      }
+    } catch (e: unknown) {
+      Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
+    }
   };
 
   const threads = buildCommentThreads(comments);
-  const canSubmit = inputText.trim().length > 0 && !submitting;
+  const canSubmit = inputText.trim().length > 0 && inputText.length <= COMMENT_MAX && !submitting;
 
   const composerProps: ComposerProps = {
     replyingTo,
@@ -602,6 +626,19 @@ export default function CommentThread({
           />
         )}
         <ComposerSection {...composerProps} />
+        <ActionSheet
+          visible={!!pendingDeleteComment}
+          onClose={() => setPendingDeleteComment(null)}
+          title="This can't be undone."
+          actions={[
+            {
+              label: 'Delete Comment',
+              icon: 'trash-outline',
+              destructive: true,
+              onPress: () => pendingDeleteComment && performDeleteComment(pendingDeleteComment),
+            },
+          ]}
+        />
       </View>
     );
   }
@@ -662,6 +699,20 @@ export default function CommentThread({
 
       {/* Bottom breathing room */}
       <View style={{ height: 32 }} />
+
+      <ActionSheet
+        visible={!!pendingDeleteComment}
+        onClose={() => setPendingDeleteComment(null)}
+        title="This can't be undone."
+        actions={[
+          {
+            label: 'Delete Comment',
+            icon: 'trash-outline',
+            destructive: true,
+            onPress: () => pendingDeleteComment && performDeleteComment(pendingDeleteComment),
+          },
+        ]}
+      />
     </View>
   );
 }

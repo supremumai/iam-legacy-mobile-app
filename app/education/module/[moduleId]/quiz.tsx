@@ -15,6 +15,7 @@ import {
   fetchQuizQuestions,
   fetchModuleDetail,
   submitQuizAttempt,
+  QUIZ_PASS_THRESHOLD,
   EduQuizQuestion,
 } from '../../../../lib/education';
 import { Fonts } from '../../../../constants/fonts';
@@ -61,6 +62,7 @@ export default function QuizScreen() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<EduQuizQuestion[]>([]);
   const [courseId, setCourseId] = useState<string>('');
+  const [moduleTitle, setModuleTitle] = useState<string>('');
   const [nextModuleId, setNextModuleId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<Option | null>(null);
@@ -76,6 +78,7 @@ export default function QuizScreen() {
       ]);
       setQuestions(qs);
       setCourseId(detail.module?.course_id ?? '');
+      setModuleTitle(detail.module?.title ?? '');
       setNextModuleId(detail.nextModuleId);
     } finally {
       setLoading(false);
@@ -110,10 +113,12 @@ export default function QuizScreen() {
 
     // Last question — submit and navigate to result
     submitting.current = true;
-    const finalScore = isCorrect ? correctCount : correctCount; // already incremented on select
+    const finalScore = correctCount; // already incremented on select
+    let attemptNumber = 1;
     try {
       if (user?.id) {
-        await submitQuizAttempt(user.id, moduleId!, finalScore, questions.length);
+        const res = await submitQuizAttempt(user.id, moduleId!, finalScore, questions.length);
+        attemptNumber = res.newAttempts;
       }
     } finally {
       router.replace({
@@ -121,9 +126,11 @@ export default function QuizScreen() {
         params: {
           score: String(finalScore),
           total: String(questions.length),
-          passed: String(finalScore / questions.length >= 0.7),
+          passed: String(finalScore / questions.length >= QUIZ_PASS_THRESHOLD),
           nextModuleId: nextModuleId ?? '',
           courseId,
+          moduleTitle,
+          attemptNumber: String(attemptNumber),
         },
       });
     }

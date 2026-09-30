@@ -85,7 +85,8 @@
     "latest_in_education": "Lo último en educación",
     "no_courses_yet": "Aún no hay cursos",
     "one_module": "1 módulo",
-    "count_modules": "%{count} módulos"
+    "count_modules": "%{count} módulos",
+    "see_more": "Ver más"
   },
   "composer": {
     "tab_post": "Post",
@@ -329,7 +330,13 @@
     "correct": "Correcto",
     "incorrect": "Incorrecto",
     "module_complete": "Módulo completado",
+    "module_mastered": "¡Módulo dominado!",
+    "xp_earned": "+%{xp} XP",
+    "attempt_label": "Intento %{n}",
     "almost_there": "Casi lo logras",
+    "mastery_hint": "Domina el módulo con 85% o más para pasar",
+    "course_complete_heading": "¡Curso completado!",
+    "back_to_education": "Volver a Educación",
     "your_score": "%{score} de %{total} correctas",
     "next_module": "Siguiente módulo",
     "course_complete_cta": "Volver al curso",
@@ -368,7 +375,42 @@
     "track_modules_done": "%{done} de %{total} completados",
     "track_not_started": "Sin empezar",
     "course_modules_complete": "%{done} de %{total} módulos completados",
-    "module_badge": "Módulo %{n} de %{total}"
+    "module_badge": "Módulo %{n} de %{total}",
+    "admin_new_track": "Nuevo Track",
+    "admin_new_course": "Nuevo Curso",
+    "admin_new_module": "Nuevo Módulo",
+    "admin_edit_track": "Editar Track",
+    "admin_edit_course": "Editar Curso",
+    "admin_edit_module": "Editar Módulo",
+    "admin_delete": "Eliminar",
+    "admin_delete_track_warn": "Esto eliminará permanentemente todos los cursos y módulos.",
+    "admin_delete_course_warn": "Esto eliminará permanentemente todos los módulos.",
+    "admin_delete_module_warn": "Esto eliminará permanentemente este módulo y su quiz.",
+    "admin_field_title": "Título",
+    "admin_field_tagline": "Eslogan",
+    "admin_field_description": "Descripción",
+    "admin_field_order": "Orden",
+    "admin_field_difficulty": "Dificultad",
+    "admin_field_summary": "Resumen",
+    "admin_field_key_terms": "Términos clave",
+    "admin_key_terms_placeholder": "Agregar término…",
+    "admin_field_thumbnail": "Miniatura",
+    "admin_draft_badge": "Borrador",
+    "admin_publish_toggle": "Publicado",
+    "admin_save": "Guardar",
+    "admin_title_required": "El título es requerido",
+    "admin_save_and_continue": "Guardar y Configurar Video",
+    "admin_add_question": "Agregar Pregunta",
+    "admin_delete_question": "Eliminar Pregunta",
+    "admin_delete_question_confirm": "¿Eliminar esta pregunta del quiz?"
+  },
+  "post": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "La publicación es demasiado larga"
+  },
+  "comment": {
+    "char_counter": "%{count} / %{max}",
+    "char_limit_exceeded": "El comentario es demasiado largo"
   },
   "add_resource": {
     "title": "Compartir un video",

@@ -21,6 +21,8 @@ eas build --platform ios --profile production      # App Store IPA (requires App
 
 ## Known dependency constraints
 
+- **Never import a package without adding it to `package.json` in the same commit.** If the environment can't run installs, add the dependency entry manually and flag that the release requires a rebuild if it's a native module.
+
 - **`@supabase/supabase-js` is pinned to `2.105.4`** — versions 2.106.0+ use `dynamic import()` that breaks Hermes compilation on Android. Before upgrading, verify with `npx expo export --platform android`. See build a6e29211 (failed) vs b276c692 (passed).
 
 ## OTA updates (expo-updates)

@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -8,6 +8,7 @@ import { useAdminInEducation } from '../../../hooks/useAdminInEducation';
 import {
   fetchCourseDetail,
   getTrackIcon,
+  swapModuleOrder,
   CourseDetailResult,
   EduModule,
 } from '../../../lib/education';
@@ -55,7 +56,7 @@ export default function CourseDetailScreen() {
     if (!courseId) return;
     setError(false);
     try {
-      const data = await fetchCourseDetail(courseId, user?.id ?? null);
+      const data = await fetchCourseDetail(courseId, user?.id ?? null, { includeUnpublished: isAdmin });
       setResult(data);
       if (!data.course) setError(true);
     } catch {
@@ -63,7 +64,19 @@ export default function CourseDetailScreen() {
     } finally {
       setLoading(false);
     }
-  }, [courseId, user?.id]);
+  }, [courseId, user?.id, isAdmin]);
+
+  const handleReorder = useCallback(async (i: number, direction: 'up' | 'down') => {
+    if (!result) return;
+    const mods = result.modules;
+    const j = direction === 'up' ? i - 1 : i + 1;
+    if (j < 0 || j >= mods.length) return;
+    const a = mods[i];
+    const b = mods[j];
+    await swapModuleOrder(a.id, a.order_index, b.id, b.order_index);
+    setLoading(true);
+    load();
+  }, [result, load]);
 
   useEffect(() => {
     setLoading(true);
@@ -143,6 +156,21 @@ export default function CourseDetailScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.gold} />
         </TouchableOpacity>
+
+        {/* Thumbnail hero — full-width above the card, ~100 tall */}
+        {!!course.thumbnail_url && (
+          <View style={{ marginHorizontal: 20, marginBottom: 12, borderRadius: 12, overflow: 'hidden', height: 100 }}>
+            <Image
+              source={{ uri: course.thumbnail_url }}
+              style={{ width: '100%', height: 100 }}
+              resizeMode="cover"
+            />
+            <View
+              style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 36, backgroundColor: 'rgba(0,0,0,0.35)' }}
+              pointerEvents="none"
+            />
+          </View>
+        )}
 
         {/* Hero card */}
         <View
@@ -281,9 +309,35 @@ export default function CourseDetailScreen() {
                 index={i}
                 total={modules.length}
                 onPress={() => handleModulePress(mod.id)}
+                isDraft={isAdmin && !mod.is_published}
+                onEdit={isAdmin ? () => router.push(`/education/admin/module-form?id=${mod.id}` as any) : undefined}
+                onMoveUp={isAdmin ? () => handleReorder(i, 'up') : undefined}
+                onMoveDown={isAdmin ? () => handleReorder(i, 'down') : undefined}
+                isFirstModule={i === 0}
+                isLastModule={i === modules.length - 1}
               />
             );
           })}
+
+          {isAdmin && (
+            <TouchableOpacity
+              onPress={() => router.push(`/education/admin/module-form?course_id=${courseId}` as any)}
+              activeOpacity={0.75}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+                marginTop: 4,
+              }}
+            >
+              <Ionicons name="add-circle-outline" size={20} color={colors.gold} />
+              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.gold }}>
+                {t('education.admin_new_module')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </View>

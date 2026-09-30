@@ -67,7 +67,7 @@ export interface NotificationItem {
   id: string;
   recipient_id: string;
   actor_id: string;
-  type: 'post_like' | 'post_comment' | 'comment_reply';
+  type: 'post_like' | 'post_comment' | 'comment_reply' | 'mention';
   post_id: string;
   comment_id: string | null;
   is_read: boolean;

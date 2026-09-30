@@ -1,7 +1,8 @@
-﻿import { Text, TouchableOpacity, View } from 'react-native';
+﻿import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts } from '../../constants/fonts';
 import { useColors } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { EduModule } from '../../lib/education';
 
 export type ModuleStatus = 'completed' | 'unlocked' | 'locked';
@@ -20,10 +21,17 @@ interface ModuleRowProps {
   index: number;
   total: number;
   onPress: () => void;
+  onEdit?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  isDraft?: boolean;
+  isFirstModule?: boolean;
+  isLastModule?: boolean;
 }
 
-export default function ModuleRow({ module, status, index, total, onPress }: ModuleRowProps) {
+export default function ModuleRow({ module, status, index, total, onPress, onEdit, onMoveUp, onMoveDown, isDraft, isFirstModule, isLastModule }: ModuleRowProps) {
   const colors = useColors();
+  const { t } = useLanguage();
   const LINE_COLOR = colors.border;
   const isFirst = index === 0;
   const isLast = index === total - 1;
@@ -86,28 +94,59 @@ export default function ModuleRow({ module, status, index, total, onPress }: Mod
           opacity: isLocked ? 0.4 : 1,
         }}
       >
-        <Text
-          style={{
-            fontFamily: Fonts.bodySemiBold,
-            fontSize: 15,
-            color: colors.textPrimary,
-            marginBottom: duration ? 3 : 0,
-          }}
-          numberOfLines={2}
-        >
-          {module.title}
-        </Text>
-        {!!duration && (
-          <Text
-            style={{
-              fontFamily: Fonts.body,
-              fontSize: 12,
-              color: colors.textTertiary,
-            }}
-          >
-            {duration}
-          </Text>
-        )}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontFamily: Fonts.bodySemiBold,
+                fontSize: 15,
+                color: colors.textPrimary,
+                marginBottom: duration ? 3 : 0,
+              }}
+              numberOfLines={2}
+            >
+              {module.title}
+            </Text>
+            {!!duration && (
+              <Text
+                style={{
+                  fontFamily: Fonts.body,
+                  fontSize: 12,
+                  color: colors.textTertiary,
+                }}
+              >
+                {duration}
+              </Text>
+            )}
+            {isDraft && (
+              <View style={{ alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.gold, borderRadius: 99, paddingHorizontal: 7, paddingVertical: 2, marginTop: 4 }}>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 10, color: colors.gold, letterSpacing: 0.5 }}>
+                  {t('education.admin_draft_badge')}
+                </Text>
+              </View>
+            )}
+          </View>
+          {/* Admin controls */}
+          {(onEdit || onMoveUp || onMoveDown) && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 8, paddingTop: 2 }}>
+              {onMoveUp && !isFirstModule && (
+                <Pressable onPress={onMoveUp} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                  <Ionicons name="chevron-up" size={16} color={colors.textMuted} />
+                </Pressable>
+              )}
+              {onMoveDown && !isLastModule && (
+                <Pressable onPress={onMoveDown} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                  <Ionicons name="chevron-down" size={16} color={colors.textMuted} />
+                </Pressable>
+              )}
+              {onEdit && (
+                <Pressable onPress={onEdit} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                  <Ionicons name="pencil-outline" size={15} color={colors.textMuted} />
+                </Pressable>
+              )}
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );

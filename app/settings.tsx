@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   ScrollView,
@@ -100,6 +101,8 @@ export default function SettingsScreen() {
   const [resetSent, setResetSent] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   // Load persisted notification preference
   useState(() => {
@@ -250,9 +253,26 @@ export default function SettingsScreen() {
           <SettingsRow
             icon="log-out-outline"
             label={t('settings.sign_out')}
-            onPress={signOut}
+            onPress={async () => {
+              if (signingOut) return;
+              setSigningOut(true);
+              setSignOutError(null);
+              try {
+                await signOut();
+              } catch (e: any) {
+                setSignOutError(e?.message ?? t('common.error_title'));
+              } finally {
+                setSigningOut(false);
+              }
+            }}
+            right={signingOut ? <ActivityIndicator size="small" color={colors.textSecondary} /> : undefined}
             colors={colors}
           />
+          {!!signOutError && (
+            <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: '#ef4444', paddingHorizontal: 20, paddingBottom: 8 }}>
+              {signOutError}
+            </Text>
+          )}
         </View>
       </ScrollView>
 

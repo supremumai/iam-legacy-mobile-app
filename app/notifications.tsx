@@ -212,16 +212,16 @@ export default function NotificationsScreen() {
           }
           renderItem={({ item: notification }) => {
             const actor = notification.actor;
-            const initials = getInitials(actor?.full_name, actor?.username);
-            const actorName =
-              actor?.full_name ??
-              (actor?.username ? `@${actor.username}` : 'Legacy Member');
+            const initials = getInitials(actor?.full_name);
+            const actorName = actor?.full_name ?? 'Legacy Member';
             const actionPhrase =
               notification.type === 'post_like'
                 ? ' liked your post'
                 : notification.type === 'post_comment'
                   ? ' commented on your post'
-                  : ' replied to your comment';
+                  : notification.type === 'mention'
+                    ? ' mentioned you in a post'
+                    : ' replied to your comment';
             const wasUnread = wasUnreadIds.has(notification.id);
 
             return (
@@ -286,7 +286,9 @@ export default function NotificationsScreen() {
                           ? 'heart'
                           : notification.type === 'post_comment'
                             ? 'chatbubble'
-                            : 'arrow-undo'
+                            : notification.type === 'mention'
+                              ? 'at'
+                              : 'arrow-undo'
                       }
                       size={10}
                       color={colors.gold}
