@@ -157,10 +157,6 @@ function CommunityPostCard({ item, isLiked, isSaved, onPress, onToggleLike, onTo
 
   const visibleOptions = expanded ? item.pollOptions : item.pollOptions.slice(0, 2);
 
-  const isImage = item.post_type === 'image' && !!item.image_url;
-  const isVideo = item.post_type === 'video';
-  const isPoll = item.post_type === 'poll';
-
   return (
     <Pressable
       onPress={onPress}
