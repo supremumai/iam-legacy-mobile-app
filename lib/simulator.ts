@@ -161,3 +161,59 @@ export async function fetchMyPlays(userId: string): Promise<SimPlay[]> {
   if (error) throw error;
   return (data ?? []) as SimPlay[];
 }
+
+export async function fetchLastPlayForDeal(userId: string, dealId: string): Promise<SimPlay | null> {
+  const { data, error } = await supabase
+    .from('sim_plays')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('deal_id', dealId)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (error) throw error;
+  return (data?.[0] ?? null) as SimPlay | null;
+}
+
+export async function fetchDealsByIds(dealIds: string[]): Promise<SimDeal[]> {
+  if (dealIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('sim_deals')
+    .select('*')
+    .in('id', dealIds);
+  if (error) throw error;
+  return (data ?? []) as SimDeal[];
+}
+
+export async function fetchCompletedPlays(userId: string): Promise<SimPlay[]> {
+  const { data, error } = await supabase
+    .from('sim_plays')
+    .select('*')
+    .eq('user_id', userId)
+    .not('decision', 'is', null)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as SimPlay[];
+}
+
+export async function awardPointsIfFirstThreeStar(userId: string, playId: string): Promise<void> {
+  // Check if user already has a 3-star play (other than this one)
+  const { data: existing } = await supabase
+    .from('sim_plays')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('rating', '3')
+    .neq('id', playId)
+    .limit(1);
+  if (existing && existing.length > 0) return; // already earned
+  // Award 50 points
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('points')
+    .eq('id', userId)
+    .single();
+  if (!profile) return;
+  await supabase
+    .from('profiles')
+    .update({ points: (profile.points ?? 0) + 50 })
+    .eq('id', userId);
+}

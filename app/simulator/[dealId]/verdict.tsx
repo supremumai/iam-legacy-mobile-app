@@ -16,7 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useColors } from '../../../contexts/ThemeContext';
 import { Fonts } from '../../../constants/fonts';
-import { fetchDealFull, fetchPlay, updatePlay, SimDealFull, SimPlay } from '../../../lib/simulator';
+import { fetchDealFull, fetchPlay, updatePlay, awardPointsIfFirstThreeStar, SimDealFull, SimPlay } from '../../../lib/simulator';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // ── Rating logic ──────────────────────────────────────────────────
 // +1 decision matches expert
@@ -45,7 +46,8 @@ function calcRating(deal: SimDealFull, play: SimPlay): number {
 
   // Profit quality
   const finalProfit = numbers.final_profit ?? 0;
-  const expertProfit = (deal.expert_sale_price ?? 0) - deal.price - (deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 150) - (deal.expert_holding_months ?? 0) * ((deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 150) * 0.01) - (deal.expert_sale_price ?? 0) * (deal.expert_closing_pct ?? 0.05);
+  const expertCostPerSqft = deal.expert_cost_per_sqft ?? 120;
+  const expertProfit = (deal.expert_sale_price ?? 0) - deal.price - (deal.expert_build_sqft ?? 0) * expertCostPerSqft - (deal.expert_holding_months ?? 0) * ((deal.expert_build_sqft ?? 0) * expertCostPerSqft * 0.01) - (deal.expert_sale_price ?? 0) * (deal.expert_closing_pct ?? 0.05);
   if (finalProfit > 0 && expertProfit !== 0 && Math.abs(finalProfit - expertProfit) / Math.abs(expertProfit) <= 0.25) score += 1;
 
   return score;
@@ -57,6 +59,7 @@ export default function VerdictScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
   const colors = useColors();
+  const { user } = useAuth();
   const GOLD = colors.gold;
 
   const [loading, setLoading] = useState(true);
@@ -64,8 +67,9 @@ export default function VerdictScreen() {
   const [done, setDone] = useState(false);
   const [deal, setDeal] = useState<SimDealFull | null>(null);
   const [play, setPlay] = useState<SimPlay | null>(null);
-  const [decision, setDecision] = useState<'build' | 'pass' | null>(null);
+  const [decision, setDecision] = useState<'build' | 'pass' | 'other' | null>(null);
   const [visionText, setVisionText] = useState('');
+  const [strategyText, setStrategyText] = useState('');
   const [rating, setRating] = useState(0);
 
   useEffect(() => {
@@ -102,12 +106,18 @@ export default function VerdictScreen() {
     try {
       if (playId) {
         const numbers = (play?.numbers ?? {}) as Record<string, number>;
+        const visionFinal = decision === 'other'
+          ? (strategyText || visionText || null)
+          : (visionText || null);
         await updatePlay(playId, {
           decision,
-          vision_text: visionText || null,
+          vision_text: visionFinal,
           profit_estimate: numbers.final_profit ?? null,
           rating: String(computedRating),
         });
+        if (computedRating === 3 && user?.id) {
+          await awardPointsIfFirstThreeStar(user.id, playId).catch(() => {});
+        }
       }
     } catch {
       // best-effort
@@ -123,8 +133,8 @@ export default function VerdictScreen() {
     const profitColor = finalProfit < 0 ? colors.error : GOLD;
 
     const expertProfit = (deal.expert_sale_price ?? 0) - deal.price
-      - (deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 150)
-      - (deal.expert_holding_months ?? 0) * ((deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 150) * 0.01)
+      - (deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 120)
+      - (deal.expert_holding_months ?? 0) * ((deal.expert_build_sqft ?? 0) * (deal.expert_cost_per_sqft ?? 120) * 0.01)
       - (deal.expert_sale_price ?? 0) * (deal.expert_closing_pct ?? 0.05);
 
     const tableRows: { label: string; you: string; expert: string }[] = [
@@ -150,12 +160,14 @@ export default function VerdictScreen() {
       },
       {
         label: t('simulator.stage7_row_decision'),
-        you: decision === 'build' ? t('simulator.stage7_build_label') : t('simulator.stage7_pass_label'),
+        you: decision === 'build' ? t('simulator.stage7_build_label') : decision === 'pass' ? t('simulator.stage7_pass_label') : t('simulator.stage7_other_label'),
         expert: (deal.expert_decision ?? '').toLowerCase() === 'build'
           ? t('simulator.stage7_build_label')
           : (deal.expert_decision ?? '').toLowerCase() === 'pass'
             ? t('simulator.stage7_pass_label')
-            : deal.expert_decision ?? '—',
+            : (deal.expert_decision ?? '').toLowerCase() === 'other'
+              ? t('simulator.stage7_other_label')
+              : deal.expert_decision ?? '—',
       },
     ];
 
@@ -245,10 +257,21 @@ export default function VerdictScreen() {
           <TouchableOpacity
             onPress={() => router.push('/(drawer)/(tabs)/education' as any)}
             activeOpacity={0.8}
-            style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 16, alignItems: 'center' }}
+            style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginBottom: 12 }}
           >
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: colors.background }}>
               {t('simulator.stage7_play_again')}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Portfolio */}
+          <TouchableOpacity
+            onPress={() => router.push('/simulator/portfolio' as any)}
+            activeOpacity={0.8}
+            style={{ backgroundColor: 'transparent', borderRadius: 12, paddingVertical: 14, alignItems: 'center', borderWidth: 1.5, borderColor: GOLD + '60' }}
+          >
+            <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: GOLD }}>
+              {t('simulator.stage7_portfolio')}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -280,38 +303,66 @@ export default function VerdictScreen() {
         </Text>
 
         {/* Decision cards */}
-        <View style={{ flexDirection: 'row', gap: 14, marginBottom: 32 }}>
-          {(['build', 'pass'] as const).map((opt) => {
-            const active = decision === opt;
-            const isBuild = opt === 'build';
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+          {([
+            { key: 'build', icon: 'hammer-outline', color: GOLD, label: t('simulator.stage7_build') },
+            { key: 'pass', icon: 'close-circle-outline', color: colors.error, label: t('simulator.stage7_pass') },
+            { key: 'other', icon: 'bulb-outline', color: colors.textMuted, label: t('simulator.stage7_other') },
+          ] as const).map(({ key, icon, color, label }) => {
+            const active = decision === key;
             return (
               <TouchableOpacity
-                key={opt}
-                onPress={() => setDecision(opt)}
+                key={key}
+                onPress={() => setDecision(key)}
                 activeOpacity={0.8}
                 style={{
                   flex: 1,
-                  backgroundColor: active ? (isBuild ? GOLD : colors.error) : CARD_BG,
-                  borderRadius: 16,
-                  paddingVertical: 28,
+                  backgroundColor: active ? color : CARD_BG,
+                  borderRadius: 14,
+                  paddingVertical: 22,
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 8,
                   borderWidth: 2,
-                  borderColor: active ? (isBuild ? GOLD : colors.error) : colors.border,
+                  borderColor: active ? color : colors.border,
                 }}
               >
-                <Ionicons
-                  name={isBuild ? 'hammer-outline' : 'close-circle-outline'}
-                  size={32}
-                  color={active ? colors.background : (isBuild ? GOLD : colors.error)}
-                />
-                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: active ? colors.background : colors.textPrimary, letterSpacing: 1 }}>
-                  {isBuild ? t('simulator.stage7_build') : t('simulator.stage7_pass')}
+                <Ionicons name={icon} size={28} color={active ? colors.background : color} />
+                <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 13, color: active ? colors.background : colors.textPrimary, letterSpacing: 0.5, textAlign: 'center' }}>
+                  {label}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
+
+        {/* Strategy input — only for 'other' */}
+        {decision === 'other' && (
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.textMuted, marginBottom: 8 }}>
+              {t('simulator.stage7_other_strategy_label')}
+            </Text>
+            <TextInput
+              value={strategyText}
+              onChangeText={setStrategyText}
+              placeholder={t('simulator.stage7_other_strategy_placeholder')}
+              placeholderTextColor={colors.textFaint}
+              multiline
+              numberOfLines={3}
+              style={{
+                backgroundColor: CARD_BG,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                padding: 14,
+                fontFamily: Fonts.body,
+                fontSize: 15,
+                color: colors.textPrimary,
+                minHeight: 80,
+                textAlignVertical: 'top',
+              }}
+            />
+          </View>
+        )}
 
         {/* Vision text */}
         <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.textMuted, marginBottom: 8 }}>

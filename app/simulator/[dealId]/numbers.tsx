@@ -16,7 +16,7 @@ import { Fonts } from '../../../constants/fonts';
 import { fetchDealFull, updatePlay, SimDealFull } from '../../../lib/simulator';
 
 // ── Tunable constants ─────────────────────────────────────────────
-const DEFAULT_COST_PER_SQFT = 150; // $ per sqft construction cost
+const DEFAULT_COST_PER_SQFT = 120; // $ per sqft construction cost
 const HOLDING_RATE_PER_MONTH = 0.01; // 1% of construction cost per month
 // ─────────────────────────────────────────────────────────────────
 
