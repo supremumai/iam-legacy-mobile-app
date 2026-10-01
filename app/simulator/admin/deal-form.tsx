@@ -313,9 +313,23 @@ export default function DealFormScreen() {
             {isEdit ? t('simulator.admin_form_title_edit') : t('simulator.admin_form_title_new')}
           </Text>
           {isEdit && (
-            <Pressable onPress={() => setDeleteSheetVisible(true)} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-              <Ionicons name="trash-outline" size={20} color={colors.error} />
-            </Pressable>
+            <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+              <Pressable
+                onPress={() => router.push(`/simulator/${id}` as any)}
+                hitSlop={8}
+                style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Ionicons name="eye-outline" size={18} color={GOLD} />
+                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: GOLD }}>
+                    {t('simulator.admin_preview')}
+                  </Text>
+                </View>
+              </Pressable>
+              <Pressable onPress={() => setDeleteSheetVisible(true)} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+                <Ionicons name="trash-outline" size={20} color={colors.error} />
+              </Pressable>
+            </View>
           )}
         </View>
 

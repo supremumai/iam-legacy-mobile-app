@@ -12,6 +12,7 @@ import { ProfileWithTopics } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import LevelBadge from '../components/LevelBadge';
+import { fetchCompletedPlays } from '../lib/simulator';
 
 function formatCount(n: number): string {
   if (n >= 1000) {
@@ -69,6 +70,8 @@ export default function ProfileScreen() {
   const [resourcesCount, setResourcesCount] = useState<number>(0);
   const [loadingResources, setLoadingResources] = useState(true);
 
+  const [hasConstructorBadge, setHasConstructorBadge] = useState(false);
+
   useEffect(() => {
     setPostsCount(0);
     setCommentsCount(0);
@@ -116,6 +119,13 @@ export default function ProfileScreen() {
 
     setResourcesCount(0);
     setLoadingResources(false);
+
+    // Constructor badge: check for any 3-star sim play
+    if (targetUserId) {
+      fetchCompletedPlays(targetUserId)
+        .then((plays) => setHasConstructorBadge(plays.some((p) => Number(p.rating ?? 0) >= 3)))
+        .catch(() => {});
+    }
   }, [targetUserId]);
 
   // ── Loading ───────────────────────────────────────────────────────────────
@@ -268,6 +278,16 @@ export default function ProfileScreen() {
           <View style={{ marginTop: 8 }}>
             <LevelBadge points={activeProfile.points} />
           </View>
+
+          {/* Constructor badge */}
+          {hasConstructorBadge && (
+            <View style={{ marginTop: 6, flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.gold + '20', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, borderWidth: 1, borderColor: colors.gold + '50' }}>
+              <Ionicons name="hammer" size={12} color={colors.gold} />
+              <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 11, color: colors.gold, letterSpacing: 0.5 }}>
+                {t('simulator.portfolio_badge_constructor')}
+              </Text>
+            </View>
+          )}
 
           {/* Bio — integrated into hero, below badge */}
           {activeProfile.bio ? (

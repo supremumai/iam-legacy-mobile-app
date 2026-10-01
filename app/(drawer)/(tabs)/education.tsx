@@ -12,7 +12,7 @@ import {
   EduTrack,
   ContinueLearningResult,
 } from '../../../lib/education';
-import { fetchDeals, SimDeal } from '../../../lib/simulator';
+import { fetchDeals, fetchCompletedPlays, SimDeal } from '../../../lib/simulator';
 import { Fonts } from '../../../constants/fonts';
 import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
@@ -32,6 +32,7 @@ export default function EducationScreen() {
   const [error, setError] = useState(false);
   const [continueLearning, setContinueLearning] = useState<ContinueLearningResult | null>(null);
   const [deals, setDeals] = useState<SimDeal[]>([]);
+  const [hasCompletedPlay, setHasCompletedPlay] = useState(false);
 
   const showAdminContent = isAdmin && !previewAsMember;
 
@@ -64,6 +65,13 @@ export default function EducationScreen() {
       .then(setDeals)
       .catch(() => {});
   }, [showAdminContent]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchCompletedPlays(user.id)
+      .then((plays) => setHasCompletedPlay(plays.length > 0))
+      .catch(() => {});
+  }, [user?.id]);
 
   const handleTrackPress = (track: EduTrack) => {
     if (track.courses.length === 1) {
@@ -274,6 +282,28 @@ export default function EducationScreen() {
                 </TouchableOpacity>
               )}
             </View>
+
+            {/* Portfolio entry card */}
+            {hasCompletedPlay && (
+              <TouchableOpacity
+                onPress={() => router.push('/simulator/portfolio' as any)}
+                activeOpacity={0.85}
+                style={{ marginHorizontal: 20, marginBottom: 16, borderRadius: 14, backgroundColor: '#1c1a14', borderWidth: 1.5, borderColor: colors.gold + '60', padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}
+              >
+                <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.gold + '20', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="briefcase-outline" size={22} color={colors.gold} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.gold }}>
+                    {t('simulator.portfolio_title')}
+                  </Text>
+                  <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: colors.textMuted, marginTop: 2 }}>
+                    {t('simulator.portfolio_stat_played')} · {t('simulator.portfolio_stat_accuracy')}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.gold} />
+              </TouchableOpacity>
+            )}
 
             {deals.map((deal) => (
               <Pressable

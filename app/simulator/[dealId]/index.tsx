@@ -16,7 +16,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useColors } from '../../../contexts/ThemeContext';
 import { Fonts } from '../../../constants/fonts';
-import { fetchDealFull, createPlay, SimDealFull } from '../../../lib/simulator';
+import { fetchDealFull, createPlay, fetchLastPlayForDeal, SimDealFull, SimPlay } from '../../../lib/simulator';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,15 +29,23 @@ export default function Stage1Screen() {
   const colors = useColors();
 
   const [deal, setDeal] = useState<SimDealFull | null>(null);
+  const [lastPlay, setLastPlay] = useState<SimPlay | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState<'yes' | 'no' | null>(null);
 
   useEffect(() => {
     fetchDealFull(dealId)
-      .then(setDeal)
+      .then((d) => {
+        setDeal(d);
+        if (user?.id) {
+          fetchLastPlayForDeal(user.id, d.id)
+            .then(setLastPlay)
+            .catch(() => {});
+        }
+      })
       .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
       .finally(() => setLoading(false));
-  }, [dealId]);
+  }, [dealId, user?.id]);
 
   const handleGutCall = async (call: 'yes' | 'no') => {
     if (!user?.id || !deal) return;
@@ -135,6 +143,27 @@ export default function Stage1Screen() {
         <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: 'rgba(255,255,255,0.55)', marginBottom: 24 }} numberOfLines={1}>
           {deal.address}
         </Text>
+
+        {/* Replay banner */}
+        {lastPlay?.decision ? (() => {
+          const nums = (lastPlay.numbers ?? {}) as Record<string, number>;
+          const profit = lastPlay.profit_estimate ?? nums.final_profit ?? null;
+          const decisionLabel = lastPlay.decision === 'build'
+            ? t('simulator.stage7_build_label')
+            : lastPlay.decision === 'pass'
+              ? t('simulator.stage7_pass_label')
+              : t('simulator.stage7_other_label');
+          const profitStr = profit != null ? '$' + Math.round(profit).toLocaleString() : '—';
+          const ratingStr = lastPlay.rating ? t('simulator.stage1_replay_rating', { rating: lastPlay.rating }) : '';
+          return (
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons name="time-outline" size={14} color={GOLD} />
+              <Text style={{ fontFamily: Fonts.body, fontSize: 12, color: 'rgba(255,255,255,0.65)', flex: 1 }} numberOfLines={1}>
+                {t('simulator.stage1_replay_last', { decision: decisionLabel, profit: profitStr })}{ratingStr}
+              </Text>
+            </View>
+          );
+        })() : null}
 
         {/* Question */}
         <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 18, color: '#fff', marginBottom: 20, textAlign: 'center' }}>
