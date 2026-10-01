@@ -63,7 +63,7 @@ export default function EducationScreen() {
   useEffect(() => {
     fetchDeals({ includeUnpublished: showAdminContent })
       .then(setDeals)
-      .catch(() => {});
+      .catch((e) => console.warn('[Education] fetchDeals failed:', e?.message ?? e));
   }, [showAdminContent]);
 
   useEffect(() => {
