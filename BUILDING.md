@@ -44,6 +44,24 @@ eas build --platform android --profile production
 eas submit --platform android
 ```
 
+## Before every build
+
+Run these three steps in order. **Do not run `eas build` if step 2 aborts.**
+Builds 9, 10, and v7 shipped from a stale commit exactly because this was skipped.
+
+```bash
+# 1. Discard EAS's local edits to app.json (it bumps buildNumber/versionCode in-place)
+git checkout -- app.json
+
+# 2. Pull — must NOT print "Aborting" or "CONFLICT"
+git pull
+
+# 3. Confirm HEAD is the commit you intend to build
+git log --oneline -1
+```
+
+If `git pull` aborts (uncommitted changes block it), resolve the conflict, then restart from step 1.
+
 ## Release flow
 1. All development on `main`
 2. Before each store build: `git tag v1.x.x && git push --tags`
