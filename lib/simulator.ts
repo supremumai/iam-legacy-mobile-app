@@ -142,6 +142,16 @@ export async function updatePlay(
   if (error) throw error;
 }
 
+export async function fetchPlay(playId: string): Promise<SimPlay> {
+  const { data, error } = await supabase
+    .from('sim_plays')
+    .select('*')
+    .eq('id', playId)
+    .single();
+  if (error) throw error;
+  return data as SimPlay;
+}
+
 export async function fetchMyPlays(userId: string): Promise<SimPlay[]> {
   const { data, error } = await supabase
     .from('sim_plays')
