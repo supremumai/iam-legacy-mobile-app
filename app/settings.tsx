@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useIsAdmin } from '../hooks/useIsAdmin';
 import { Fonts } from '../constants/fonts';
 import { supabase } from '../lib/supabase';
 
@@ -95,6 +96,7 @@ export default function SettingsScreen() {
   const { user, signOut } = useAuth();
   const colors = useColors();
   const { t } = useLanguage();
+  const isAdmin = useIsAdmin();
 
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [notifLoading, setNotifLoading] = useState(true);
@@ -230,6 +232,30 @@ export default function SettingsScreen() {
             }
           />
         </View>
+
+        {/* ── ADMIN ──────────────────────────────────────────────── */}
+        {isAdmin && (
+          <>
+            <SectionLabel title={t('settings.section_admin')} colors={colors} />
+            <View
+              style={{
+                marginHorizontal: 16,
+                backgroundColor: colors.surface,
+                borderRadius: 12,
+                overflow: 'hidden',
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
+              <SettingsRow
+                icon="cloud-download-outline"
+                label={t('settings.update_status_row')}
+                onPress={() => router.push('/admin/update-status' as any)}
+                colors={colors}
+              />
+            </View>
+          </>
+        )}
 
         {/* ── ZONA DE PELIGRO ────────────────────────────────────── */}
         <SectionLabel title={t('settings.section_danger')} colors={colors} />
