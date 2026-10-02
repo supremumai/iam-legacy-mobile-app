@@ -413,7 +413,9 @@
     "admin_save_and_continue": "Save & Set Up Video",
     "admin_add_question": "Add Question",
     "admin_delete_question": "Delete Question",
-    "admin_delete_question_confirm": "Delete this quiz question?"
+    "admin_delete_question_confirm": "Delete this quiz question?",
+    "tab_courses": "Courses",
+    "tab_simulator": "Simulator"
   },
   "post": {
     "char_counter": "%{count} / %{max}",
@@ -607,6 +609,19 @@
     "admin_surprise_related_fact": "Related Fact Title",
     "admin_remove": "Remove",
     "admin_move_up": "Up",
-    "admin_move_down": "Down"
+    "admin_move_down": "Down",
+    "error_generic": "Something went wrong. Try again.",
+    "error_save": "Could not save your verdict. Please try again.",
+    "stage2_badge": "Stage 2",
+    "stage3_no_questions": "No zoning questions for this deal yet.",
+    "stage4_of_sale": "of sale price",
+    "stage4_back_to_surprise": "Back to Surprise",
+    "stage5_financed_amount": "Financed Amount",
+    "stage5_financed_hint": "%{pct}% of loan base",
+    "stage5_annual": "annual",
+    "stage5_of_loan": "of loan",
+    "stage5_loan_total": "Total Loan Cost",
+    "no_deals_yet": "No deals yet. Create one with the button above.",
+    "no_deals_member": "No deals available yet. Check back soon."
   }
 }

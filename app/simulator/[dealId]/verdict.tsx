@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -71,6 +71,7 @@ export default function VerdictScreen() {
   const [visionText, setVisionText] = useState('');
   const [strategyText, setStrategyText] = useState('');
   const [rating, setRating] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -81,13 +82,14 @@ export default function VerdictScreen() {
         setDeal(d);
         setPlay(p);
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [dealId, playId]);
 
   if (loading || !deal) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
         <ActivityIndicator color={GOLD} size="large" />
       </View>
     );
@@ -120,7 +122,9 @@ export default function VerdictScreen() {
         }
       }
     } catch {
-      // best-effort
+      setSubmitting(false);
+      setErrorMsg(t('simulator.error_save'));
+      return;
     }
     setSubmitting(false);
     setDone(true);
@@ -128,6 +132,7 @@ export default function VerdictScreen() {
 
   // ── Result screen ───────────────────────────────────────────────
   if (done && play) {
+    // result screen
     const numbers = (play.numbers ?? {}) as Record<string, number>;
     const finalProfit = numbers.final_profit ?? numbers.net_profit ?? numbers.gross_profit ?? 0;
     const profitColor = finalProfit < 0 ? colors.error : GOLD;
@@ -282,6 +287,7 @@ export default function VerdictScreen() {
   // ── Decision screen ─────────────────────────────────────────────
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12} style={{ padding: 4 }}>

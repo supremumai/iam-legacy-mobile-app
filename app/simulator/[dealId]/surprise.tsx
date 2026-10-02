@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -36,6 +36,7 @@ export default function SurpriseScreen() {
   const [flipped, setFlipped] = useState(false);
   const [card, setCard] = useState<SimSurpriseCard | null>(null);
   const [numbers, setNumbers] = useState<Record<string, number>>({});
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const flipValue = useSharedValue(0);
 
@@ -48,7 +49,7 @@ export default function SurpriseScreen() {
         setCard(deal.surprise_cards[0] ?? null);
         if (play?.numbers) setNumbers(play.numbers as Record<string, number>);
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [dealId, playId]);
 
@@ -99,7 +100,7 @@ export default function SurpriseScreen() {
     const impact = card?.impact_amount ?? 0;
     const delta = card?.impact_type === 'negative' ? -Math.abs(impact) : Math.abs(impact);
     await persist(true, delta);
-    router.push(`/simulator/${dealId}/verdict?playId=${playId ?? ''}` as any);
+    router.push(`/simulator/${dealId}/numbers?playId=${playId ?? ''}&adjusting=true` as any);
   };
 
   const handleKeep = async () => {
@@ -122,6 +123,7 @@ export default function SurpriseScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12} style={{ padding: 4 }}>

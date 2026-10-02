@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   FlatList,
   LayoutAnimation,
@@ -12,6 +11,7 @@ import {
   UIManager,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -61,37 +61,25 @@ export default function DossierScreen() {
   const [cardIndex, setCardIndex] = useState(0);
   const [fichasLeft, setFichasLeft] = useState(MAX_FICHAS);
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
-  const [hintShown, setHintShown] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const flatRef = useRef<FlatList>(null);
 
   useEffect(() => {
     fetchDealFull(dealId)
       .then(setDeal)
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [dealId]);
 
   const handleReveal = (fact: SimDealFact) => {
     if (revealedIds.has(fact.id)) return;
-
-    const doReveal = () => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      const next = new Set(revealedIds);
-      next.add(fact.id);
-      setRevealedIds(next);
-      setFichasLeft((f) => f - 1);
-
-      if (playId) {
-        updatePlay(playId, { facts_investigated: Array.from(next) }).catch(() => {});
-      }
-    };
-
-    if (!hintShown) {
-      Alert.alert('', t('simulator.stage2_fichas_hint'), [
-        { text: t('common.ok'), onPress: () => { setHintShown(true); doReveal(); } },
-      ]);
-    } else {
-      doReveal();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    const next = new Set(revealedIds);
+    next.add(fact.id);
+    setRevealedIds(next);
+    setFichasLeft((f) => f - 1);
+    if (playId) {
+      updatePlay(playId, { facts_investigated: Array.from(next) }).catch(() => {});
     }
   };
 
@@ -114,6 +102,7 @@ export default function DossierScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <Pressable
@@ -129,12 +118,23 @@ export default function DossierScreen() {
         {/* Stage badge */}
         <View style={{ backgroundColor: GOLD, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
           <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 11, color: colors.background, textTransform: 'uppercase', letterSpacing: 1 }}>
-            Etapa 2
+            {t('simulator.stage2_badge')}
           </Text>
         </View>
       </View>
 
-      {/* Dossier cards — horizontal FlatList */}
+      {/* Dossier cards — horizontal FlatList with chevron affordance */}
+      <View style={{ position: 'relative' }}>
+      {cardIndex > 0 && (
+        <View style={{ position: 'absolute', left: 4, top: '50%', zIndex: 10, marginTop: -16, opacity: 0.7 }}>
+          <Ionicons name="chevron-back" size={28} color={GOLD} />
+        </View>
+      )}
+      {cardIndex < cards.length - 1 && (
+        <View style={{ position: 'absolute', right: 4, top: '50%', zIndex: 10, marginTop: -16, opacity: 0.7 }}>
+          <Ionicons name="chevron-forward" size={28} color={GOLD} />
+        </View>
+      )}
       <FlatList
         ref={flatRef}
         data={cards}
@@ -172,6 +172,7 @@ export default function DossierScreen() {
         )}
         style={{ flexGrow: 0 }}
       />
+      </View>
 
       {/* Progress dots */}
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 14 }}>
@@ -190,6 +191,10 @@ export default function DossierScreen() {
 
       {/* Research budget */}
       <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+        {/* Static hint — FIX 6 */}
+        <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted, marginBottom: 12 }}>
+          {t('simulator.stage2_fichas_hint')}
+        </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.textMuted }}>
             {t('simulator.stage2_fichas_label')}

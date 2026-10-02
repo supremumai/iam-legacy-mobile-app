@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,6 +39,7 @@ export default function LoanScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [downPctIdx, setDownPctIdx] = useState(3); // default 20%
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Numbers from previous stage
   const [numbers, setNumbers] = useState<Record<string, number>>({});
@@ -50,7 +51,7 @@ export default function LoanScreen() {
         const n = (play.numbers ?? {}) as Record<string, number>;
         setNumbers(n);
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [playId]);
 
@@ -105,6 +106,7 @@ export default function LoanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12} style={{ padding: 4 }}>
@@ -162,13 +164,17 @@ export default function LoanScreen() {
         {/* Loan breakdown */}
         <View style={{ backgroundColor: CARD_BG, borderRadius: 14, padding: 18, borderWidth: 1, borderColor: colors.border, gap: 12 }}>
           {[
-            { label: t('simulator.stage5_loan_amount'), value: fmt(loanAmount) },
-            { label: t('simulator.stage5_points'), value: fmt(points) },
-            { label: t('simulator.stage5_interest'), value: fmt(interest) },
-          ].map(({ label, value }) => (
-            <View key={label} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted }}>{label}</Text>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textSecondary }}>{value}</Text>
+            { label: t('simulator.stage5_financed_amount'), value: fmt(loanAmount), hint: `(${t('simulator.stage5_financed_hint', { pct: Math.round((1 - downPct) * 100) })})` },
+            { label: t('simulator.stage5_interest'), value: fmt(interest), hint: `${LOAN_ANNUAL_RATE * 100}% ${t('simulator.stage5_annual')} × ${holdingMonths} ${t('simulator.stage4_months_unit')}` },
+            { label: t('simulator.stage5_points'), value: fmt(points), hint: `${LOAN_POINTS * 100}% ${t('simulator.stage5_of_loan')}` },
+            { label: t('simulator.stage5_loan_total'), value: fmt(points + interest), hint: null },
+          ].map(({ label, value, hint }) => (
+            <View key={label}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted }}>{label}</Text>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textSecondary }}>{value}</Text>
+              </View>
+              {hint ? <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textFaint, marginTop: 2 }}>{hint}</Text> : null}
             </View>
           ))}
           <View style={{ height: 1, backgroundColor: colors.border }} />

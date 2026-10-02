@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,11 +40,12 @@ export default function ZoningScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [done, setDone] = useState(false);
   const [persisting, setPersisting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDealFull(dealId)
       .then((d) => setQuestions(d.zoning_questions))
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [dealId]);
 
@@ -53,7 +54,7 @@ export default function ZoningScreen() {
 
   const handleOption = (opt: OptionKey) => {
     if (answer.revealed) return;
-    const isCorrect = opt === (current?.correct_option as OptionKey);
+    const isCorrect = opt.toLowerCase() === (current?.correct_option ?? '').toLowerCase();
     const nextCorrect = isCorrect ? correctCount + 1 : correctCount;
     setAnswer({ chosen: opt, correct: isCorrect, revealed: true });
     if (isCorrect) setCorrectCount(nextCorrect);
@@ -89,6 +90,7 @@ export default function ZoningScreen() {
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
         <ActivityIndicator color={colors.gold} size="large" />
       </View>
     );
@@ -103,6 +105,7 @@ export default function ZoningScreen() {
 
     return (
       <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
         <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1, padding: 4 })}>
             <Ionicons name="arrow-back" size={24} color={GOLD} />
@@ -154,7 +157,7 @@ export default function ZoningScreen() {
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
           <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textMuted, textAlign: 'center', marginBottom: 24 }}>
-            No zoning questions for this deal yet.
+            {t('simulator.stage3_no_questions')}
           </Text>
           <TouchableOpacity onPress={handleNumbers} activeOpacity={0.8} style={{ backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32 }}>
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.background }}>{t('simulator.stage3_results_btn')}</Text>
@@ -171,16 +174,19 @@ export default function ZoningScreen() {
     ...(current.option_c ? [{ key: 'c' as OptionKey, label: current.option_c }] : []),
   ];
 
+  const isCorrectOpt = (opt: OptionKey) =>
+    opt.toLowerCase() === (current?.correct_option ?? '').toLowerCase();
+
   const optionBorderColor = (opt: OptionKey): string => {
     if (!answer.revealed) return colors.border;
-    if (opt === (current.correct_option as OptionKey)) return colors.success;
+    if (isCorrectOpt(opt)) return colors.success;
     if (opt === answer.chosen) return colors.error;
     return colors.border;
   };
 
   const optionBg = (opt: OptionKey): string => {
     if (!answer.revealed) return CARD_BG;
-    if (opt === (current.correct_option as OptionKey)) return colors.successBg;
+    if (isCorrectOpt(opt)) return colors.successBg;
     if (opt === answer.chosen) return colors.errorBg;
     return CARD_BG;
   };
@@ -237,7 +243,7 @@ export default function ZoningScreen() {
                 width: 28,
                 height: 28,
                 borderRadius: 14,
-                backgroundColor: answer.revealed && key === (current.correct_option as OptionKey)
+                backgroundColor: answer.revealed && isCorrectOpt(key)
                   ? colors.success
                   : answer.revealed && key === answer.chosen
                     ? colors.error
