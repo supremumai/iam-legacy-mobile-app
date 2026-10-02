@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useColors } from '../../../contexts/ThemeContext';
 import { Fonts } from '../../../constants/fonts';
-import { fetchDealFull, updatePlay, SimDealFull } from '../../../lib/simulator';
+import { fetchDealFull, fetchPlay, updatePlay, SimDealFull } from '../../../lib/simulator';
 
 // ── Tunable constants ─────────────────────────────────────────────
 const DEFAULT_COST_PER_SQFT = 120; // $ per sqft construction cost
@@ -81,7 +81,8 @@ function calcNumbers(deal: SimDealFull, buildSqft: number, holdingMonths: number
 }
 
 export default function NumbersScreen() {
-  const { dealId, playId } = useLocalSearchParams<{ dealId: string; playId: string }>();
+  const { dealId, playId, adjusting } = useLocalSearchParams<{ dealId: string; playId: string; adjusting?: string }>();
+  const isAdjusting = adjusting === 'true';
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
@@ -91,22 +92,32 @@ export default function NumbersScreen() {
   const [deal, setDeal] = useState<SimDealFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [buildSqft, setBuildSqft] = useState(2000);
   const [holdingMonths, setHoldingMonths] = useState(12);
   const [salePrice, setSalePrice] = useState(500000);
 
   useEffect(() => {
-    fetchDealFull(dealId)
-      .then((d) => {
+    const dealPromise = fetchDealFull(dealId);
+    const playPromise = (isAdjusting && playId) ? fetchPlay(playId) : Promise.resolve(null);
+    Promise.all([dealPromise, playPromise])
+      .then(([d, play]) => {
         setDeal(d);
-        setBuildSqft(d.expert_build_sqft ?? 2000);
-        setHoldingMonths(d.expert_holding_months ?? 12);
-        setSalePrice(d.expert_sale_price ?? Math.round(d.price * 1.6));
+        if (isAdjusting && play?.numbers) {
+          const n = play.numbers as Record<string, number>;
+          setBuildSqft(n.build_sqft ?? d.expert_build_sqft ?? 2000);
+          setHoldingMonths(n.holding_months ?? d.expert_holding_months ?? 12);
+          setSalePrice(n.sale_price ?? d.expert_sale_price ?? Math.round(d.price * 1.6));
+        } else {
+          setBuildSqft(d.expert_build_sqft ?? 2000);
+          setHoldingMonths(d.expert_holding_months ?? 12);
+          setSalePrice(d.expert_sale_price ?? Math.round(d.price * 1.6));
+        }
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
-  }, [dealId]);
+  }, [dealId, playId, isAdjusting]);
 
   if (loading || !deal) {
     return (
@@ -142,11 +153,16 @@ export default function NumbersScreen() {
       // best-effort
     }
     setSaving(false);
-    router.push(`/simulator/${dealId}/loan?playId=${playId ?? ''}` as any);
+    if (isAdjusting) {
+      router.push(`/simulator/${dealId}/surprise?playId=${playId ?? ''}` as any);
+    } else {
+      router.push(`/simulator/${dealId}/loan?playId=${playId ?? ''}` as any);
+    }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12} style={{ padding: 4 }}>
@@ -211,13 +227,16 @@ export default function NumbersScreen() {
         {/* Summary card */}
         <View style={{ backgroundColor: CARD_BG, borderRadius: 14, padding: 18, marginTop: 8, borderWidth: 1, borderColor: colors.border, gap: 10 }}>
           {[
-            { label: t('simulator.stage4_construction'), value: fmt(constructionCost) },
-            { label: t('simulator.stage4_holding_cost'), value: fmt(holdingCost) },
-            { label: t('simulator.stage4_closing_cost'), value: fmt(closingCost) },
-          ].map(({ label, value }) => (
-            <View key={label} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted }}>{label}</Text>
-              <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textSecondary }}>{value}</Text>
+            { label: t('simulator.stage4_construction'), value: fmt(constructionCost), hint: `${buildSqft.toLocaleString()} sqft × $${deal.expert_cost_per_sqft ?? DEFAULT_COST_PER_SQFT}/sqft` },
+            { label: t('simulator.stage4_holding_cost'), value: fmt(holdingCost), hint: `${HOLDING_RATE_PER_MONTH * 100}% × ${holdingMonths} ${t('simulator.stage4_months_unit')}` },
+            { label: t('simulator.stage4_closing_cost'), value: fmt(closingCost), hint: `${((deal.expert_closing_pct ?? 0.05) * 100).toFixed(0)}% ${t('simulator.stage4_of_sale')}` },
+          ].map(({ label, value, hint }) => (
+            <View key={label}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted }}>{label}</Text>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textSecondary }}>{value}</Text>
+              </View>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textFaint, marginTop: 2 }}>{hint}</Text>
             </View>
           ))}
           <View style={{ height: 1, backgroundColor: colors.border }} />
@@ -238,7 +257,7 @@ export default function NumbersScreen() {
             <ActivityIndicator color={colors.background} size="small" />
           ) : (
             <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 16, color: colors.background }}>
-              {t('simulator.stage4_continue')}
+              {isAdjusting ? t('simulator.stage4_back_to_surprise') : t('simulator.stage4_continue')}
             </Text>
           )}
         </TouchableOpacity>

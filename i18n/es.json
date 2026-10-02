@@ -413,7 +413,9 @@
     "admin_save_and_continue": "Guardar y Configurar Video",
     "admin_add_question": "Agregar Pregunta",
     "admin_delete_question": "Eliminar Pregunta",
-    "admin_delete_question_confirm": "¿Eliminar esta pregunta del quiz?"
+    "admin_delete_question_confirm": "¿Eliminar esta pregunta del quiz?",
+    "tab_courses": "Cursos",
+    "tab_simulator": "Simulador"
   },
   "post": {
     "char_counter": "%{count} / %{max}",
@@ -607,6 +609,19 @@
     "admin_surprise_related_fact": "Título de Hecho Relacionado",
     "admin_remove": "Eliminar",
     "admin_move_up": "Subir",
-    "admin_move_down": "Bajar"
+    "admin_move_down": "Bajar",
+    "error_generic": "Algo salió mal. Intenta de nuevo.",
+    "error_save": "No se pudo guardar tu veredicto. Intenta de nuevo.",
+    "stage2_badge": "Etapa 2",
+    "stage3_no_questions": "Aún no hay preguntas de zoning para este deal.",
+    "stage4_of_sale": "del precio de venta",
+    "stage4_back_to_surprise": "Volver a Sorpresa",
+    "stage5_financed_amount": "Monto Financiado",
+    "stage5_financed_hint": "%{pct}% de la base del préstamo",
+    "stage5_annual": "anual",
+    "stage5_of_loan": "del préstamo",
+    "stage5_loan_total": "Costo Total del Préstamo",
+    "no_deals_yet": "Sin deals aún. Crea uno con el botón de arriba.",
+    "no_deals_member": "No hay deals disponibles aún. Vuelve pronto."
   }
 }

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../components/SimModal';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,6 +34,7 @@ export default function PortfolioScreen() {
   const [loading, setLoading] = useState(true);
   const [plays, setPlays] = useState<SimPlay[]>([]);
   const [dealsMap, setDealsMap] = useState<Record<string, SimDeal>>({});
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user?.id) { setLoading(false); return; }
@@ -48,7 +49,7 @@ export default function PortfolioScreen() {
           setDealsMap(map);
         }
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [user?.id]);
 
@@ -71,6 +72,7 @@ export default function PortfolioScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Header */}
       <View style={{ paddingTop: insets.top + 12, paddingHorizontal: 20, paddingBottom: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12} style={{ padding: 4 }}>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   Image,
   Pressable,
@@ -9,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SimModal } from '../../../components/SimModal';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,6 +32,7 @@ export default function Stage1Screen() {
   const [lastPlay, setLastPlay] = useState<SimPlay | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState<'yes' | 'no' | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDealFull(dealId)
@@ -43,7 +44,7 @@ export default function Stage1Screen() {
             .catch(() => {});
         }
       })
-      .catch((e) => Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error')))
+      .catch(() => setErrorMsg(t('common.unknown_error')))
       .finally(() => setLoading(false));
   }, [dealId, user?.id]);
 
@@ -51,10 +52,11 @@ export default function Stage1Screen() {
     if (!user?.id || !deal) return;
     setSubmitting(call);
     try {
-      const play = await createPlay({ user_id: user.id, deal_id: deal.id, gut_call: call });
+      const gutCall = call === 'yes' ? 'build' : 'no';
+      const play = await createPlay({ user_id: user.id, deal_id: deal.id, gut_call: gutCall });
       router.push(`/simulator/${dealId}/dossier?playId=${play.id}` as any);
-    } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message ?? t('common.unknown_error'));
+    } catch {
+      setErrorMsg(t('simulator.error_generic'));
     } finally {
       setSubmitting(null);
     }
@@ -74,6 +76,7 @@ export default function Stage1Screen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <SimModal visible={!!errorMsg} message={errorMsg ?? ''} onClose={() => setErrorMsg(null)} />
       {/* Full-screen background */}
       {deal.image_url ? (
         <Image

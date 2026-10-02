@@ -27,6 +27,7 @@ export default function EducationScreen() {
   const { previewAsMember, togglePreview } = useEducationPreview();
   const colors = useColors();
 
+  const [activeTab, setActiveTab] = useState<'courses' | 'simulator'>('courses');
   const [tracks, setTracks] = useState<EduTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -130,17 +131,22 @@ export default function EducationScreen() {
     );
   }
 
+  const tabs: { key: 'courses' | 'simulator'; label: string }[] = [
+    { key: 'courses', label: t('education.tab_courses') },
+    { key: 'simulator', label: t('education.tab_simulator') },
+  ];
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <GlobalHeader />
 
-        <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 20 }}>
+        <View style={{ paddingHorizontal: 20, marginTop: 16, marginBottom: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text style={{ fontFamily: Fonts.heading, fontSize: 24, color: colors.gold }}>
               {t('education.title')}
             </Text>
-            {showAdminContent && (
+            {activeTab === 'courses' && showAdminContent && (
               <TouchableOpacity
                 onPress={() => router.push('/education/admin/track-form' as any)}
                 activeOpacity={0.7}
@@ -152,21 +158,51 @@ export default function EducationScreen() {
                 </Text>
               </TouchableOpacity>
             )}
+            {activeTab === 'simulator' && showAdminContent && (
+              <TouchableOpacity
+                onPress={() => router.push('/simulator/admin/deal-form' as any)}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+              >
+                <Ionicons name="add-circle-outline" size={20} color={colors.gold} />
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.gold }}>
+                  {t('simulator.admin_new_deal')}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <Text
-            style={{
-              fontFamily: Fonts.body,
-              fontSize: 14,
-              color: colors.textMuted,
-              marginTop: 4,
-            }}
-          >
+          <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textMuted, marginTop: 4 }}>
             {t('education.lms_subtitle')}
           </Text>
 
+          {/* Pill segmented control */}
+          <View style={{ flexDirection: 'row', marginTop: 16, backgroundColor: colors.surface, borderRadius: 12, padding: 4, borderWidth: 1, borderColor: colors.border }}>
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key)}
+                activeOpacity={0.8}
+                style={{
+                  flex: 1,
+                  paddingVertical: 9,
+                  alignItems: 'center',
+                  borderRadius: 9,
+                  backgroundColor: activeTab === tab.key ? colors.gold : 'transparent',
+                }}
+              >
+                <Text style={{
+                  fontFamily: Fonts.bodyBold,
+                  fontSize: 14,
+                  color: activeTab === tab.key ? colors.background : colors.textMuted,
+                }}>
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-          {/* Admin-only preview toggle */}
-          {isAdmin && (
+          {/* Admin-only preview toggle — only shown on Courses tab */}
+          {isAdmin && activeTab === 'courses' && (
             <View
               style={{
                 flexDirection: 'row',
@@ -202,85 +238,69 @@ export default function EducationScreen() {
           )}
         </View>
 
-        {/* Continue Learning strip — only shown when user has an in-progress module */}
-        {continueLearning ? (
+        {/* COURSES TAB */}
+        {activeTab === 'courses' && (
           <>
-            <Text
-              style={{
-                fontFamily: Fonts.heading,
-                fontSize: 18,
-                color: colors.gold,
-                paddingHorizontal: 20,
-                marginTop: 8,
-                marginBottom: 12,
-              }}
-            >
-              {t('education.continue_learning')}
-            </Text>
-            <ContinueLearningCard
-              item={continueLearning}
-              onPress={() => {
-                if (continueLearning.videoWatched) {
-                  router.push(
-                    `/education/module/${continueLearning.moduleId}/quiz` as any,
-                  );
-                } else {
-                  router.push(
-                    `/education/module/${continueLearning.moduleId}` as any,
-                  );
-                }
-              }}
-            />
-          </>
-        ) : null}
-
-        {loading ? (
-          <View style={{ alignItems: 'center', paddingVertical: 48 }}>
-            <ActivityIndicator color={colors.gold} size="large" />
-          </View>
-        ) : tracks.length === 0 ? (
-          <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
-            <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary, textAlign: 'center' }}>
-              {t('education.no_tracks_yet')}
-            </Text>
-          </View>
-        ) : (
-          tracks.map((track, index) => (
-            <TrackCard
-              key={track.id}
-              track={track}
-              index={index}
-              onPress={() => handleTrackPress(track)}
-              isDraft={showAdminContent && !track.is_published}
-              onEdit={showAdminContent ? () => router.push(`/education/admin/track-form?id=${track.id}` as any) : undefined}
-            />
-          ))
-        )}
-
-        {/* Simulator section */}
-        {(deals.length > 0 || showAdminContent) && (
-          <View style={{ marginTop: 28 }}>
-            <View style={{ paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: Fonts.headingHeavy, fontSize: 22, color: colors.gold }}>
-                  {t('simulator.section_title')}
+            {/* Continue Learning strip */}
+            {continueLearning ? (
+              <>
+                <Text
+                  style={{
+                    fontFamily: Fonts.heading,
+                    fontSize: 18,
+                    color: colors.gold,
+                    paddingHorizontal: 20,
+                    marginTop: 8,
+                    marginBottom: 12,
+                  }}
+                >
+                  {t('education.continue_learning')}
                 </Text>
-                <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted, marginTop: 2 }}>
-                  {t('simulator.section_subtitle')}
+                <ContinueLearningCard
+                  item={continueLearning}
+                  onPress={() => {
+                    if (continueLearning.videoWatched) {
+                      router.push(`/education/module/${continueLearning.moduleId}/quiz` as any);
+                    } else {
+                      router.push(`/education/module/${continueLearning.moduleId}` as any);
+                    }
+                  }}
+                />
+              </>
+            ) : null}
+
+            {loading ? (
+              <View style={{ alignItems: 'center', paddingVertical: 48 }}>
+                <ActivityIndicator color={colors.gold} size="large" />
+              </View>
+            ) : tracks.length === 0 ? (
+              <View style={{ alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32 }}>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary, textAlign: 'center' }}>
+                  {t('education.no_tracks_yet')}
                 </Text>
               </View>
-              {showAdminContent && (
-                <TouchableOpacity
-                  onPress={() => router.push('/simulator/admin/deal-form' as any)}
-                  activeOpacity={0.7}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
-                >
-                  <Ionicons name="add-circle-outline" size={20} color={colors.gold} />
-                  <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 13, color: colors.gold }}>
-                    {t('simulator.admin_new_deal')}
-                  </Text>
-                </TouchableOpacity>
-              )}
+            ) : (
+              tracks.map((track, index) => (
+                <TrackCard
+                  key={track.id}
+                  track={track}
+                  index={index}
+                  onPress={() => handleTrackPress(track)}
+                  isDraft={showAdminContent && !track.is_published}
+                  onEdit={showAdminContent ? () => router.push(`/education/admin/track-form?id=${track.id}` as any) : undefined}
+                />
+              ))
+            )}
+          </>
+        )}
+
+        {/* SIMULATOR TAB */}
+        {activeTab === 'simulator' && (
+          <View style={{ marginTop: 4 }}>
+            <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
+              <Text style={{ fontFamily: Fonts.body, fontSize: 13, color: colors.textMuted }}>
+                {t('simulator.section_subtitle')}
+              </Text>
             </View>
 
             {/* Portfolio entry card */}
@@ -320,7 +340,6 @@ export default function EducationScreen() {
                   borderColor: colors.border,
                 })}
               >
-                {/* Cover image or dark-gold fallback */}
                 {deal.image_url ? (
                   <Image
                     source={{ uri: deal.image_url }}
@@ -385,7 +404,15 @@ export default function EducationScreen() {
             {showAdminContent && deals.length === 0 && (
               <View style={{ paddingHorizontal: 20, paddingVertical: 24, alignItems: 'center' }}>
                 <Text style={{ fontFamily: Fonts.body, fontSize: 14, color: colors.textFaint, textAlign: 'center' }}>
-                  No deals yet. Create one with the button above.
+                  {t('simulator.no_deals_yet')}
+                </Text>
+              </View>
+            )}
+
+            {!showAdminContent && deals.length === 0 && (
+              <View style={{ paddingHorizontal: 20, paddingVertical: 48, alignItems: 'center' }}>
+                <Text style={{ fontFamily: Fonts.bodySemiBold, fontSize: 15, color: colors.textPrimary, textAlign: 'center' }}>
+                  {t('simulator.no_deals_member')}
                 </Text>
               </View>
             )}
