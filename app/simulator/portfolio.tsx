@@ -145,9 +145,9 @@ export default function PortfolioScreen() {
                 style={{ backgroundColor: CARD_BG, borderRadius: 14, marginBottom: 12, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}
               >
                 {deal?.image_url ? (
-                  <Image source={{ uri: deal.image_url }} style={{ width: '100%', height: 110 }} resizeMode="cover" />
+                  <Image source={{ uri: deal.image_url }} style={{ width: '100%', aspectRatio: 16 / 9 }} resizeMode="cover" />
                 ) : (
-                  <View style={{ width: '100%', height: 110, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
                     <Ionicons name="business-outline" size={36} color={GOLD} style={{ opacity: 0.35 }} />
                   </View>
                 )}
