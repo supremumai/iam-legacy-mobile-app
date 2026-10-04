@@ -32,13 +32,17 @@ function fmt(n: number | null | undefined) {
   return '$' + Math.round(n).toLocaleString();
 }
 
+function normDecision(d: string): string {
+  return d === 'pass' ? 'no_buy' : d;
+}
+
 function calcRating(deal: SimDealFull, play: SimPlay): number {
   let score = 0;
   const numbers = (play.numbers ?? {}) as Record<string, number>;
 
-  // Decision match
-  const expertDecision = (deal.expert_decision ?? '').toLowerCase();
-  const userDecision = (play.decision ?? '').toLowerCase();
+  // Decision match — normalize 'pass'/'no_buy' as equivalent
+  const expertDecision = normDecision((deal.expert_decision ?? '').toLowerCase());
+  const userDecision = normDecision((play.decision ?? '').toLowerCase());
   if (expertDecision && userDecision && expertDecision === userDecision) score += 1;
 
   // Zoning
@@ -98,13 +102,15 @@ export default function VerdictScreen() {
   const handleSubmit = async () => {
     if (!decision) return;
     setSubmitting(true);
-    const finalPlay = play ? { ...play, decision } : null;
+    // Map UI values to DB-constrained values
+    const dbDecision = decision === 'pass' ? 'no_buy' : decision;
+    const finalPlay = play ? { ...play, decision: dbDecision } : null;
     let computedRating = 0;
     if (finalPlay) {
-      finalPlay.decision = decision;
       computedRating = calcRating(deal, finalPlay);
     }
     setRating(computedRating);
+    const ratingString = computedRating === 3 ? 'deal_maker' : computedRating === 2 ? 'casi' : 'riesgoso';
     try {
       if (playId) {
         const numbers = (play?.numbers ?? {}) as Record<string, number>;
@@ -112,10 +118,10 @@ export default function VerdictScreen() {
           ? (strategyText || visionText || null)
           : (visionText || null);
         await updatePlay(playId, {
-          decision,
+          decision: dbDecision,
           vision_text: visionFinal,
           profit_estimate: numbers.final_profit ?? null,
-          rating: String(computedRating),
+          rating: ratingString,
         });
         if (computedRating === 3 && user?.id) {
           await awardPointsIfFirstThreeStar(user.id, playId).catch(() => {});
@@ -145,8 +151,8 @@ export default function VerdictScreen() {
     const tableRows: { label: string; you: string; expert: string }[] = [
       {
         label: t('simulator.stage7_row_build_sqft'),
-        you: numbers.build_sqft ? `${Math.round(numbers.build_sqft).toLocaleString()} sqft` : '—',
-        expert: deal.expert_build_sqft ? `${deal.expert_build_sqft.toLocaleString()} sqft` : '—',
+        you: numbers.build_sqft ? `${Math.round(numbers.build_sqft).toLocaleString()} ${t('simulator.sqft_unit')}` : '—',
+        expert: deal.expert_build_sqft ? `${deal.expert_build_sqft.toLocaleString()} ${t('simulator.sqft_unit')}` : '—',
       },
       {
         label: t('simulator.stage7_row_sale_price'),
@@ -166,13 +172,13 @@ export default function VerdictScreen() {
       {
         label: t('simulator.stage7_row_decision'),
         you: decision === 'build' ? t('simulator.stage7_build_label') : decision === 'pass' ? t('simulator.stage7_pass_label') : t('simulator.stage7_other_label'),
-        expert: (deal.expert_decision ?? '').toLowerCase() === 'build'
-          ? t('simulator.stage7_build_label')
-          : (deal.expert_decision ?? '').toLowerCase() === 'pass'
-            ? t('simulator.stage7_pass_label')
-            : (deal.expert_decision ?? '').toLowerCase() === 'other'
-              ? t('simulator.stage7_other_label')
-              : deal.expert_decision ?? '—',
+        expert: (() => {
+          const ed = normDecision((deal.expert_decision ?? '').toLowerCase());
+          if (ed === 'build') return t('simulator.stage7_build_label');
+          if (ed === 'no_buy') return t('simulator.stage7_pass_label');
+          if (ed === 'other') return t('simulator.stage7_other_label');
+          return deal.expert_decision ?? '—';
+        })(),
       },
     ];
 

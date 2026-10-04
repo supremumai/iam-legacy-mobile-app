@@ -201,7 +201,7 @@ export async function awardPointsIfFirstThreeStar(userId: string, playId: string
     .from('sim_plays')
     .select('id')
     .eq('user_id', userId)
-    .eq('rating', '3')
+    .eq('rating', 'deal_maker')
     .neq('id', playId)
     .limit(1);
   if (existing && existing.length > 0) return; // already earned

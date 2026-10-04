@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
+import { useEducationPreview } from '../contexts/EducationPreviewContext';
 import { Fonts } from '../constants/fonts';
 import { supabase } from '../lib/supabase';
 
@@ -97,6 +98,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const { t } = useLanguage();
   const isAdmin = useIsAdmin();
+  const { previewAsMember, togglePreview } = useEducationPreview();
 
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [notifLoading, setNotifLoading] = useState(true);
@@ -252,6 +254,19 @@ export default function SettingsScreen() {
                 label={t('settings.update_status_row')}
                 onPress={() => router.push('/admin/update-status' as any)}
                 colors={colors}
+              />
+              <SettingsRow
+                icon="eye-outline"
+                label={previewAsMember ? t('education.preview_mode_on') : t('education.preview_view_as_member')}
+                colors={colors}
+                right={
+                  <Switch
+                    value={previewAsMember}
+                    onValueChange={togglePreview}
+                    trackColor={{ false: colors.borderSubtle, true: colors.gold }}
+                    thumbColor={previewAsMember ? colors.gold : colors.background}
+                  />
+                }
               />
             </View>
           </>

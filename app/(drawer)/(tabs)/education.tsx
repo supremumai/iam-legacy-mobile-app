@@ -1,5 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -24,7 +24,7 @@ export default function EducationScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
-  const { previewAsMember, togglePreview } = useEducationPreview();
+  const { previewAsMember } = useEducationPreview();
   const colors = useColors();
 
   const [activeTab, setActiveTab] = useState<'courses' | 'simulator'>('courses');
@@ -201,41 +201,6 @@ export default function EducationScreen() {
             ))}
           </View>
 
-          {/* Admin-only preview toggle — only shown on Courses tab */}
-          {isAdmin && activeTab === 'courses' && (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 14,
-                paddingVertical: 10,
-                paddingHorizontal: 14,
-                backgroundColor: previewAsMember ? colors.borderSubtle : colors.whiteOverlay4,
-                borderWidth: 1,
-                borderColor: previewAsMember ? colors.borderStrong : colors.whiteOverlay10,
-                borderRadius: 10,
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: Fonts.bodySemiBold,
-                  fontSize: 13,
-                  color: previewAsMember ? colors.gold : colors.textMuted,
-                }}
-              >
-                {previewAsMember
-                  ? t('education.preview_mode_on')
-                  : t('education.preview_view_as_member')}
-              </Text>
-              <Switch
-                value={previewAsMember}
-                onValueChange={togglePreview}
-                trackColor={{ false: colors.textFaint, true: colors.borderStrong }}
-                thumbColor={previewAsMember ? colors.gold : colors.textSecondary}
-              />
-            </View>
-          )}
         </View>
 
         {/* COURSES TAB */}
