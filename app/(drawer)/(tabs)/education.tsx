@@ -308,11 +308,11 @@ export default function EducationScreen() {
                 {deal.image_url ? (
                   <Image
                     source={{ uri: deal.image_url }}
-                    style={{ width: '100%', height: 160 }}
+                    style={{ width: '100%', aspectRatio: 16 / 9 }}
                     resizeMode="cover"
                   />
                 ) : (
-                  <View style={{ width: '100%', height: 160, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
                     <Ionicons name="business-outline" size={48} color={colors.gold} style={{ opacity: 0.4 }} />
                   </View>
                 )}
