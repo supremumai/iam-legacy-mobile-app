@@ -196,7 +196,7 @@ export default function NumbersScreen() {
         <Stepper
           label={t('simulator.stage4_build_sqft')}
           value={buildSqft}
-          unit="sqft"
+          unit={t('simulator.sqft_unit')}
           step={250}
           min={500}
           max={10000}
@@ -227,7 +227,7 @@ export default function NumbersScreen() {
         {/* Summary card */}
         <View style={{ backgroundColor: CARD_BG, borderRadius: 14, padding: 18, marginTop: 8, borderWidth: 1, borderColor: colors.border, gap: 10 }}>
           {[
-            { label: t('simulator.stage4_construction'), value: fmt(constructionCost), hint: `${buildSqft.toLocaleString()} sqft × $${deal.expert_cost_per_sqft ?? DEFAULT_COST_PER_SQFT}/sqft` },
+            { label: t('simulator.stage4_construction'), value: fmt(constructionCost), hint: `${buildSqft.toLocaleString()} ${t('simulator.sqft_unit')} × $${deal.expert_cost_per_sqft ?? DEFAULT_COST_PER_SQFT}/${t('simulator.sqft_unit')}` },
             { label: t('simulator.stage4_holding_cost'), value: fmt(holdingCost), hint: `${HOLDING_RATE_PER_MONTH * 100}% × ${holdingMonths} ${t('simulator.stage4_months_unit')}` },
             { label: t('simulator.stage4_closing_cost'), value: fmt(closingCost), hint: `${((deal.expert_closing_pct ?? 0.05) * 100).toFixed(0)}% ${t('simulator.stage4_of_sale')}` },
           ].map(({ label, value, hint }) => (

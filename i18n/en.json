@@ -486,6 +486,7 @@
     "stage4_holding": "Holding Period",
     "stage4_sale_price": "Sale Price",
     "stage4_sqft_unit": "sqft",
+    "sqft_unit": "sqft",
     "stage4_months_unit": "mo",
     "stage4_construction": "Construction Cost",
     "stage4_holding_cost": "Holding Cost",

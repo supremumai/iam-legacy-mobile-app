@@ -486,6 +486,7 @@
     "stage4_holding": "Tiempo de Tenencia",
     "stage4_sale_price": "Precio de Venta",
     "stage4_sqft_unit": "sqft",
+    "sqft_unit": "sqft",
     "stage4_months_unit": "mes",
     "stage4_construction": "Costo de Construcción",
     "stage4_holding_cost": "Costo de Tenencia",

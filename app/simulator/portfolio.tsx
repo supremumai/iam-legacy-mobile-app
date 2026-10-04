@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -53,14 +54,22 @@ export default function PortfolioScreen() {
       .finally(() => setLoading(false));
   }, [user?.id]);
 
+  const normDecision = (d: string) => d === 'pass' ? 'no_buy' : d;
+  const ratingToNum = (r: string | null | undefined): number => {
+    if (r === 'deal_maker') return 3;
+    if (r === 'casi') return 2;
+    if (r === 'riesgoso') return 1;
+    return 0;
+  };
+
   const totalPlayed = plays.length;
   const expertMatchCount = plays.filter((p) => {
     const deal = p.deal_id ? dealsMap[p.deal_id] : null;
     if (!deal) return false;
-    return (deal.expert_decision ?? '').toLowerCase() === (p.decision ?? '').toLowerCase();
+    return normDecision((deal.expert_decision ?? '').toLowerCase()) === normDecision((p.decision ?? '').toLowerCase());
   }).length;
   const accuracyPct = totalPlayed > 0 ? Math.round((expertMatchCount / totalPlayed) * 100) : 0;
-  const bestRating = plays.reduce((max, p) => Math.max(max, Number(p.rating ?? 0)), 0);
+  const bestRating = plays.reduce((max, p) => Math.max(max, ratingToNum(p.rating)), 0);
 
   if (loading) {
     return (
@@ -121,20 +130,28 @@ export default function PortfolioScreen() {
             const deal = play.deal_id ? dealsMap[play.deal_id] : null;
             const nums = (play.numbers ?? {}) as Record<string, number>;
             const profit = play.profit_estimate ?? nums.final_profit ?? null;
-            const ratingNum = Number(play.rating ?? 0);
+            const ratingNum = ratingToNum(play.rating);
             const decisionKey = play.decision === 'build'
               ? 'portfolio_decision_build'
-              : play.decision === 'pass'
+              : (play.decision === 'pass' || play.decision === 'no_buy')
                 ? 'portfolio_decision_pass'
                 : 'portfolio_decision_other';
-            const decisionColor = play.decision === 'build' ? GOLD : play.decision === 'pass' ? colors.error : colors.textMuted;
+            const decisionColor = play.decision === 'build' ? GOLD : (play.decision === 'pass' || play.decision === 'no_buy') ? colors.error : colors.textMuted;
             const date = new Date(play.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
             return (
               <View
                 key={play.id}
-                style={{ backgroundColor: CARD_BG, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border }}
+                style={{ backgroundColor: CARD_BG, borderRadius: 14, marginBottom: 12, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}
               >
+                {deal?.image_url ? (
+                  <Image source={{ uri: deal.image_url }} style={{ width: '100%', height: 110 }} resizeMode="cover" />
+                ) : (
+                  <View style={{ width: '100%', height: 110, backgroundColor: colors.surfaceDeep, alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="business-outline" size={36} color={GOLD} style={{ opacity: 0.35 }} />
+                  </View>
+                )}
+                <View style={{ padding: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 }}>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontFamily: Fonts.bodyBold, fontSize: 15, color: colors.textPrimary }} numberOfLines={1}>
@@ -169,6 +186,7 @@ export default function PortfolioScreen() {
                     </View>
                     <Text style={{ fontFamily: Fonts.body, fontSize: 11, color: colors.textFaint }}>{date}</Text>
                   </View>
+                </View>
                 </View>
               </View>
             );
