@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { excludeBlocked } from './moderation';
 
 /**
  * Normalize the `profiles` embed (arrives as an object or a single-element
@@ -70,16 +71,20 @@ export interface HomePostCard {
 }
 
 /** Fetch up to 5 most-recent posts with author name, avatar, and poll data resolved in one query. */
-export async function fetchRecentPosts(): Promise<{
+export async function fetchRecentPosts(blockedIds: Iterable<string> = []): Promise<{
   items: HomePostCard[];
   error: string | null;
 }> {
   try {
-    const { data, error } = await supabase
-      .from('posts')
-      .select(
-        'id, post_type, content, image_url, created_at, likes_count, comments_count, user_id, profiles(full_name, avatar_url), topics(name), polls(question, poll_options(id, label, sort_order, votes_count))',
-      )
+    const { data, error } = await excludeBlocked(
+      supabase
+        .from('posts')
+        .select(
+          'id, post_type, content, image_url, created_at, likes_count, comments_count, user_id, profiles(full_name, avatar_url), topics(name), polls(question, poll_options(id, label, sort_order, votes_count))',
+        ),
+      'user_id',
+      blockedIds,
+    )
       .order('created_at', { ascending: false })
       .limit(5);
 

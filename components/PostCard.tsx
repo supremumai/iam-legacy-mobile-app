@@ -13,6 +13,7 @@ import YouTubePreview from './YouTubePreview';
 import { useLanguage } from '../contexts/LanguageContext';
 import MentionText from './MentionText';
 import ActionSheet from './ActionSheet';
+import { useModeration } from './ModerationModals';
 
 interface PostCardProps {
   post: PostWithAuthor;
@@ -47,6 +48,7 @@ export default function PostCard({
   const isOwner = post.user_id === currentUserId;
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const moderation = useModeration();
   const author = post.author;
 
   const initials = getInitials(author?.full_name);
@@ -181,20 +183,18 @@ export default function PostCard({
           </View>
         )}
 
-        {/* Kebab menu (owner only) — fixed-size, far right, vertically centered */}
-        {isOwner && (
-          <Pressable
-            onPress={() => setOptionsVisible(true)}
-            hitSlop={8}
-            style={{ paddingLeft: 8 }}
-          >
-            {({ pressed }) => (
-              <View style={{ opacity: pressed ? 0.6 : 1 }}>
-                <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
-              </View>
-            )}
-          </Pressable>
-        )}
+        {/* Kebab menu — owner gets Edit/Delete, everyone else gets Report/Block */}
+        <Pressable
+          onPress={() => setOptionsVisible(true)}
+          hitSlop={8}
+          style={{ paddingLeft: 8 }}
+        >
+          {({ pressed }) => (
+            <View style={{ opacity: pressed ? 0.6 : 1 }}>
+              <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
+            </View>
+          )}
+        </Pressable>
       </View>
 
       {/* ── Topic pill — only when post has a topic ── */}
@@ -314,19 +314,35 @@ export default function PostCard({
         visible={optionsVisible}
         onClose={() => setOptionsVisible(false)}
         title={t('community.post_options')}
-        actions={[
-          {
-            label: t('community.edit_post'),
-            icon: 'create-outline',
-            onPress: () => onEditPost(post),
-          },
-          {
-            label: t('community.delete_post'),
-            icon: 'trash-outline',
-            destructive: true,
-            onPress: () => setDeleteConfirmVisible(true),
-          },
-        ]}
+        actions={
+          isOwner
+            ? [
+                {
+                  label: t('community.edit_post'),
+                  icon: 'create-outline',
+                  onPress: () => onEditPost(post),
+                },
+                {
+                  label: t('community.delete_post'),
+                  icon: 'trash-outline',
+                  destructive: true,
+                  onPress: () => setDeleteConfirmVisible(true),
+                },
+              ]
+            : [
+                {
+                  label: t('moderation.report'),
+                  icon: 'flag-outline',
+                  onPress: () => moderation.openReport({ type: 'post', id: post.id }),
+                },
+                {
+                  label: t('moderation.block_user'),
+                  icon: 'ban-outline',
+                  destructive: true,
+                  onPress: () => moderation.openBlock({ userId: post.user_id, name: displayName }),
+                },
+              ]
+        }
       />
 
       {/* Delete confirm sheet */}
@@ -343,6 +359,8 @@ export default function PostCard({
           },
         ]}
       />
+
+      {moderation.element}
     </View>
   );
 }

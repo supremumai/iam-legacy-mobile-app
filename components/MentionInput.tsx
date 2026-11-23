@@ -19,6 +19,8 @@ import {
   View,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { useBlocks } from '../contexts/BlocksContext';
+import { excludeBlocked } from '../lib/moderation';
 import { getInitials } from '../lib/avatar';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
@@ -71,6 +73,7 @@ export default function MentionInput({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeQuery = getActiveMentionQuery(value, cursorPos);
+  const { blockedIds, blockedKey } = useBlocks();
   const showPanel = activeQuery !== null && (suggestions.length > 0 || loadingSuggestions);
 
   useEffect(() => {
@@ -82,10 +85,11 @@ export default function MentionInput({
     debounceRef.current = setTimeout(async () => {
       setLoadingSuggestions(true);
       try {
-        let q = supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url, location')
-          .limit(8);
+        let q = excludeBlocked(
+          supabase.from('profiles').select('id, full_name, avatar_url, location'),
+          'id',
+          blockedIds,
+        ).limit(8);
         if (activeQuery.length > 0) {
           q = q.ilike('full_name', `%${activeQuery}%`);
         } else {
@@ -102,7 +106,7 @@ export default function MentionInput({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [activeQuery]);
+  }, [activeQuery, blockedKey]);
 
   const handleSelect = (suggestion: MentionSuggestion) => {
     const name = suggestion.full_name ?? 'Legacy Member';

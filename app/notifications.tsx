@@ -11,6 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
+import { excludeBlocked } from '../lib/moderation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
@@ -35,8 +37,9 @@ export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const colors = useColors();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
 
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   // Track which items were unread at open-time — stays stable after mark-as-read fires
@@ -45,6 +48,7 @@ export default function NotificationsScreen() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    if (!blocksLoaded) return;
     if (!user?.id) {
       setLoading(false);
       return;
@@ -54,12 +58,16 @@ export default function NotificationsScreen() {
 
     (async () => {
       try {
-        const { data, error: fetchError } = await supabase
-          .from('notifications')
-          .select(
-            'id, recipient_id, actor_id, type, post_id, comment_id, is_read, created_at, profiles!notifications_actor_id_fkey(id, full_name, username, avatar_url)',
-          )
-          .eq('recipient_id', user.id)
+        const { data, error: fetchError } = await excludeBlocked(
+          supabase
+            .from('notifications')
+            .select(
+              'id, recipient_id, actor_id, type, post_id, comment_id, is_read, created_at, profiles!notifications_actor_id_fkey(id, full_name, username, avatar_url)',
+            )
+            .eq('recipient_id', user.id),
+          'actor_id',
+          blockedIds,
+        )
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -73,7 +81,7 @@ export default function NotificationsScreen() {
           id: raw.id,
           recipient_id: raw.recipient_id,
           actor_id: raw.actor_id,
-          type: raw.type as 'post_like' | 'post_comment' | 'comment_reply',
+          type: raw.type as NotificationWithActor['type'],
           post_id: raw.post_id,
           comment_id: raw.comment_id ?? null,
           is_read: raw.is_read,
@@ -117,7 +125,10 @@ export default function NotificationsScreen() {
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, blocksLoaded, blockedKey]);
+
+  // Instant hide when a notification's actor has just been blocked.
+  const visibleNotifications = notifications.filter((n) => !blockedIds.has(n.actor_id));
 
   // ── Error state ────────────────────────────────────────────────────────────
   if (!loading && error) {
@@ -183,7 +194,7 @@ export default function NotificationsScreen() {
         </View>
       ) : (
         <FlatList<NotificationWithActor>
-          data={notifications}
+          data={visibleNotifications}
           keyExtractor={(item) => item.id}
           style={{ marginTop: 16 }}
           contentContainerStyle={{
@@ -214,8 +225,11 @@ export default function NotificationsScreen() {
             const actor = notification.actor;
             const initials = getInitials(actor?.full_name);
             const actorName = actor?.full_name ?? 'Legacy Member';
+            const isReport = notification.type === 'report';
             const actionPhrase =
-              notification.type === 'post_like'
+              isReport
+                ? t('moderation.notif_report')
+                : notification.type === 'post_like'
                 ? ' liked your post'
                 : notification.type === 'post_comment'
                   ? ' commented on your post'
@@ -227,7 +241,11 @@ export default function NotificationsScreen() {
             return (
               <Pressable
                 onPress={() =>
-                  router.push(`/post?id=${notification.post_id}` as any)
+                  router.push(
+                    (isReport
+                      ? '/admin/reports'
+                      : `/post?id=${notification.post_id}`) as any,
+                  )
                 }
                 style={({ pressed }) => ({
                   flexDirection: 'row',
@@ -282,7 +300,9 @@ export default function NotificationsScreen() {
                   >
                     <Ionicons
                       name={
-                        notification.type === 'post_like'
+                        isReport
+                          ? 'flag'
+                          : notification.type === 'post_like'
                           ? 'heart'
                           : notification.type === 'post_comment'
                             ? 'chatbubble'

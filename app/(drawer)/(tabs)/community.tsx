@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -13,6 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useBlocks } from '../../../contexts/BlocksContext';
+import { excludeBlocked } from '../../../lib/moderation';
 import { supabase } from '../../../lib/supabase';
 import { fetchSavedIds, toggleSave } from '../../../lib/saves';
 import { Poll, PollOption, PollWithMeta, PostWithAuthor, Topic } from '../../../types/database';
@@ -31,6 +33,8 @@ export default function CommunityScreen() {
   const router = useRouter();
   const { t } = useLanguage();
   const colors = useColors();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
+  const hasLoadedRef = useRef(false);
   const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,10 +65,13 @@ export default function CommunityScreen() {
   const COLS = 'id, user_id, content, image_url, likes_count, comments_count, created_at, updated_at, topic_id, post_type, profiles(id, full_name, username, avatar_url), topic:topics(id, slug, name, icon, sort_order)';
 
   const fetchPosts = useCallback(async () => {
+    if (!blocksLoaded) return;
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select(COLS)
+      const { data, error } = await excludeBlocked(
+        supabase.from('posts').select(COLS),
+        'user_id',
+        blockedIds,
+      )
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -178,12 +185,15 @@ export default function CommunityScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id]);
+  }, [user?.id, blocksLoaded, blockedKey]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchPosts();
-  }, [fetchPosts]);
+    // Only show the spinner on the first load; a block/unblock refetches silently.
+    if (!hasLoadedRef.current) setLoading(true);
+    fetchPosts().then(() => {
+      if (blocksLoaded) hasLoadedRef.current = true;
+    });
+  }, [fetchPosts, blocksLoaded]);
 
   // Silent refetch whenever this screen regains focus (e.g. returning from
   // post detail after a delete, or switching back from another tab/screen).
@@ -311,9 +321,12 @@ export default function CommunityScreen() {
   };
 
   // ─── Derived: filter posts by active topic ───────────────────────────────
+  // Blocked authors are hidden instantly (client-side); the refetch above also
+  // excludes them server-side.
+  const unblockedPosts = blockedIds.size > 0 ? posts.filter((p) => !blockedIds.has(p.user_id)) : posts;
   const filteredPosts = activeTopicId
-    ? posts.filter((p) => p.topic_id === activeTopicId)
-    : posts;
+    ? unblockedPosts.filter((p) => p.topic_id === activeTopicId)
+    : unblockedPosts;
 
   // ─── Header (GlobalHeader + standalone title + composer + separator + topic pills) ──
   const listHeader = (

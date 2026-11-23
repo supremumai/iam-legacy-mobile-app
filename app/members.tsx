@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
+import { excludeBlocked } from '../lib/moderation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useIsAdmin } from '../hooks/useIsAdmin';
 import { supabase } from '../lib/supabase';
@@ -30,6 +32,7 @@ export default function MembersScreen() {
   const isAdmin = useIsAdmin();
   const { t } = useLanguage();
   const colors = useColors();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
 
   const [members, setMembers] = useState<MemberListItem[]>([]);
   // Separate map for optimistic admin-status updates, keyed by profile id.
@@ -39,12 +42,17 @@ export default function MembersScreen() {
   const [searchText, setSearchText] = useState('');
 
   const fetchMembers = useCallback(async () => {
+    if (!blocksLoaded) return;
     setLoading(true);
     setError(false);
     try {
-      const { data, error: fetchError } = await supabase
-        .from('profiles')
-        .select('id, full_name, username, role, location, avatar_url, is_admin')
+      const { data, error: fetchError } = await excludeBlocked(
+        supabase
+          .from('profiles')
+          .select('id, full_name, username, role, location, avatar_url, is_admin'),
+        'id',
+        blockedIds,
+      )
         .order('created_at', { ascending: true })
         .limit(200);
 
@@ -76,7 +84,7 @@ export default function MembersScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [blocksLoaded, blockedKey]);
 
   useEffect(() => {
     fetchMembers();
@@ -152,18 +160,24 @@ export default function MembersScreen() {
   };
 
   // ── Client-side search ───────────────────────────────────────────────────────
+  // Blocked members vanish instantly (client-side); the fetch also excludes them server-side.
+  const visibleMembers = useMemo(
+    () => (blockedIds.size > 0 ? members.filter((m) => !blockedIds.has(m.id)) : members),
+    [members, blockedIds],
+  );
+
   const filtered = searchText.trim()
-    ? members.filter((m) => {
+    ? visibleMembers.filter((m) => {
         const q = searchText.toLowerCase();
         return m.full_name?.toLowerCase().includes(q) ?? false;
       })
-    : members;
+    : visibleMembers;
 
   const subtitleText = loading
     ? t('members.loading')
-    : members.length === 1
+    : visibleMembers.length === 1
     ? t('members.one_person')
-    : t('members.count_people', { count: members.length });
+    : t('members.count_people', { count: visibleMembers.length });
 
   // ── Error state ──────────────────────────────────────────────────────────────
   if (!loading && error) {
@@ -302,7 +316,7 @@ export default function MembersScreen() {
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={
             <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-              {members.length === 0 ? (
+              {visibleMembers.length === 0 ? (
                 <Text
                   style={{ fontFamily: Fonts.bodySemiBold, fontSize: 14, color: colors.textPrimary }}
                 >
