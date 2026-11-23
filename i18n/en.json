@@ -671,7 +671,9 @@
     "status_reviewed": "Reviewed",
     "status_removed": "Removed",
     "status_dismissed": "Dismissed",
-    "notif_report": " reported content"
+    "notif_report": " reported content",
+    "remove_not_deleted": "The content was not deleted. You may not have permission to remove it.",
+    "removed_status_error": "The content was deleted, but the report status could not be updated."
   },
   "auth": {
     "create_account": "Create Account",

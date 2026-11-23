@@ -136,13 +136,29 @@ export default function AdminReportsScreen() {
     setReports((prev) => prev.map((r) => (changed.has(r.id) ? { ...r, status } : r)));
   };
 
+  // A PostgrestError is a plain object, not an Error, so read its fields directly.
+  const describeError = (e: unknown): string => {
+    const x = e as { message?: string; details?: string; hint?: string; code?: string } | null;
+    const parts = [
+      x?.code ? `[${x.code}]` : '',
+      x?.message ?? (typeof e === 'string' ? e : ''),
+      x?.details ?? '',
+      x?.hint ?? '',
+    ].filter(Boolean);
+    return parts.join(' ').trim() || t('common.unknown_error');
+  };
+
+  const reportActionError = (e: unknown, headline = t('moderation.action_error')) => {
+    console.warn('[AdminReports] action failed:', e);
+    setActionError(`${headline}\n\n${describeError(e)}`);
+  };
+
   const run = async (report: ReportRow, action: () => Promise<void>) => {
     setWorkingId(report.id);
     try {
       await action();
     } catch (e) {
-      console.warn('[AdminReports] action failed:', e);
-      setActionError(t('moderation.action_error'));
+      reportActionError(e);
     } finally {
       setWorkingId(null);
     }
@@ -154,15 +170,28 @@ export default function AdminReportsScreen() {
   const handleRemove = (report: ReportRow) =>
     run(report, async () => {
       const table = report.target_type === 'post' ? 'posts' : 'post_comments';
-      // Ask for the deleted row back: RLS can make a delete succeed with zero rows,
-      // and that must never be recorded as a removal.
-      const { data, error: delError } = await supabase.from(table).delete().eq('id', report.target_id).select('id');
+
+      // 1. Delete and ask for the row back. Any database error (RLS, trigger,
+      //    FK) is thrown with its real message and nothing is recorded.
+      const { data: deleted, error: delError } = await supabase
+        .from(table)
+        .delete()
+        .eq('id', report.target_id)
+        .select('id');
       if (delError) throw delError;
-      if (!data || data.length === 0) {
-        const { data: stillThere } = await supabase.from(table).select('id').eq('id', report.target_id).maybeSingle();
-        if (stillThere) throw new Error('delete blocked');
+
+      // 2. Confirm. RETURNING proves the delete. If it came back empty, accept
+      //    "already gone" only when a successful re-read shows the row is absent.
+      if (!deleted || deleted.length === 0) {
+        const { data: stillThere, error: readError } = await supabase
+          .from(table)
+          .select('id')
+          .eq('id', report.target_id)
+          .maybeSingle();
+        if (readError) throw readError;
+        if (stillThere) throw new Error(t('moderation.remove_not_deleted'));
       }
-      await setStatus(report, 'removed', true);
+
       setPreviews((prev) => {
         const next = { ...prev };
         for (const r of reports) {
@@ -172,6 +201,14 @@ export default function AdminReportsScreen() {
         }
         return next;
       });
+
+      // 3. Only now mark the reports removed; if that fails the content is
+      //    already gone, so say exactly that.
+      try {
+        await setStatus(report, 'removed', true);
+      } catch (e) {
+        reportActionError(e, t('moderation.removed_status_error'));
+      }
     });
 
   const chip = (label: string, color: string) => (

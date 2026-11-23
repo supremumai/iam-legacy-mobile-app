@@ -671,7 +671,9 @@
     "status_reviewed": "Revisado",
     "status_removed": "Eliminado",
     "status_dismissed": "Descartado",
-    "notif_report": " reportó contenido"
+    "notif_report": " reportó contenido",
+    "remove_not_deleted": "El contenido no se eliminó. Es posible que no tengas permiso para eliminarlo.",
+    "removed_status_error": "El contenido se eliminó, pero no se pudo actualizar el estado del reporte."
   },
   "auth": {
     "create_account": "Crear cuenta",
