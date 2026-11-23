@@ -12,18 +12,22 @@
 } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { supabase } from '../../lib/supabase';
 
 type FocusedField = 'fullName' | 'email' | 'password' | 'confirmPassword' | null;
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const [focused, setFocused] = useState<FocusedField>(null);
   const [loading, setLoading] = useState(false);
@@ -39,15 +43,19 @@ export default function SignUpScreen() {
     setError('');
 
     if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
-      setError('All fields are required.');
+      setError(t('auth.all_required'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('auth.passwords_mismatch'));
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('auth.password_short'));
+      return;
+    }
+    if (!acceptedTerms) {
+      setError(t('auth.terms_required'));
       return;
     }
 
@@ -58,6 +66,7 @@ export default function SignUpScreen() {
       options: {
         data: {
           full_name: fullName.trim(),
+          terms_accepted_at: new Date().toISOString(),
         },
       },
     });
@@ -87,26 +96,25 @@ export default function SignUpScreen() {
           style={styles.flex}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
-          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Title */}
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join the Legacy community</Text>
+          <Text style={styles.title}>{t('auth.create_account')}</Text>
+          <Text style={styles.subtitle}>{t('auth.join_community')}</Text>
 
           {success ? (
             <View style={styles.successContainer}>
               <Text style={styles.successText}>
-                Check your email to confirm your account
+                {t('auth.check_email')}
               </Text>
             </View>
           ) : (
             <View style={styles.form}>
               {/* Full Name */}
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.label}>{t('auth.full_name')}</Text>
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('fullName') }]}
-                placeholder="Full Name"
+                placeholder={t('auth.full_name')}
                 placeholderTextColor={colors.textFaint}
                 value={fullName}
                 onChangeText={setFullName}
@@ -117,10 +125,10 @@ export default function SignUpScreen() {
               />
 
               {/* Email */}
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>{t('auth.email')}</Text>
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('email') }]}
-                placeholder="Email Address"
+                placeholder={t('auth.email_placeholder')}
                 placeholderTextColor={colors.textFaint}
                 value={email}
                 onChangeText={setEmail}
@@ -133,10 +141,10 @@ export default function SignUpScreen() {
               />
 
               {/* Password */}
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('auth.password')}</Text>
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('password') }]}
-                placeholder="Password"
+                placeholder={t('auth.password')}
                 placeholderTextColor={colors.textFaint}
                 value={password}
                 onChangeText={setPassword}
@@ -147,10 +155,10 @@ export default function SignUpScreen() {
               />
 
               {/* Confirm Password */}
-              <Text style={styles.label}>Confirm Password</Text>
+              <Text style={styles.label}>{t('auth.confirm_password')}</Text>
               <TextInput
                 style={[styles.input, { borderColor: fieldBorder('confirmPassword') }]}
-                placeholder="Confirm Password"
+                placeholder={t('auth.confirm_password')}
                 placeholderTextColor={colors.textFaint}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -161,20 +169,47 @@ export default function SignUpScreen() {
                 onSubmitEditing={handleSignUp}
               />
 
+              {/* Terms acceptance — required before the account can be created */}
+              <View style={styles.termsRow}>
+                <TouchableOpacity
+                  onPress={() => setAcceptedTerms((v) => !v)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: acceptedTerms }}
+                  style={[
+                    styles.checkbox,
+                    { borderColor: acceptedTerms ? colors.gold : colors.border, backgroundColor: acceptedTerms ? colors.gold : 'transparent' },
+                  ]}
+                >
+                  {acceptedTerms ? <Ionicons name="checkmark" size={16} color={colors.background} /> : null}
+                </TouchableOpacity>
+                <Text style={styles.termsText}>
+                  {t('auth.terms_prefix')}
+                  <Text style={styles.termsLink} onPress={() => router.push('/terms' as any)}>
+                    {t('auth.terms_link')}
+                  </Text>
+                  {t('auth.terms_and')}
+                  <Text style={styles.termsLink} onPress={() => router.push('/privacy' as any)}>
+                    {t('auth.privacy_link')}
+                  </Text>
+                </Text>
+              </View>
+
               {/* Error */}
               {!!error && <Text style={styles.errorText}>{error}</Text>}
 
               {/* Submit */}
               <TouchableOpacity
-                style={styles.submitButton}
+                style={[styles.submitButton, !acceptedTerms && styles.submitButtonDisabled]}
                 activeOpacity={0.85}
                 onPress={handleSignUp}
-                disabled={loading}
+                disabled={loading || !acceptedTerms}
               >
                 {loading ? (
                   <ActivityIndicator color={colors.background} />
                 ) : (
-                  <Text style={styles.submitButtonText}>Create Account</Text>
+                  <Text style={styles.submitButtonText}>{t('auth.create_account')}</Text>
                 )}
               </TouchableOpacity>
 
@@ -184,8 +219,8 @@ export default function SignUpScreen() {
                 onPress={() => router.replace('/(auth)/sign-in')}
               >
                 <Text style={styles.footerText}>
-                  Already have an account?{' '}
-                  <Text style={styles.footerLinkText}>Sign In</Text>
+                  {t('auth.have_account')}{' '}
+                  <Text style={styles.footerLinkText}>{t('auth.sign_in')}</Text>
                 </Text>
               </TouchableOpacity>
             </View>
@@ -251,6 +286,33 @@ function createStyles(colors: ReturnType<typeof useColors>) {
     fontSize: 15,
     marginBottom: 20,
   },
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderWidth: 1.5,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    marginTop: 1,
+  },
+  termsText: {
+    flex: 1,
+    fontFamily: 'Inter_400Regular',
+    fontSize: 13,
+    lineHeight: 20,
+    color: colors.textMuted,
+  },
+  termsLink: {
+    fontFamily: 'Inter_600SemiBold',
+    color: colors.gold,
+    textDecorationLine: 'underline',
+  },
   errorText: {
     fontFamily: 'Inter_400Regular',
     fontSize: 14,
@@ -264,6 +326,9 @@ function createStyles(colors: ReturnType<typeof useColors>) {
     alignItems: 'center',
     marginTop: 6,
     width: '100%',
+  },
+  submitButtonDisabled: {
+    opacity: 0.4,
   },
   submitButtonText: {
     fontFamily: 'Inter_700Bold',

@@ -1,10 +1,11 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, View, Text, Image, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Alert, ScrollView, View, Text, Image, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useBlocks } from '../contexts/BlocksContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { fetchProfileWithTopics } from '../lib/profiles';
@@ -12,6 +13,8 @@ import { ProfileWithTopics } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import LevelBadge from '../components/LevelBadge';
+import ActionSheet from '../components/ActionSheet';
+import { useModeration } from '../components/ModerationModals';
 import { fetchCompletedPlays } from '../lib/simulator';
 
 function formatCount(n: number): string {
@@ -34,6 +37,9 @@ export default function ProfileScreen() {
 
   const { t } = useLanguage();
   const colors = useColors();
+  const moderation = useModeration();
+  const { isBlocked, unblock } = useBlocks();
+  const [menuVisible, setMenuVisible] = useState(false);
 
   // ── Other-user state ──────────────────────────────────────────────────────
   const [viewedProfile, setViewedProfile] = useState<ProfileWithTopics | null>(null);
@@ -179,7 +185,16 @@ export default function ProfileScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
       >
         {/* Top bar */}
-        <View style={{ paddingTop: insets.top, paddingHorizontal: 20, paddingBottom: 8 }}>
+        <View
+          style={{
+            paddingTop: insets.top,
+            paddingHorizontal: 20,
+            paddingBottom: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <Pressable
             onPress={() => router.back()}
             hitSlop={8}
@@ -187,6 +202,11 @@ export default function ProfileScreen() {
           >
             <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
           </Pressable>
+          {!isOwnProfile && id ? (
+            <Pressable onPress={() => setMenuVisible(true)} hitSlop={8}>
+              <Ionicons name="ellipsis-horizontal" size={22} color={colors.textPrimary} />
+            </Pressable>
+          ) : null}
         </View>
 
         {/* Hero zone */}
@@ -396,6 +416,38 @@ export default function ProfileScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      {!isOwnProfile && id ? (
+        <ActionSheet
+          visible={menuVisible}
+          onClose={() => setMenuVisible(false)}
+          title={displayName}
+          actions={[
+            {
+              label: t('moderation.report'),
+              icon: 'flag-outline',
+              onPress: () => moderation.openReport({ type: 'user', id }),
+            },
+            isBlocked(id)
+              ? {
+                  label: t('moderation.unblock_user'),
+                  icon: 'checkmark-circle-outline',
+                  onPress: async () => {
+                    if (!(await unblock(id))) {
+                      Alert.alert(t('common.error_title'), t('moderation.unblock_error'));
+                    }
+                  },
+                }
+              : {
+                  label: t('moderation.block_user'),
+                  icon: 'ban-outline',
+                  destructive: true,
+                  onPress: () => moderation.openBlock({ userId: id, name: displayName }),
+                },
+          ]}
+        />
+      ) : null}
+      {moderation.element}
     </View>
   );
 }

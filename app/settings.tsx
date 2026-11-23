@@ -204,6 +204,12 @@ export default function SettingsScreen() {
               ) : undefined
             }
           />
+          <SettingsRow
+            icon="ban-outline"
+            label={t('moderation.blocked_users')}
+            onPress={() => router.push('/blocked-users' as any)}
+            colors={colors}
+          />
         </View>
 
         {/* ── NOTIFICACIONES ─────────────────────────────────────── */}
@@ -253,6 +259,12 @@ export default function SettingsScreen() {
                 icon="cloud-download-outline"
                 label={t('settings.update_status_row')}
                 onPress={() => router.push('/admin/update-status' as any)}
+                colors={colors}
+              />
+              <SettingsRow
+                icon="flag-outline"
+                label={t('moderation.reports_title')}
+                onPress={() => router.push('/admin/reports' as any)}
                 colors={colors}
               />
               <SettingsRow

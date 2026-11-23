@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -11,6 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
+import { excludeBlocked } from '../lib/moderation';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { Fonts } from '../constants/fonts';
@@ -40,18 +42,22 @@ export default function LeaderboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const colors = useColors();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
 
   const [rows, setRows] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const fetchLeaderboard = useCallback(async () => {
+    if (!blocksLoaded) return;
     setLoading(true);
     setError(false);
     try {
-      const { data, error: fetchError } = await supabase
-        .from('profiles')
-        .select('id, full_name, username, avatar_url, points')
+      const { data, error: fetchError } = await excludeBlocked(
+        supabase.from('profiles').select('id, full_name, username, avatar_url, points'),
+        'id',
+        blockedIds,
+      )
         .order('points', { ascending: false })
         .limit(100);
 
@@ -76,7 +82,12 @@ export default function LeaderboardScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [blocksLoaded, blockedKey]);
+
+  const visibleRows = useMemo(
+    () => (blockedIds.size > 0 ? rows.filter((r) => !blockedIds.has(r.id)) : rows),
+    [rows, blockedIds],
+  );
 
   useEffect(() => {
     fetchLeaderboard();
@@ -144,7 +155,7 @@ export default function LeaderboardScreen() {
         </View>
       ) : (
         <FlatList<LeaderboardRow>
-          data={rows}
+          data={visibleRows}
           keyExtractor={(item) => item.id}
           style={{ marginTop: 16 }}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 24 }}

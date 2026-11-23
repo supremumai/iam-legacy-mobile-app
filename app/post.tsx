@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
 import { supabase } from '../lib/supabase';
 import { fetchPostById, fetchPollMeta } from '../lib/posts';
 import { fetchSavedIds, toggleSave } from '../lib/saves';
@@ -29,6 +30,7 @@ export default function PostScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const { isBlocked } = useBlocks();
 
   const [post, setPost] = useState<PostWithAuthor | null>(null);
   const [pollMeta, setPollMeta] = useState<PollWithMeta | null>(null);
@@ -280,7 +282,7 @@ export default function PostScreen() {
   }
 
   // ─── Not-found state ─────────────────────────────────────────────────────
-  if (fetchError === 'not_found') {
+  if (fetchError === 'not_found' || (post && isBlocked(post.user_id))) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background }}>
         {topBar}

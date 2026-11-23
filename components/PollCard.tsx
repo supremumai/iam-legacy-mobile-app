@@ -9,6 +9,8 @@ import { Poll, PollOption, PollWithMeta, PostWithAuthor } from '../types/databas
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import ActionSheet from './ActionSheet';
+import { useModeration } from './ModerationModals';
 
 interface PollCardProps {
   post: PostWithAuthor;
@@ -42,6 +44,9 @@ export default function PollCard({
   const colors = useColors();
   const [localMeta, setLocalMeta] = useState<PollWithMeta>(pollMeta);
   const [voting, setVoting] = useState(false);
+  const [optionsVisible, setOptionsVisible] = useState(false);
+  const moderation = useModeration();
+  const isOwner = post.user_id === currentUserId;
 
   // Sync when parent refreshes the feed
   useEffect(() => {
@@ -239,6 +244,17 @@ export default function PollCard({
             {t('community.poll_badge')}
           </Text>
         </View>
+
+        {/* Kebab — report / block other members' polls */}
+        {!isOwner && (
+          <Pressable onPress={() => setOptionsVisible(true)} hitSlop={8} style={{ paddingLeft: 8 }}>
+            {({ pressed }) => (
+              <View style={{ opacity: pressed ? 0.6 : 1 }}>
+                <Ionicons name="ellipsis-horizontal" size={20} color={colors.textMuted} />
+              </View>
+            )}
+          </Pressable>
+        )}
       </View>
 
       {/* ── Poll question ── */}
@@ -393,6 +409,26 @@ export default function PollCard({
         {total_votes === 1 ? t('community.one_vote') : t('community.count_votes', { count: total_votes })}
         {formatCloses(poll.closes_at, isClosed, t)}
       </Text>
+
+      <ActionSheet
+        visible={optionsVisible}
+        onClose={() => setOptionsVisible(false)}
+        title={t('community.post_options')}
+        actions={[
+          {
+            label: t('moderation.report'),
+            icon: 'flag-outline',
+            onPress: () => moderation.openReport({ type: 'post', id: post.id }),
+          },
+          {
+            label: t('moderation.block_user'),
+            icon: 'ban-outline',
+            destructive: true,
+            onPress: () => moderation.openBlock({ userId: post.user_id, name: displayName }),
+          },
+        ]}
+      />
+      {moderation.element}
     </View>
   );
 }

@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { EducationPreviewProvider } from '../contexts/EducationPreviewContext';
+import { BlocksProvider } from '../contexts/BlocksContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,8 +40,10 @@ function RootLayoutInner({ fontsLoaded, fontError }: RootLayoutInnerProps) {
     if ((!fontsLoaded && !fontError) || authLoading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    // Legal screens must be readable before sign-up (terms acceptance links).
+    const inPublicLegal = segments[0] === 'terms' || segments[0] === 'privacy';
 
-    if (!session && !inAuthGroup) {
+    if (!session && !inAuthGroup && !inPublicLegal) {
       router.replace('/(auth)/welcome');
     } else if (session && inAuthGroup) {
       router.replace('/(drawer)/(tabs)/');
@@ -87,9 +90,11 @@ export default function RootLayout() {
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <EducationPreviewProvider>
-            <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
-          </EducationPreviewProvider>
+          <BlocksProvider>
+            <EducationPreviewProvider>
+              <RootLayoutInner fontsLoaded={fontsLoaded} fontError={fontError} />
+            </EducationPreviewProvider>
+          </BlocksProvider>
         </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>

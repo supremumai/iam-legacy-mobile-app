@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Alert, FlatList, Image, LayoutAnimation, Pressable, ScrollView, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -20,6 +20,7 @@ import { useColors } from '../../../contexts/ThemeContext';
 import GlobalHeader from '../../../components/GlobalHeader';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useBlocks } from '../../../contexts/BlocksContext';
 
 // ─── Card sub-components ───────────────────────────────────────────────────────
 // All Pressables use the SAFE static-style pattern:
@@ -560,6 +561,7 @@ export default function HomeScreen() {
   const { t } = useLanguage();
   const colors = useColors();
   const { user } = useAuth();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
 
   // Each section has independent loaded/items state
   const [events, setEvents] = useState<HomeEventCard[]>([]);
@@ -573,7 +575,7 @@ export default function HomeScreen() {
   const [savedPostIds, setSavedPostIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Three independent IIFEs — none awaits the others; all fire concurrently.
+    // Independent IIFEs — none awaits the others; all fire concurrently.
     (async () => {
       const { items } = await fetchUpcomingEvents();
       setEvents(items);
@@ -581,7 +583,18 @@ export default function HomeScreen() {
     })();
 
     (async () => {
-      const { items } = await fetchRecentPosts();
+      const items = await fetchHomeCourses();
+      setCourses(items);
+      setCoursesLoaded(true);
+    })();
+  }, [user?.id]);
+
+  // Posts refetch when the blocked set changes (server-side exclusion); the
+  // client-side filter below hides a newly blocked author instantly.
+  useEffect(() => {
+    if (!blocksLoaded) return;
+    (async () => {
+      const { items } = await fetchRecentPosts(blockedIds);
       setPosts(items);
       setPostsLoaded(true);
 
@@ -603,13 +616,12 @@ export default function HomeScreen() {
         }
       }
     })();
+  }, [user?.id, blocksLoaded, blockedKey]);
 
-    (async () => {
-      const items = await fetchHomeCourses();
-      setCourses(items);
-      setCoursesLoaded(true);
-    })();
-  }, [user?.id]);
+  const visiblePosts = useMemo(
+    () => (blockedIds.size > 0 ? posts.filter((p) => !(p.authorId && blockedIds.has(p.authorId))) : posts),
+    [posts, blockedIds],
+  );
 
   const handleToggleLike = async (post: HomePostCard) => {
     if (!user?.id) return;
@@ -708,12 +720,12 @@ export default function HomeScreen() {
         {/* SECTION 2 — From the Community */}
         <SectionTitle>{t('home.from_the_community')}</SectionTitle>
         {postsLoaded ? (
-          posts.length === 0 ? (
+          visiblePosts.length === 0 ? (
             <EmptySection message={t('home.no_posts_yet')} />
           ) : (
             <FlatList<HomePostCard>
               horizontal
-              data={posts}
+              data={visiblePosts}
               keyExtractor={(item) => item.id}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 20, alignItems: 'flex-start' }}

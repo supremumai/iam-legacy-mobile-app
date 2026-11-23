@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -10,15 +10,19 @@ import {
   View,
 } from 'react-native';
 import MentionInput, { extractMentions } from './MentionInput';
+import MentionText from './MentionText';
 import ActionSheet from './ActionSheet';
+import { useModeration } from './ModerationModals';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
 import { supabase } from '../lib/supabase';
 import { getInitials } from '../lib/avatar';
 import { formatRelativeTime } from '../lib/time';
 import { buildCommentThreads } from '../lib/comments';
 import { useLanguage } from '../contexts/LanguageContext';
 import { findFirstYouTubeVideoId } from '../lib/youtube';
+import { excludeBlocked } from '../lib/moderation';
 import { CommentWithAuthor, PostAuthor, ThreadedComment } from '../types/database';
 import { Fonts } from '../constants/fonts';
 import { useColors } from '../contexts/ThemeContext';
@@ -114,9 +118,10 @@ interface CommentRowProps {
   currentUserId: string | undefined;
   onReply: (c: CommentWithAuthor) => void;
   onDelete: (c: CommentWithAuthor) => void;
+  onOptions: (c: CommentWithAuthor) => void;
 }
 
-function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: CommentRowProps) {
+function CommentRow({ comment, isReply, currentUserId, onReply, onDelete, onOptions }: CommentRowProps) {
   const { locale } = useLanguage();
   const colors = useColors();
   const isOwner = comment.user_id === currentUserId;
@@ -156,13 +161,21 @@ function CommentRow({ comment, isReply, currentUserId, onReply, onDelete }: Comm
               {formatRelativeTime(comment.created_at, locale)}
             </Text>
           </Text>
-          {isOwner && (
+          {isOwner ? (
             <Pressable
               onPress={() => onDelete(comment)}
               hitSlop={8}
               style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
             >
               <Ionicons name="trash-outline" size={15} color={colors.textMuted} />
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => onOptions(comment)}
+              hitSlop={8}
+              style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+            >
+              <Ionicons name="ellipsis-horizontal" size={16} color={colors.textMuted} />
             </Pressable>
           )}
         </View>
@@ -213,9 +226,10 @@ interface ThreadedItemProps {
   currentUserId: string | undefined;
   onReply: (c: CommentWithAuthor) => void;
   onDelete: (c: CommentWithAuthor) => void;
+  onOptions: (c: CommentWithAuthor) => void;
 }
 
-function ThreadedItem({ thread, currentUserId, onReply, onDelete }: ThreadedItemProps) {
+function ThreadedItem({ thread, currentUserId, onReply, onDelete, onOptions }: ThreadedItemProps) {
   const colors = useColors();
   return (
     <View
@@ -231,6 +245,7 @@ function ThreadedItem({ thread, currentUserId, onReply, onDelete }: ThreadedItem
         currentUserId={currentUserId}
         onReply={onReply}
         onDelete={onDelete}
+        onOptions={onOptions}
       />
 
       {/* Replies block */}
@@ -252,6 +267,7 @@ function ThreadedItem({ thread, currentUserId, onReply, onDelete }: ThreadedItem
               currentUserId={currentUserId}
               onReply={onReply}
               onDelete={onDelete}
+              onOptions={onOptions}
             />
           ))}
         </View>
@@ -399,6 +415,11 @@ export default function CommentThread({
 }: CommentThreadProps) {
   const { user } = useAuth();
   const colors = useColors();
+  const { t } = useLanguage();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
+  const moderation = useModeration();
+  const [optionsComment, setOptionsComment] = useState<CommentWithAuthor | null>(null);
+  const loadedPostIdRef = useRef<string | null>(null);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -407,18 +428,27 @@ export default function CommentThread({
   const [pendingDeleteComment, setPendingDeleteComment] = useState<CommentWithAuthor | null>(null);
   const inputRef = useRef<TextInput>(null);
 
-  // Fetch comments on mount and whenever postId changes
+  // Fetch comments on mount, when postId changes, and when the blocked set changes
+  // (server-side exclusion means an unblock needs a refetch to bring comments back).
   useEffect(() => {
+    if (!blocksLoaded) return;
     let cancelled = false;
-    setLoading(true);
-    setComments([]);
+    if (loadedPostIdRef.current !== postId) {
+      loadedPostIdRef.current = postId;
+      setLoading(true);
+      setComments([]);
+    }
 
     (async () => {
       try {
-        const { data, error } = await supabase
-          .from('post_comments')
-          .select(COMMENT_COLS)
-          .eq('post_id', postId)
+        const { data, error } = await excludeBlocked(
+          supabase
+            .from('post_comments')
+            .select(COMMENT_COLS)
+            .eq('post_id', postId),
+          'user_id',
+          blockedIds,
+        )
           .order('created_at', { ascending: true })
           .limit(100);
 
@@ -449,7 +479,7 @@ export default function CommentThread({
     return () => {
       cancelled = true;
     };
-  }, [postId]);
+  }, [postId, blocksLoaded, blockedKey]);
 
   const handleReply = (comment: CommentWithAuthor) => {
     setReplyingTo(comment);
@@ -563,7 +593,16 @@ export default function CommentThread({
     }
   };
 
-  const threads = buildCommentThreads(comments);
+  // Instant client-side hide: blocked authors' comments, plus replies under them.
+  const visibleComments = useMemo(() => {
+    if (blockedIds.size === 0) return comments;
+    const hiddenIds = new Set(comments.filter((c) => blockedIds.has(c.user_id)).map((c) => c.id));
+    return comments.filter(
+      (c) => !blockedIds.has(c.user_id) && !(c.parent_id && hiddenIds.has(c.parent_id)),
+    );
+  }, [comments, blockedIds]);
+
+  const threads = buildCommentThreads(visibleComments);
   const canSubmit = inputText.trim().length > 0 && inputText.length <= COMMENT_MAX && !submitting;
 
   const composerProps: ComposerProps = {
@@ -621,6 +660,7 @@ export default function CommentThread({
                 currentUserId={user?.id}
                 onReply={handleReply}
                 onDelete={handleDeleteComment}
+                onOptions={setOptionsComment}
               />
             )}
           />
@@ -639,6 +679,30 @@ export default function CommentThread({
             },
           ]}
         />
+        <ActionSheet
+          visible={!!optionsComment}
+          onClose={() => setOptionsComment(null)}
+          title={t('moderation.comment_options')}
+          actions={[
+            {
+              label: t('moderation.report'),
+              icon: 'flag-outline',
+              onPress: () => optionsComment && moderation.openReport({ type: 'comment', id: optionsComment.id }),
+            },
+            {
+              label: t('moderation.block_user'),
+              icon: 'ban-outline',
+              destructive: true,
+              onPress: () =>
+                optionsComment &&
+                moderation.openBlock({
+                  userId: optionsComment.user_id,
+                  name: resolveDisplayName(optionsComment.author),
+                }),
+            },
+          ]}
+        />
+        {moderation.element}
       </View>
     );
   }
@@ -690,6 +754,7 @@ export default function CommentThread({
               currentUserId={user?.id}
               onReply={handleReply}
               onDelete={handleDeleteComment}
+              onOptions={setOptionsComment}
             />
           ))}
         </View>
@@ -713,6 +778,30 @@ export default function CommentThread({
           },
         ]}
       />
+      <ActionSheet
+        visible={!!optionsComment}
+        onClose={() => setOptionsComment(null)}
+        title={t('moderation.comment_options')}
+        actions={[
+          {
+            label: t('moderation.report'),
+            icon: 'flag-outline',
+            onPress: () => optionsComment && moderation.openReport({ type: 'comment', id: optionsComment.id }),
+          },
+          {
+            label: t('moderation.block_user'),
+            icon: 'ban-outline',
+            destructive: true,
+            onPress: () =>
+              optionsComment &&
+              moderation.openBlock({
+                userId: optionsComment.user_id,
+                name: resolveDisplayName(optionsComment.author),
+              }),
+          },
+        ]}
+      />
+      {moderation.element}
     </View>
   );
 }

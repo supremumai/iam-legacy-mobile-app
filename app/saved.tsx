@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../contexts/AuthContext';
+import { useBlocks } from '../contexts/BlocksContext';
+import { excludeBlocked } from '../lib/moderation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 import { toggleSave } from '../lib/saves';
@@ -391,6 +393,7 @@ export default function SavedScreen() {
 
   const { t } = useLanguage();
   const colors = useColors();
+  const { blockedIds, blockedKey, loaded: blocksLoaded } = useBlocks();
 
   const [events, setEvents] = useState<HomeEventCard[]>([]);
   const [posts, setPosts] = useState<HomePostCard[]>([]);
@@ -400,6 +403,7 @@ export default function SavedScreen() {
 
   // ── Fetch all saved items (bulk, no N+1) ──────────────────────────────────
   const fetchData = useCallback(async () => {
+    if (!blocksLoaded) return;
     if (!user?.id) {
       setLoading(false);
       setRefreshing(false);
@@ -437,10 +441,14 @@ export default function SavedScreen() {
               .in('id', eventIds)
           : Promise.resolve(noData),
         postIds.length > 0
-          ? supabase
-              .from('posts')
-              .select('id, content, image_url, created_at, profiles(full_name, username)')
-              .in('id', postIds)
+          ? excludeBlocked(
+              supabase
+                .from('posts')
+                .select('id, user_id, content, image_url, created_at, profiles(full_name, username)')
+                .in('id', postIds),
+              'user_id',
+              blockedIds,
+            )
           : Promise.resolve(noData),
         Promise.resolve(noData),
       ]);
@@ -449,6 +457,7 @@ export default function SavedScreen() {
       setPosts(
         (postsResult.data ?? []).map((row: any) => ({
           id: row.id,
+          authorId: row.user_id ?? null,
           content: row.content ?? '',
           image_url: row.image_url ?? null,
           created_at: row.created_at,
@@ -463,7 +472,7 @@ export default function SavedScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.id, t]);
+  }, [user?.id, t, blocksLoaded, blockedKey]);
 
   useEffect(() => {
     setLoading(true);
@@ -510,7 +519,11 @@ export default function SavedScreen() {
     }
   };
 
-  const hasAnySaved = events.length > 0 || posts.length > 0 || resources.length > 0;
+  const visiblePosts = useMemo(
+    () => (blockedIds.size > 0 ? posts.filter((p) => !(p.authorId && blockedIds.has(p.authorId))) : posts),
+    [posts, blockedIds],
+  );
+  const hasAnySaved = events.length > 0 || visiblePosts.length > 0 || resources.length > 0;
 
   // ── Shared header bar ─────────────────────────────────────────────────────
   const headerBar = (
@@ -637,12 +650,12 @@ export default function SavedScreen() {
         ) : null}
 
         {/* SECTION 2 — From the Community (hidden when empty) */}
-        {posts.length > 0 ? (
+        {visiblePosts.length > 0 ? (
           <>
             <SectionTitle>{t('home.from_the_community')}</SectionTitle>
             <FlatList<HomePostCard>
               horizontal
-              data={posts}
+              data={visiblePosts}
               keyExtractor={(item) => item.id}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 20 }}
